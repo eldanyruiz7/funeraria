@@ -212,7 +212,7 @@
             responder($response, $mysqli);
         }
         $certificadoDef = validarFormulario('s',$certificadoDef,FALSE);
-        $actaDef = validarFormulario('s',$actaDef,FALSE);
+        $actaDef 		= validarFormulario('s',$actaDef,FALSE);
         $idUsuario      = $sesion->get('id');
         $sql            = "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
         $res_noSucursal = $mysqli->query($sql);
@@ -260,14 +260,24 @@
             }
             else
             {
+				// Agregar evento en la bitácora de eventos ///////
+				$insert_id              = $mysqli->insert_id;
+				$nombreDifuntoInsert	= "$nombres $apellidop $apellidom";
+				$idUsuario 				= $sesion->get("id");
+				$ipUsuario 				= $sesion->get("ip");
+				$pantalla				= "Agregar difunto";
+				$descripcion			= "Se agregó un nuevo difunto. Nombre=$nombreDifuntoInsert, id=$insert_id al catálogo de difuntos.";
+				$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+				$mysqli					->query($sql);
+				//////////////////////////////////////////////////
                 $ds          = DIRECTORY_SEPARATOR;  //1
-                $insert_id                  = $mysqli->insert_id;
                 $storeFolder = '../images/avatars/difuntos/'.$insert_id;   //2
 
                 $targetPath = dirname( __FILE__ ) . $ds. $storeFolder . $ds;  //4
                 if (file_exists($targetPath) === FALSE)
                 {
                     mkdir($targetPath, 0777);
+					chmod($targetPath, 0777);
                 }
                 if (sizeof($arrayImagenes) > 0)
                 {
@@ -282,6 +292,11 @@
                         {
                             $resp   = imagejpeg($im, $targetFile);
                             imagedestroy($im);
+							// Agregar evento en la bitácora de eventos ///////
+							$descripcion			= "Se agregó una nueva imagen path=$targetFile al expediente del difunto=$nombreDifuntoInsert, id=$insert_id.";
+							$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+							$mysqli					->query($sql);
+							//////////////////////////////////////////////////
                         }
                         else
                         {
@@ -298,6 +313,11 @@
                          $prepare_nuevo_lugar_def ->bind_param("ssi", $nombreLugarDef, $domicilioLugarDef, $idUsuario );
                          if($prepare_nuevo_lugar_def ->execute())
                          {
+							 // Agregar evento en la bitácora de eventos ///////
+			 				$descripcion			= "Se agregó un nuevo lugar de defunción con Nombre=$nombreLugarDef, Domicilio=$domicilioLugarDef, al catálogo de lugares de defunción.";
+			 				$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+			 				$mysqli					->query($sql);
+			 				//////////////////////////////////////////////////
                              $idNuevoLugar                  = $mysqli->insert_id;
                              $sql = "UPDATE cat_difuntos
                                      SET idLugarDefuncion = ?, nombreLugarDefuncion = ?, domicilioLugarDefuncion = ?
@@ -400,7 +420,7 @@
             }
             if ($mysqli->commit())
             {
-                $response['mensaje']        = "$nombres $apellidop $apellidom";
+                $response['mensaje']        = "$nombreDifuntoInsert";
                 $response['status']         = 1;
                 responder($response, $mysqli);
             }

@@ -255,6 +255,14 @@
                     responder($response, $mysqli);
                 }
             }
+			// Agregar evento en la bitácora de eventos ///////
+			$idUsuario 				= $sesion->get("id");
+			$ipUsuario 				= $sesion->get("ip");
+			$pantalla				= "Agregar contrato";
+			$descripcion			= "Se agregó un nuevo contrato a nombre de= con id=$insert_id. No de folio=$folio al catálogo de contratos.";
+			$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+			$mysqli					->query($sql);
+			//////////////////////////////////////////////////
             if ($mysqli->commit())
             {
                 $response['mensaje']        = $insert_id;

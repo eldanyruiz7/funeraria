@@ -28,13 +28,13 @@
                 break;
             case 's':
                 if ($longitud == FALSE)
-                    $validacion = $form;
+                    $validacion = trim($form);
                 else
                 {
                     if (strlen($form) <= $longitud)
                         $validacion = FALSE;
                     else
-                        $validacion = $form;
+                        $validacion = trim($form);
                 }
                 break;
             case 'd':

@@ -101,7 +101,7 @@
 							<div class="row">
 								<div class="col-xs-11">
 									<h1>
-										<i class="fa fa-file-text" aria-hidden="true"></i> Lista de contratos activos
+										<i class="fa fa-file-text" aria-hidden="true"></i>Lista de contratos activos
 										<small>
 											<i class="ace-icon fa fa-angle-double-right"></i>
 
