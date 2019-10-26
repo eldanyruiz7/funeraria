@@ -1,4 +1,4 @@
-<?php
+<?php // Ejemplo github
 	require_once ('assets/connect/bd.php');
 	require_once ("assets/connect/sesion.class.php");
 	$sesion = new sesion();
