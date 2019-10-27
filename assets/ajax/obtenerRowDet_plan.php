@@ -128,12 +128,27 @@
             $response['status'] = 0;
             responder($response, $mysqli);
         }
+		$imagenArchivo = true;
         if (strlen($row_plan['imagen'] > 0))
         {
-
-            $im = file_get_contents("../images/avatars/planes/".$row_plan['imagen'].".jpg");
-            $imdata = base64_encode($im);
-            $imgSrc                         = "data:image/jpeg;base64,$imdata";
+			try {
+				@$im = file_get_contents("../images/avatars/planes/".$row_plan['imagen'].".jpg");
+			    if ($im === false)
+				{
+					$imagenArchivo = false;
+			    }
+			} catch (Exception $e)
+			{
+				$imagenArchivo = false;
+			}
+			if ($imagenArchivo)
+			{
+				$imdata = base64_encode($im);
+				$imgSrc                         = "data:image/jpeg;base64,$imdata";
+			}
+			else {
+				$imgSrc = "";
+			}
         }
         else
         {

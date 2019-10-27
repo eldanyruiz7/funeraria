@@ -137,8 +137,8 @@
             $response['focus'] = 'password1';
             responder($response, $mysqli);
         }
-        $password = new password;
-        $hash = $password->hash($password1);
+        $password 				= new password;
+        $hash 					= $password->hash($password1);
         //////////////////////////////////// CACHAR CHECKBOX'S PRIVILEGIOS /////////////////////////////////////////////
         $listarContratos        = 1;
         $agregarContrato        = 0;
@@ -374,6 +374,14 @@
                 responder($response, $mysqli);
             }
             $insert_id                  = $mysqli->insert_id;
+			// Agregar evento en la bitácora de eventos ///////
+			$idUsuario 					= $sesion->get("id");
+			$ipUsuario 					= $sesion->get("ip");
+			$pantalla					= "Agregar usuario";
+			$nombreInsert				= "$nombres $apellidop $apellidom";
+			$descripcion				= "Se agregó un nuevo usuario ($nombreInsert) con id=$insert_id.";
+			$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+			$mysqli						->query($sql);
             $sql = "INSERT INTO cat_permisos
                         (idUsuario, listarContratos, agregarContrato, modificarContrato, eliminarContrato,
                         listarVentas, agregarVenta, modificarVenta, eliminarVenta,

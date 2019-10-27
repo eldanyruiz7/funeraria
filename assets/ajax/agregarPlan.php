@@ -86,17 +86,25 @@
             else
             {
                 $insert_id                  = $mysqli->insert_id;
+				// Agregar evento en la bitácora de eventos ///////
+				$idUsuario 				= $sesion->get("id");
+				$ipUsuario 				= $sesion->get("ip");
+				$pantalla				= "Agregar/Modificar plan";
+				$descripcion			= "Se agregó un nuevo plan funerario ($nombres) con id=$insert_id.";
+				$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+				$mysqli					->query($sql);
+				//////////////////////////////////////////////////
                 if (strlen($imagenBinario) > 0)
                 {
                     $insert_id_left = str_pad($insert_id, 10, "0", STR_PAD_LEFT);
-                    $sql            = "UPDATE cat_productos SET imagen = '$insert_id_left' WHERE id = $insert_id LIMIT 1";
+                    $sql            = "UPDATE cat_planes SET imagen = '$insert_id_left' WHERE id = $insert_id LIMIT 1";
                     if ($mysqli     ->query($sql))
                     {
                         $imagen_d   = base64_decode($imagenBinario); // decode an image
                         $im         = imagecreatefromstring($imagen_d); // php function to create image from string
                         if ($im     !== false)
                         {
-                            $resp   = imagejpeg($im, $_SERVER['DOCUMENT_ROOT']."/funeraria/ace-master/assets/images/avatars/planes/$insert_id_left.jpg");
+                            $resp   = imagejpeg($im, $_SERVER['DOCUMENT_ROOT']."/funeraria/dev/assets/images/avatars/planes/$insert_id_left.jpg");
                             imagedestroy($im);
                         }
                     }
@@ -167,31 +175,6 @@
                         $response['status'] = 0;
                         responder($response, $mysqli);
                     }
-                    /*$sql =  "UPDATE cat_productos SET precioCompra = ? WHERE id = ? LIMIT 1";
-                    if($prepare_precio = $mysqli->prepare($sql))
-                    {
-                        if (!$prepare_precio->bind_param('ii',$precioProducto, $idProducto))
-                        {
-                            $mysqli->rollback();
-                            $response['mensaje'] = "Error al registrar precio del producto. Error en el id de producto: <b>$idProducto</b>. No se pudo guardar la información. Falló la vinculación de parámetros. Inténtalo nuevamente";
-                            $response['status'] = 0;
-                            responder($response, $mysqli);
-                        }
-                        if (!$prepare_precio->execute())
-                        {
-                            $mysqli->rollback();
-                            $response['mensaje'] = "Error al registrar el preio del producto. No se pudo guardar la información. Error en el id de producto: <b>$idProducto</b>. Falló el enlace a la base de datos. Inténtalo nuevamente";
-                            $response['status'] = 0;
-                            responder($response, $mysqli);
-                        }
-                    }
-                    else
-                    {
-                        $mysqli->rollback();
-                        $response['mensaje'] = "Error al registrar precio del producto. Error en el id de producto: <b>$idProducto</b>. No se pudo guardar la información. Falló la vinculación de parámetros. Inténtalo nuevamente";
-                        $response['status'] = 0;
-                        responder($response, $mysqli);
-                    }*/
                 }
                 if($mysqli->commit())
                 {
