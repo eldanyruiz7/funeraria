@@ -383,11 +383,16 @@
 											<div class="col-sm-8">
 												<span class="input-icon" style="width: 100%;">
 													<select class="form-control" id="selectMotivo">
-														<option value="1">Problemas económicos</option>
-														<option value="2">Desempleo</option>
-														<option value="3">No localizable</option>
-														<option value="4">Falta de interés</option>
-														<option value="5">Transferencia de contrato</option>
+														<?php
+															$sql = "SELECT id, nombre FROM cat_motivosCancelacionContratos WHERE activo = 1 ORDER BY nombre ASC";
+															$res_motivos = $mysqli->query($sql);
+															while ($row_motivos = $res_motivos->fetch_assoc())
+															{
+																$idMotivo 		= $row_motivos['id'];
+																$nombreMotivo 	= $row_motivos['nombre'];
+																echo "<option value='$idMotivo'>$nombreMotivo</option>";
+															}
+														 ?>
 													</select>
 												</span>
 											</div>

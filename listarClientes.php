@@ -200,7 +200,7 @@
 										</div>
 									</div>
 									<div class="form-group divError">
-										<label class="col-sm-3 control-label no-padding-right" for="form-field-1"> RFC (*) </label>
+										<label class="col-sm-3 control-label no-padding-right" for="form-field-1"> RFC</label>
 
 										<div class="col-sm-9">
 											<input type="text" id="inputRFCEdit" autocomplete="off" placeholder="RFC" name="inputRFCEdit" class="form-control">
