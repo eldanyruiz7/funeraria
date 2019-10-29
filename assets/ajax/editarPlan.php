@@ -274,9 +274,9 @@
         $imagenBinario = validarFormulario('s', $imagenBinario, FALSE);
         $insert_id                  = $idPlan;
         $insert_id_left = str_pad($insert_id, 10, "0", STR_PAD_LEFT);
-        if (file_exists($_SERVER['DOCUMENT_ROOT']."/funeraria/ace-master/assets/images/avatars/planes/$insert_id_left.jpg"))
+        if (file_exists($_SERVER['DOCUMENT_ROOT']."/funeraria/dev/assets/images/avatars/planes/$insert_id_left.jpg"))
         {
-            unlink($_SERVER['DOCUMENT_ROOT']."/funeraria/ace-master/assets/images/avatars/planes/$insert_id_left.jpg");
+            unlink($_SERVER['DOCUMENT_ROOT']."/funeraria/dev/assets/images/avatars/planes/$insert_id_left.jpg");
         }
         if (strlen($imagenBinario) == 0)
         {
@@ -300,14 +300,22 @@
                 if ($im     !== false)
                 {
 
-                    $resp   = imagejpeg($im, $_SERVER['DOCUMENT_ROOT']."/funeraria/ace-master/assets/images/avatars/planes/$insert_id_left.jpg");
+                    $resp   = imagejpeg($im, $_SERVER['DOCUMENT_ROOT']."/funeraria/dev/assets/images/avatars/planes/$insert_id_left.jpg");
                     imagedestroy($im);
                 }
             }
         }
+		// Agregar evento en la bitácora de eventos ///////
+		$idUsuario 				= $sesion->get("id");
+		$ipUsuario 				= $sesion->get("ip");
+		$idTicket               = $idPlan;
+		$pantalla				= "Agregar/Modificar plan";
+		$descripcion			= "Se modificó un plan funerario ($nombre) con id=$idTicket. Precio al público=$$precio";
+		$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+		$mysqli					->query($sql);
+		//////////////////////////////////////////////////
         if($mysqli->commit())
         {
-            $idTicket               = $idPlan;
             $response['status']     = 1;
             $response['mensaje']    = $nombre;
             $response['respuesta']  = "Este plan funerario se ha ctualizado correctamente.

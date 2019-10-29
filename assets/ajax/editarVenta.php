@@ -344,6 +344,13 @@
                         }
                     }
                 }
+				// Agregar evento en la bitácora de eventos ///////
+				$ipUsuario 					= $sesion->get("ip");
+				$pantalla					= "Agregar/Modificar venta";
+				$descripcion				= "Se modificó una venta con id=$idVenta.";
+				$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+				$mysqli						->query($sql);
+				//////////////////////////////////////////////////
                 if($mysqli->commit())
                 {
                     $response['mensaje']        = "Venta No. <b>$idVenta</b> ha sido MODIFICADA correctamente. <br>

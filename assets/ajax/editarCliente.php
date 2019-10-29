@@ -99,11 +99,11 @@
         $celular                        = validarFormulario('s',$celular,FALSE);
         $email                          = validarFormulario('s',$email,FALSE);
 
-        $idUsuario      = $sesion->get('id');
-        $sql            = "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
-        $res_noSucursal = $mysqli->query($sql);
-        $row_noSucursal = $res_noSucursal->fetch_assoc();
-        $idSucursal     = $row_noSucursal['idSucursal'];
+        $idUsuario      				= $sesion->get('id');
+        $sql            				= "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
+        $res_noSucursal 				= $mysqli->query($sql);
+        $row_noSucursal 				= $res_noSucursal->fetch_assoc();
+        $idSucursal     				= $row_noSucursal['idSucursal'];
 		if (strlen($rfc) > 0)
 		{
 	        $sql = "SELECT id FROM clientes WHERE rfc = '$rfc' AND activo = 1 AND idSucursal = $idSucursal AND id <> $id";
@@ -152,13 +152,13 @@
                 responder($response, $mysqli);
             }
 			// Agregar evento en la bitácora de eventos ///////
-			$idUsuario 				= $sesion->get("id");
-			$ipUsuario 				= $sesion->get("ip");
-			$nombreCliente			= "$nombres $apellidop $apellidom";
-			$pantalla				= "Agregar cliente";
-			$descripcion			= "Se modificó el cliente cliente ($nombreCliente) con id=$id del catálogo de clientes";
-			$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
-			$mysqli					->query($sql);
+			$idUsuario 					= $sesion->get("id");
+			$ipUsuario 					= $sesion->get("ip");
+			$nombreCliente				= "$nombres $apellidop $apellidom";
+			$pantalla					= "Agregar cliente";
+			$descripcion				= "Se modificó el cliente ($nombreCliente) con id=$id del catálogo de clientes";
+			$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+			$mysqli						->query($sql);
             $response['mensaje']        = "El cliete '$nombreCliente' fue modificado exitosamente";
             $response['status']         = 1;
             responder($response, $mysqli);
