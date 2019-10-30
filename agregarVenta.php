@@ -248,7 +248,7 @@
 													$precioEsteProducto = $row_det_compra['precioVenta'];
 													$cantidadEsteProducto = $row_det_compra['cantidad'];
 													$subTotalEsteProducto = $precioEsteProducto * $cantidadEsteProducto;
-													echo "	<tr class='trProductoAgregar' name='$idEsteProducto' nombre='$nombreEsteProducto' precio='$precioEsteProducto' cantidad='$cantidadEsteProducto' subTotal='$subTotalEsteProducto'>
+													echo "	<tr class='trProductoAgregar' servicio='0' name='$idEsteProducto' nombre='$nombreEsteProducto' precio='$precioEsteProducto' cantidad='$cantidadEsteProducto' subTotal='$subTotalEsteProducto'>
 				                                                <td> $idEsteProducto</td>
 				                                                <td> $nombreEsteProducto</td>
 				                                                <td class='text-right'> $<input type='number' class='text-right inputP_Compra' style='width:80px;border-style:hidden' min='1' step='1' value='$precioEsteProducto'/></td>
@@ -277,7 +277,7 @@
 													$precioEsteProducto = $row_det_compra['precioVenta'];
 													$cantidadEsteProducto = $row_det_compra['cantidad'];
 													$subTotalEsteProducto = $precioEsteProducto * $cantidadEsteProducto;
-													echo "	<tr class='trProductoAgregar' name='$idEsteProducto' nombre='$nombreEsteProducto' precio='$precioEsteProducto' cantidad='$cantidadEsteProducto' subTotal='$subTotalEsteProducto'>
+													echo "	<tr class='trProductoAgregar' name='$idEsteProducto' servicio='1' nombre='$nombreEsteProducto' precio='$precioEsteProducto' cantidad='$cantidadEsteProducto' subTotal='$subTotalEsteProducto'>
 				                                                <td> $idEsteProducto</td>
 				                                                <td> $nombreEsteProducto</td>
 				                                                <td class='text-right'> $<input type='number' class='text-right inputP_Compra' style='width:80px;border-style:hidden' min='1' step='1' value='$precioEsteProducto'/></td>

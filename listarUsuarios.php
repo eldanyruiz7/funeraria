@@ -153,10 +153,17 @@
 										</div>
 									</div>
 									<div class="form-group divError" id="divRango">
+										<label class="col-sm-4 control-label no-padding-right" for="form-field-1"> Prefijo: </label>
+
+										<div class="col-sm-8">
+											<input class="form-control" type="text" id="inputPrefijo">
+										</div>
+									</div>
+									<div class="form-group divError" id="divRango">
 										<label class="col-sm-4 control-label no-padding-right" for="form-field-1"> Lista de folios a asignar: </label>
 
 										<div class="col-sm-8">
-											<textarea placeholder="Ingresar el rango de inicio y fin, separados por un guión medio '-' y sin espacios en blanco. El no de inicio debe ser menor que el número final. Por ejemplo: 2300-2350." id="textAreaFolios" name="textAreaFolios" class="autosize-transition form-control" style="overflow: hidden visible; overflow-wrap: break-word; resize: none; height: 100.9965px; margin-left: 0px; margin-right: 34.1146px; width: 100%;"></textarea>
+											<textarea placeholder="Ingresar el rango de inicio y fin, separados por un guión medio '-' y sin espacios en blanco. El no de inicio debe ser menor que el número final. Por ejemplo: 2300-2350. Si es un único valor agregar el número sin espacios en blanco ni signos raros." id="textAreaFolios" name="textAreaFolios" class="autosize-transition form-control" style="overflow: hidden visible; overflow-wrap: break-word; resize: none; height: 100.9965px; margin-left: 0px; margin-right: 34.1146px; width: 100%;"></textarea>
 										</div>
 									</div>
 								</form>
@@ -311,18 +318,20 @@
 				}
 				return html;
 			}
-			function agregarFolios(idUsuario, listaRango)
+			function agregarFolios(idUsuario, listaRango, inputPrefijo)
 			{
 				icon = $("#btnAgregarFolios");
 				iconOriginal = icon.html();
 				icon.html(cargarSpinner+" Espera...");
 				icon.attr("disabled",true);
 				$("#textAreaFolios").attr("disabled",true);
+				$("#inputPrefijo").attr("disabled",true);
+
 				$.ajax(
 				{
 					method: "POST",
 					url:"assets/ajax/asignarFoliosCobranza.php",
-					data: {idUsuario:idUsuario,listaRango:listaRango}
+					data: {idUsuario:idUsuario,listaRango:listaRango,inputPrefijo:inputPrefijo}
 				})
 				.done(function(p)
 				{
@@ -330,6 +339,8 @@
 					if (p.status == 0)
 					{
 						$("#"+p.focus).parent().parent().addClass('has-error');
+						$("#inputPrefijo").parent().parent().addClass('has-error');;
+
 						mensaje("error",p.mensaje);
 					}
 					else
@@ -343,6 +354,8 @@
 				{
 					icon.html(iconOriginal);
 					$("#textAreaFolios").attr("disabled",false);
+					$("#inputPrefijo").attr("disabled",false);
+
 					icon.attr("disabled",false);
 					console.log(p);
 				})
@@ -374,6 +387,8 @@
 					$("#inputNombreUsuario").val(nombreUsuario);
 					$("#hiddenIdUsuario").val(idUsuario);
 					$("#textAreaFolios").val('').focus();
+					$("#inputPrefijo").val('');
+
 					$("#textAreaFoliosIndividual").val('');
 					if ($("#chkTipoFolio").prop("checked") == false)
 					{
@@ -406,7 +421,9 @@
 								{
 									idUsuario = $("#hiddenIdUsuario").val();
 									listaRango = $("#textAreaFolios").val();
-									agregarFolios(idUsuario, listaRango);
+									inputPrefijo = $("#inputPrefijo").val();
+
+									agregarFolios(idUsuario, listaRango, inputPrefijo);
 								}
 							},
 							"No" :

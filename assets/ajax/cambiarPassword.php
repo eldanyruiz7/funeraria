@@ -20,6 +20,12 @@
         $password2                      = $_POST['contrasena-nueva1'];
         $password3                      = $_POST['contrasena-nueva2'];
 
+		$idUsuario      = $sesion->get('id');
+		$sql            = "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
+		$res_noSucursal = $mysqli->query($sql);
+		$row_noSucursal = $res_noSucursal->fetch_assoc();
+		$idSucursal     = $row_noSucursal['idSucursal'];
+
         $response = array(
             "status"                    => 1
         );
@@ -78,13 +84,20 @@
             $response['focus'] = 'contrasena-nueva1';
             responder($response, $mysqli);
         }
-        $hash = $password->hash($password2);
-        $sql            = "UPDATE cat_usuarios
-                            SET cntrsn = ?
-                            WHERE id = ? LIMIT 1";
+		if ($password1 == $password2)
+        {
+            $response['mensaje'] = "La contraseña actual debe ser distinta a la nueva.";
+            $response['status'] = 0;
+            $response['focus'] = 'contrasena-nueva1';
+            responder($response, $mysqli);
+        }
+        $hash_nuevo = $password->hash($password2);
+        $sql            = " UPDATE cat_usuarios
+							SET cntrsn = ?
+							WHERE id = ? LIMIT 1";
         if($prepare     = $mysqli->prepare($sql))
         {
-            if(!$prepare->bind_param('si', $hash, $idUsuario))
+            if(!$prepare->bind_param('si', $hash_nuevo, $idUsuario))
             {
                 $mysqli->rollback();
                 $response['mensaje'] = "Error. No se pudo guardar la información. Falló el la vinculación de parámetros. Inténtalo nuevamente";
@@ -105,26 +118,33 @@
                 $response['status']         = 0;
                 responder($response, $mysqli);
             }
-
+			// Agregar evento en la bitácora de eventos ///////
+			$idUsuarioInsert 		= $sesion->get("id");
+			$ipUsuario 				= $sesion->get("ip");
+			$pantalla				= "Cambiar password";
+			$descripcion			= "Se ha cambiado la contraseña al usuario id=$idUsuario. Nuevo hash=$hash_nuevo. Hash anterior=$hash";
+			$sql					= "CALL agregarEvento($idUsuarioInsert, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+			$mysqli					->query($sql);
+			//////////////////////////////////////////////////
             if ($mysqli->commit())
             {
-                $response['mensaje']        = "";
-                $response['status']         = 1;
+                $response['mensaje']= "";
+                $response['status']	= 1;
                 responder($response, $mysqli);
             }
             else
             {
                 $mysqli->rollback();
-                $response['mensaje']        = "Error en commit, no se guardó nada, inténtalo nuevamente";
-                $response['status']         = 0;
+                $response['mensaje']= "Error en commit, no se guardó nada, inténtalo nuevamente";
+                $response['status']	= 0;
                 responder($response, $mysqli);
             }
         }
         else
         {
             $mysqli->rollback();
-            $response['mensaje']        = "Error. No se pudo guardar la información. Falló la preparación de los datos. Vuelve a intentarlo nuevamente";
-            $response['status']         = 0;
+            $response['mensaje']	= "Error. No se pudo guardar la información. Falló la preparación de los datos. Vuelve a intentarlo nuevamente";
+            $response['status']		= 0;
             responder($response, $mysqli);
         }
     }

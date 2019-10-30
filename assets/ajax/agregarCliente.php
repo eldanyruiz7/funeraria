@@ -99,7 +99,7 @@
         $row_noSucursal = $res_noSucursal->fetch_assoc();
         $idSucursal     = $row_noSucursal['idSucursal'];
         if (strlen($rfc) > 0)
-        {    
+        {
             $sql = "SELECT id FROM clientes WHERE rfc = '$rfc' AND activo = 1 AND idSucursal = $idSucursal";
             $res_rfc = $mysqli->query($sql);
             if ($res_rfc->num_rows > 0)
@@ -134,8 +134,17 @@
                 $response['status']         = 0;
                 responder($response, $mysqli);
             }
-            $insert_id                  = $mysqli->insert_id;
-            $response['mensaje']        = "$nombres $apellidop $apellidom";
+			// Agregar evento en la bitácora de eventos ///////
+			$insert_id				= $mysqli->insert_id;
+			$idUsuario 				= $sesion->get("id");
+			$ipUsuario 				= $sesion->get("ip");
+			$nombreClienteInsertado	= "$nombres $apellidop $apellidom";
+			$pantalla				= "Agregar cliente";
+			$descripcion			= "Se agregó un nuevo cliente ($nombreClienteInsertado) con id=$insert_id al catálogo de clientes";
+			$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+			$mysqli					->query($sql);
+			//////////////////////////////////////////////////
+            $response['mensaje']        = "$nombreClienteInsertado";
             $response['status']         = 1;
             responder($response, $mysqli);
         }

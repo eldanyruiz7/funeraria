@@ -531,7 +531,7 @@
 							<div class="modal-body">
 								<div class="row">
 									<div class="col-xs-12">
-										<form class="form-horizontal">
+										<form class="form-horizontal" onsubmit="return(false)">
 											<div class="form-group" style="margin-bottom:0px">
 												<label class="col-sm-4 control-label no-padding"> Nombre de la nueva causa de deceso: </label>
 												<div class="col-sm-8">

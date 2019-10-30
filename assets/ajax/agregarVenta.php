@@ -75,7 +75,8 @@
             }
             else
             {
-                $idVenta = $mysqli->insert_id;
+                $idVenta 					= $mysqli->insert_id;
+				$totalMontoVenta			= 0;
                 foreach ($arrayProductos as $esteProducto)
                 {
                     $nombreProducto         =   $esteProducto    ->nombre;
@@ -141,6 +142,7 @@
                         $response['status'] = 0;
                         responder($response, $mysqli);
                     }
+					$totalMontoVenta += $precioProducto * $cantidadProducto;
                     if ($idServicio == 0)
                     {
 
@@ -219,6 +221,13 @@
                         }
                     }
                 }
+				// Agregar evento en la bitácora de eventos ///////
+				$idUsuario 					= $sesion->get("id");
+				$ipUsuario 					= $sesion->get("ip");
+				$pantalla					= "Agregar venta";
+				$descripcion				= "Se agregó una nueva venta con id=$idVenta. Monto de venta=$$totalMontoVenta";
+				$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+				$mysqli						->query($sql);
                 if($mysqli->commit())
                 {
                     $response['mensaje']        = "Venta No. <b>$idVenta</b> ha sido creada correctamente. <br>

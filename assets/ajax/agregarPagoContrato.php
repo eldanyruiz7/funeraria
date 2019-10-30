@@ -20,6 +20,11 @@
         $response = array(
             "status"                    => 1
         );
+		$idUsuario      = $sesion->get('id');
+		$sql            = "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
+		$res_noSucursal = $mysqli->query($sql);
+		$row_noSucursal = $res_noSucursal->fetch_assoc();
+		$idSucursal     = $row_noSucursal['idSucursal'];
 
         if (!$monto = validarFormulario('i',$monto,0))
         {
@@ -49,7 +54,7 @@
             $response['focus'] = 'selectFolio';
             responder($response, $mysqli);
         }
-        $sql = "SELECT id, idUsuario_asignado
+        $sql = "SELECT id, idUsuario_asignado, folio
                 FROM folios_cobranza_asignados
                 WHERE id = $idFolio
                 AND activo = 1 AND asignado = 0 LIMIT 1";
@@ -89,10 +94,10 @@
                         (idContrato, monto, usuario_cobro, usuario_registro, formaPago, idFolio_cobranza)
                     VALUES (?,?,?,?,?,?)";
             $prepare_pago = $mysqli->prepare($sql);
-            $idFolio = $row_folio['id'];
+            $idRecibo = $row_folio['id'];
             $idUsuarioCobro = $row_folio['idUsuario_asignado'];
             if ($prepare_pago &&
-                $prepare_pago->bind_param("idiiii",$idContrato, $monto, $idUsuarioCobro, $idUsuario, $formaPago, $idFolio) &&
+                $prepare_pago->bind_param("idiiii",$idContrato, $monto, $idUsuarioCobro, $idUsuario, $formaPago, $idRecibo) &&
                 $prepare_pago->execute() &&
                 $prepare_pago->affected_rows > 0)
             {
@@ -100,10 +105,19 @@
                 $sql = "UPDATE folios_cobranza_asignados SET asignado = ? WHERE id = ? LIMIT 1";
                 $prepare_asign = $mysqli->prepare($sql);
                 if ($prepare_asign &&
-                    $prepare_asign->bind_param("ii", $insert_id, $idFolio) &&
+                    $prepare_asign->bind_param("ii", $insert_id, $idRecibo) &&
                     $prepare_asign->execute() &&
                     $prepare_asign->affected_rows > 0)
                 {
+					// Agregar evento en la bitácora de eventos ///////
+					$idUsuario 				= $sesion->get("id");
+					$ipUsuario 				= $sesion->get("ip");
+					$pantalla				= "Listar contratos";
+					$folioFisico			= $row_folio['folio'];
+					$descripcion			= "Se registró un nuevo pago($$monto) al contrato=$idContrato, folio físico=$folioFisico, id del cobrador=$idUsuarioCobro.";
+					$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+					$mysqli					->query($sql);
+					//////////////////////////////////////////////////
                     if ($contrato->saldo($mysqli) <= 0)
                     {
                         $sql = "UPDATE contratos SET enCurso = 0 WHERE id = ? LIMIT 1";
@@ -113,11 +127,15 @@
                             $prepare_curso->execute() &&
                             $prepare_curso->affected_rows > 0)
                         {
+							$descripcion			= "Contrato con id=$idContrato saldado exitosamente.";
+							$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+							$mysqli					->query($sql);
+							//////////////////////////////////////////////////
                             $mysqli->commit();
                             $code = str_pad($idContrato, 10, "0", STR_PAD_LEFT);
                             $response['mensaje'] = "Pago de <b>$$monto</b> para el contrato No. <b>$code ha</b> sido creado correctamente<br>
                                                     <h5><a target='_blank' href='assets/pdf/recibo.php?idRecibo=$insert_id' class='orange'>Imprimr recibo de este pago</a></h5>";
-                            $response['mensaje2'] = "Este contrato ha sido pagado exitosamente. Será archivado en la lista de contratos pagados<br>
+                            $response['mensaje2'] = "Este contrato ha sido saldado exitosamente. Será archivado en la lista de contratos pagados<br>
                                                     <h5><a target='_blank' href='' class='orange'>Lista de contratos a</a></h5>";
                             $response['status'] = 2;
                             responder($response, $mysqli);

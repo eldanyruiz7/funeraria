@@ -70,12 +70,28 @@
         $precio                         = number_format($row['precio'],2,".",",");
         $fechaCreacion                  = date_create($row['fechaCreacion']);
         $fechaCreacion                  = date_format($fechaCreacion, 'd/m/Y');
+		$imagenArchivo					= true;
         if (strlen($row['imagen'] > 0))
         {
 
-            $im = file_get_contents("../images/avatars/productos/".$row['imagen'].".jpg");
-            $imdata = base64_encode($im);
-            $imgSrc                         = "data:image/jpeg;base64,$imdata";
+			try {
+				@$im = file_get_contents("../images/avatars/productos/".$row['imagen'].".jpg");
+				if ($im === false)
+				{
+					$imagenArchivo = false;
+				}
+			} catch (Exception $e)
+			{
+				$imagenArchivo = false;
+			}
+			if ($imagenArchivo)
+			{
+				$imdata = base64_encode($im);
+				$imgSrc                         = "data:image/jpeg;base64,$imdata";
+			}
+			else {
+				$imgSrc = "";
+			}
         }
         else
         {
@@ -97,7 +113,7 @@
             $sql = "SELECT existencias FROM detalle_existenciasproductos WHERE idProducto = $id AND idSucursal = $idEstaSuc";
             $res_exist = $mysqli->query($sql);
             $row_exist = $res_exist->fetch_assoc();
-            $existenciasEstaSuc           = $row_exist['existencias'];
+            $existenciasEstaSuc           = $row_exist['existencias'] ? $row_exist['existencias'] : 0;
             $response['existenciasXsuc'] .= "<tr>";
             $response['existenciasXsuc'] .= "   <td>$nombreEstaSuc - $direccionEstaSuc </td>";
             $response['existenciasXsuc'] .= "   <td style='text-align:right'>$existenciasEstaSuc </td>";

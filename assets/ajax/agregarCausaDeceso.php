@@ -25,6 +25,11 @@
         $response = array(
             "status"                    => 1
         );
+		$idUsuario      = $sesion->get('id');
+		$sql            = "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
+		$res_noSucursal = $mysqli->query($sql);
+		$row_noSucursal = $res_noSucursal->fetch_assoc();
+		$idSucursal     = $row_noSucursal['idSucursal'];
 
         if (!$nombre = validarFormulario('s',$nombre,0))
         {
@@ -74,8 +79,15 @@
                     }
                     else
                     {
-                        $response['mensaje'] = "Nueva causa de deceso generada correctamente";
-                        $response['status'] = 1;
+						// Agregar evento en la bitácora de eventos
+						$idUsuario 				= $sesion->get("id");
+						$ipUsuario 				= $sesion->get("ip");
+						$pantalla				= "Agregar/Modificar difunto";
+						$descripcion			= "Se agregó una nueva causa de deceso ($nombre) al catálogo de causas de decesos";
+						$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+						$mysqli					->query($sql);
+                        $response['mensaje'] 	= "Nueva causa de deceso generada correctamente.";
+                        $response['status'] 	= 1;
                         responder($response, $mysqli);
                     }
                 }
