@@ -127,6 +127,12 @@
                         responder($response, $mysqli);
                     }
                 }
+				// Agregar evento en la bitácora de eventos ///////
+				$ipUsuario 					= $sesion->get("ip");
+				$pantalla					= "Listar compras";
+				$descripcion				= "Se ha cancelado una compra, id=$id";
+				$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+				$mysqli						->query($sql);
                 if($mysqli->commit())
                 {
                     $response['mensaje']        = "La compra No. '$id' fue cancelada exitosamente

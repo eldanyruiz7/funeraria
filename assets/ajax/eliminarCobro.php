@@ -32,7 +32,7 @@
         );
         if(!$id = validarFormulario('i', $id))
         {
-            $response['mensaje']        = "El ID del registro delcobro no es el correcto";
+            $response['mensaje']        = "El ID del registro del cobro no es el correcto";
             $response['status']         = 0;
             $response['focus']          = '';
             responder($response, $mysqli);
