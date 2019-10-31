@@ -348,6 +348,13 @@
                 $response['status'] = 0;
                 responder($response, $mysqli);
             }
+			// Agregar evento en la bitácora de eventos ///////
+			$ipUsuario 					= $sesion->get("ip");
+			$pantalla					= "Agregar/Modificar usuario";
+			$nombreInsert				= "$nombres $apellidop $apellidom";
+			$descripcion				= "Se modificó un usuario ($nombreInsert) con id=$idUsuario_m.";
+			$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+			$mysqli						->query($sql);
             $sql = "UPDATE cat_permisos
                     SET listarContratos = ?, agregarContrato = ?, modificarContrato = ?, eliminarContrato = ?,
                         listarVentas = ?, agregarVenta = ?, modificarVenta = ?, eliminarVenta = ?,

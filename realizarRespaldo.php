@@ -241,7 +241,7 @@
 					$.ajax(
 			        {
 			            method: "POST",
-			            url:"assets/ajax/enviarRespaldo.php"
+			            url:"assets/ajax/resp/enviarRespaldo.php"
 			        })
 			        .done(function(p)
 			        {

@@ -1,23 +1,23 @@
 <?php
-    require_once ('../connect/bd.php');
-    require_once ("../connect/sesion.class.php");
+    require_once ('../../connect/bd.php');
+    require_once ("../../connect/sesion.class.php");
     $sesion = new sesion();
-    require_once ("../connect/cerrarOtrasSesiones.php");
-    require_once ("../connect/usuarioLogeado.php");
-    require_once ("../php/funcionesVarias.php");
+    require_once ("../../connect/cerrarOtrasSesiones.php");
+    require_once ("../../connect/usuarioLogeado.php");
+    require_once ("../../php/funcionesVarias.php");
     use PHPMailer\PHPMailer\PHPMailer;
     use PHPMailer\PHPMailer\Exception;
-    require '../php/PHPMailer-master/src/Exception.php';
-    require '../php/PHPMailer-master/src/PHPMailer.php';
-    require '../php/PHPMailer-master/src/SMTP.php';
+    require '../../php/PHPMailer-master/src/Exception.php';
+    require '../../php/PHPMailer-master/src/PHPMailer.php';
+    require '../../php/PHPMailer-master/src/SMTP.php';
     if( logueado($idSesion,$idUsuario,$mysqli) == false || $idSesion == false)
     {
         header("Location: salir.php");
     }
     else
     {
-        require "../php/responderJSON.php";
-        require ("../php/usuario.class.php");
+        require "../../php/responderJSON.php";
+        require ("../../php/usuario.class.php");
         $usuario = new usuario($idUsuario,$mysqli);
         $emailEnviar = $usuario->email;
         if (!$usuario->tipo == 1 && !$usuario->tipo == 0)
@@ -30,14 +30,17 @@
             "status"                    => 1
         );
 
-    	$fecha = date("Ymd-His"); //Obtenemos la fecha y hora para identificar el respaldo
+    	$fecha = date("YmdHis"); //Obtenemos la fecha y hora para identificar el respaldo
 
     	// Construimos el nombre de archivo SQL Ejemplo: mibase_20170101-081120.sql
     	$salida_sql = 'Funeraria_'.$fecha.'.sql';
 
     	//Comando para genera respaldo de MySQL, enviamos las variales de conexion y el destino
         // mysqldump --opt -h $dbhost -u $dbuser -p$dbpass -v $dbname > $backup_file
-    	$dump = "mysqldump --opt -h$servidor -u$usr -p$contrasena -v $bd > $salida_sql";
+		// $dump = "mysqldump --h$db_host -u$db_user -p$db_pass --opt $db_name > $salida_sql";
+	// system($dump, $output); //Ejecutamos el comando para respaldo
+
+    	$dump = "mysqldump -h$servidor -u$usr -p$contrasena --opt $bd > $salida_sql";
     	system($dump, $output); //Ejecutamos el comando para respaldo
 
     	$zip = new ZipArchive(); //Objeto de Libreria ZipArchive
@@ -90,6 +93,17 @@
                 responder($response, $mysqli);
             } else
             {
+				$idUsuario     				= $sesion->get('id');
+		        $sql            			= "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
+		        $res_noSucursal 			= $mysqli->query($sql);
+		        $row_noSucursal 			= $res_noSucursal->fetch_assoc();
+		        $idSucursal     			= $row_noSucursal['idSucursal'];
+				// Agregar evento en la bitácora de eventos ///////
+				$ipUsuario 					= $sesion->get("ip");
+				$pantalla					= "Realizar respaldo";
+				$descripcion				= "Se ha enviado un respaldo al correo=$emailEnviar";
+				$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+				$mysqli						->query($sql);
                 $response['mensaje']        = "Respaldo enviado correctamente al correo registrado";
                 $response['status']         = 1;
                 unlink($salida_zip);

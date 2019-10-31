@@ -47,7 +47,7 @@
             responder($response, $mysqli);
         }
         $idUsuario      = $sesion->get('id');
-        $sql = "SELECT id, idSucursal, idVenta, idPlan FROM cat_difuntos WHERE id = $id AND activo = 1";
+        $sql = "SELECT id, idSucursal, idContrato, idVenta, CONCAT(nombres,' ',apellidop,' ',apellidom) AS nombreDifunto FROM cat_difuntos WHERE id = $id AND activo = 1 LIMIT 1";
         $res_compra = $mysqli->query($sql);
         if ($res_compra->num_rows == 0)
         {
@@ -57,9 +57,9 @@
             responder($response, $mysqli);
         }
         $row_difunto = $res_compra->fetch_assoc();
-        if ($row_difunto['idVenta'] != 0 || $row_difunto['idPlan'] != 0)
+        if ($row_difunto['idVenta'] != 0 || $row_difunto['idContrato'] != 0)
         {
-            $response['mensaje'] = "No se puede eliminar este registro porque ya está asociado a un plan o a una venta.";
+            $response['mensaje'] = "No se puede eliminar este registro porque ya está asociado a un contrato o a una venta.";
             $response['status'] = 0;
             $response['focus'] = '';
             responder($response, $mysqli);
@@ -112,12 +112,19 @@
                         $mysqli->rollback();
                         responder($response, $mysqli);
                     }
+					// Agregar evento en la bitácora de eventos ///////
+					$ipUsuario 					= $sesion->get("ip");
+					$nombresDifunto				= $row_difunto['nombreDifunto'];
+					$pantalla					= "Listar difuntos";
+					$descripcion				= "Se ha eliminado un difunto, id=$id, nombre=$nombresDifunto";
+					$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+					$mysqli						->query($sql);
                     if($mysqli->commit())
                     {
-                        $ds          = DIRECTORY_SEPARATOR;  //1
-                        $insert_id                  = $id;
-                        $storeFolder = '../images/avatars/difuntos/'.$insert_id;   //2
-                        $targetPath = dirname( __FILE__ ) . $ds. $storeFolder . $ds;  //4
+                        $ds          			= DIRECTORY_SEPARATOR;  //1
+                        $insert_id 				= $id;
+                        $storeFolder 			= '../images/avatars/difuntos/'.$insert_id;   //2
+                        $targetPath 			= dirname( __FILE__ ) . $ds. $storeFolder . $ds;  //4
                         borrarDirectorio($targetPath);
                         $response['mensaje']    = "Este registro ha sido eliminado correctamente";
                         $response['status']     = 1;

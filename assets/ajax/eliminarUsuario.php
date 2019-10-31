@@ -22,6 +22,11 @@
             responder($response, $mysqli);
         }
         $id                             = $_POST['idCliente'];
+		$idUsuario      				= $sesion->get('id');
+        $sql            				= "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
+        $res_noSucursal 				= $mysqli->query($sql);
+        $row_noSucursal 				= $res_noSucursal->fetch_assoc();
+        $idSucursal     				= $row_noSucursal['idSucursal'];
         $response = array(
             "status"                    => 1
         );
@@ -32,8 +37,7 @@
             $response['focus']          = '';
             responder($response, $mysqli);
         }
-        $idUsuario      = $sesion->get('id');
-        $sql = "SELECT id FROM cat_usuarios WHERE id = $id AND activo = 1";
+        $sql = "SELECT id, CONCAT(nombres,' ',apellidop,' ',apellidom) AS nombresUsuario FROM cat_usuarios WHERE id = $id AND activo = 1";
         $res_venta = $mysqli->query($sql);
         if ($res_venta->num_rows == 0)
         {
@@ -72,8 +76,13 @@
                 $mysqli->rollback();
                 responder($response, $mysqli);
             }
-            // Regresar estado de las existencias antes de la compra
-
+			// Agregar evento en la bitácora de eventos ///////
+			$nombresUsuario				= $row_venta['nombresUsuario'];
+			$ipUsuario 					= $sesion->get("ip");
+			$pantalla					= "Listar usuarios";
+			$descripcion				= "Se ha eliminado un usuario del sistema, id=$id, nombre=$nombresUsuario";
+			$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+			$mysqli						->query($sql);
             if($mysqli->commit())
             {
                 $response['mensaje']        = "Usuario eliminado exitosamente";
