@@ -219,15 +219,6 @@
         $row_noSucursal = $res_noSucursal->fetch_assoc();
         $idSucursal     = $row_noSucursal['idSucursal'];
 
-        // $sql = "SELECT id FROM clientes WHERE rfc = '$rfc' AND activo = 1 AND idSucursal = $idSucursal";
-        // $res_rfc = $mysqli->query($sql);
-        // if ($res_rfc->num_rows > 0)
-        // {
-        //     $response['mensaje'] = "No se puede guardar este nuevo registro porque ya existe un cliente en esta sucursal con el mismo RFC";
-        //     $response['status'] = 0;
-        //     $response['focus'] = 'rfc';
-        //     responder($response, $mysqli);
-        // }
         $fechaDef_sql = $fechaDef." ".$hrDef;
         $mysqli->autocommit(FALSE);
         $sql            = "INSERT INTO cat_difuntos

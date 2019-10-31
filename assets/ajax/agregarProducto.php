@@ -83,7 +83,7 @@
 				$idUsuario 				= $sesion->get("id");
 				$ipUsuario 				= $sesion->get("ip");
 				$pantalla				= "Agregar producto";
-				$descripcion			= "Se agregó un nuevo producto ($nombres) con id=$insert_id.";
+				$descripcion			= "Se agregó un nuevo producto ($nombres) con id=$insert_id, precio=$$precio";
 				$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
 				$mysqli					->query($sql);
                 if (strlen($imagenBinario) > 0)

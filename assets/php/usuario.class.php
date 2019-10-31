@@ -152,7 +152,6 @@ class usuario
             case 'eliminarDifunto':
                 $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND eliminarDifunto = 1 LIMIT 1";
                 break;
-
             case 'listarProductos':
                 $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND listarProductos = 1 LIMIT 1";
                 break;
