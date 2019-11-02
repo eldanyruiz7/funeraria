@@ -49,6 +49,7 @@ class Query
 		$this ->status = 0;
 		$this ->num_rows = 0;
 		$this ->affected_rows = 0;
+		$this ->insert_id = 0;
 		$this ->data = 0;
 		$this ->sql = $sql;
 		//prepare
@@ -70,8 +71,10 @@ class Query
 			{
 				$a_data = array();
 				if ($tipo == 'guardar' || $tipo == 'actualizar')
+				{
 					$this ->affected_rows = $prepare_select ->affected_rows;
-
+					$this ->insert_id  = $mysqli->insert_id;
+				}
 				else
 				{
 					$res_select 	= $prepare_select->get_result();
@@ -113,5 +116,9 @@ class Query
 	public function status()
 	{
 		return $this->status;
+	}
+	public function insert_id()
+	{
+		return $this->insert_id;
 	}
 }

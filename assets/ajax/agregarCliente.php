@@ -13,15 +13,17 @@
     {
         require "../php/responderJSON.php";
         require ("../php/usuario.class.php");
-        $usuario = new usuario($idUsuario,$mysqli);
+		require ("../php/query.class.php");
+        $usuario 	= new usuario($idUsuario,$mysqli);
+		$query		= new Query();
+		$response 	= array(
+            "status"    => 0 );
         $permiso = $usuario->permiso("agregarCliente",$mysqli);
         if (!$permiso)
         {
             $response['mensaje'] = "No se pudo guardar este registro. Usuario con permisos insuficientes para realizar esta acción";
-            $response['status'] = 0;
             responder($response, $mysqli);
         }
-
         $nombres                        = $_POST['nombres'];
         $apellidop                      = $_POST['apellidop'];
         $apellidom                      = $_POST['apellidom'];
@@ -34,21 +36,16 @@
         $telefono                       = $_POST['telefono'];
         $celular                        = $_POST['celular'];
         $email                          = $_POST['email'];
-        $response = array(
-            "status"                    => 1
-        );
 
         if (!$nombres = validarFormulario('s',$nombres,0))
         {
             $response['mensaje'] = "El campo Nombre no cumple con el formato esperado y no puede estar en blanco";
-            $response['status'] = 0;
             $response['focus'] = 'nombres';
             responder($response, $mysqli);
         }
         if (!$apellidop = validarFormulario('s',$apellidop,0))
         {
             $response['mensaje'] = "El campo Apellido paterno no puede estar en blanco";
-            $response['status'] = 0;
             $response['focus'] = 'apellidop';
             responder($response, $mysqli);
         }
@@ -56,28 +53,24 @@
         if (!$domicilio1 = validarFormulario('s',$domicilio1,0))
         {
             $response['mensaje'] = "El campo domicilio no puede estar en blanco";
-            $response['status'] = 0;
             $response['focus'] = 'domicilio1';
             responder($response, $mysqli);
         }
         if (!$domicilio2 = validarFormulario('s',$domicilio2,0))
         {
             $response['mensaje'] = "El campo domicilio no puede estar en blanco";
-            $response['status'] = 0;
             $response['focus'] = 'domicilio2';
             responder($response, $mysqli);
         }
         if (!$cp = validarFormulario('s',$cp,0))
         {
             $response['mensaje'] = "El campo código postal no puede estar en blanco";
-            $response['status'] = 0;
             $response['focus'] = 'cp';
             responder($response, $mysqli);
         }
         if (!$idEstado = validarFormulario('i',$idEstado))
         {
             $response['mensaje'] = "El formato del campo estado no es el correcto";
-            $response['status'] = 0;
             $response['focus'] = 'estado';
             responder($response, $mysqli);
         }
@@ -85,13 +78,12 @@
         if (!$fechaNac = validarFormulario('d',$fechaNac))
         {
             $response['mensaje'] = "Elige una fecha válida. El formato de la fecha no es el correcto.";
-            $response['status'] = 0;
             $response['focus'] = 'fechaNac';
             responder($response, $mysqli);
         }
-        $telefono = validarFormulario('s',$telefono, FALSE);
-        $celular = validarFormulario('s',$celular, FALSE);
-        $email = validarFormulario('s', $email, FALSE);
+        $telefono 		= validarFormulario('s',$telefono, FALSE);
+        $celular 		= validarFormulario('s',$celular, FALSE);
+        $email 			= validarFormulario('s', $email, FALSE);
 
         $idUsuario      = $sesion->get('id');
         $sql            = "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
@@ -100,13 +92,12 @@
         $idSucursal     = $row_noSucursal['idSucursal'];
         if (strlen($rfc) > 0)
         {
-            $sql = "SELECT id FROM clientes WHERE rfc = '$rfc' AND activo = 1 AND idSucursal = $idSucursal";
-            $res_rfc = $mysqli->query($sql);
-            if ($res_rfc->num_rows > 0)
-            {
-                $response['mensaje'] = "No se puede guardar este nuevo registro porque ya existe un cliente en esta sucursal con el mismo RFC";
-                $response['status'] = 0;
-                $response['focus'] = 'rfc';
+			$sql		= "SELECT id FROM clientes WHERE rfc = ? AND activo = 1 AND idSucursal = ?";
+			$params		= array('si',$rfc, $idSucursal);
+			if ($query 	->sentence($sql, $params) && $query->num_rows())
+			{
+                $response['mensaje']= "No se puede guardar este nuevo registro porque ya existe un cliente en esta sucursal con el mismo RFC";
+                $response['focus'] 	= 'rfc';
                 responder($response, $mysqli);
             }
         }
@@ -114,24 +105,12 @@
                                 (nombres, apellidop, apellidom, domicilio1, domicilio2, cp, idEstado, rfc, fechaNac, tel, cel, email, idSucursal, usuario)
                             VALUES
                                 (?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-        if($prepare     = $mysqli->prepare($sql))
-        {
-            if(!$prepare->bind_param('ssssssisssssii', $nombres, $apellidop, $apellidom, $domicilio1, $domicilio2, $cp, $idEstado, $rfc, $fechaNac, $telefono, $celular, $email, $idSucursal, $idUsuario))
-            {
-                $response['mensaje'] = "Error. No se pudo guardar la información. Falló el la vinculación de parámetros. Inténtalo nuevamente";
-                $response['status'] = 0;
-                responder($response, $mysqli);
-            }
-            if(!$prepare->execute())
-            {
-                $response['mensaje'] = "Error. No se pudo guardar la información. Falló el enlace a la base de datos. Inténtalo nuevamente";
-                $response['status'] = 0;
-                responder($response, $mysqli);
-            }
-            if($prepare->affected_rows == 0)
-            {
+		$params			= array('ssssssisssssii', $nombres, $apellidop, $apellidom, $domicilio1, $domicilio2, $cp, $idEstado, $rfc, $fechaNac, $telefono, $celular, $email, $idSucursal, $idUsuario);
+		if ($query 		->sentence($sql, $params))
+		{
+			if($query	->affected_rows() == 0)
+			{
                 $response['mensaje']        = "No se modificó nada, no se pudo guardar el registro, inténtalo nuevamente";
-                $response['status']         = 0;
                 responder($response, $mysqli);
             }
 			// Agregar evento en la bitácora de eventos ///////
@@ -144,14 +123,13 @@
 			$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
 			$mysqli					->query($sql);
 			//////////////////////////////////////////////////
-            $response['mensaje']        = "$nombreClienteInsertado";
-            $response['status']         = 1;
+            $response['mensaje']	= "$nombreClienteInsertado";
+            $response['status']		= 1;
             responder($response, $mysqli);
         }
         else
         {
-            $response['mensaje']        = "Error. No se pudo modificar. Falló la preparación de los datos. Vuelve a intentarlo nuevamente";
-            $response['status']         = 0;
+            $response['mensaje']	= "Error. No se pudo modificar. Falló la preparación de los datos. Vuelve a intentarlo nuevamente";
             responder($response, $mysqli);
         }
     }

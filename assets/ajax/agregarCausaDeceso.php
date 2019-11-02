@@ -15,6 +15,7 @@
 		require ("../php/usuario.class.php");
         require ("../php/query.class.php");
         $usuario 	= new usuario($idUsuario,$mysqli);
+		$query 		= new Query();
         $permiso 	= $usuario->permiso("agregarDifunto",$mysqli);
         if (!$permiso)
         {
@@ -41,7 +42,6 @@
         }
         $sql		= "SELECT nombre FROM cat_causasdecesos WHERE nombre = ? AND activo = 1";
 		$params		= array('s',$nombre);
-		$query 		= new Query();
 		if ($query 	->sentence($sql, $params))
 		{
 	        if ($query->num_rows())
