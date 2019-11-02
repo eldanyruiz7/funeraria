@@ -17,16 +17,16 @@ class Query
 	private function obtenerTipoQuery()
 	{
 		if (stripos($this ->sql, 'select') !== false) {
-	    	$tipo = "consultar";
+			$tipo = "consultar";
 		}
 		elseif (stripos($this ->sql, 'insert') !== false) {
-	    	$tipo = "guardar";
+			$tipo = "guardar";
 		}
 		elseif (stripos($this ->sql, 'update') !== false) {
-	    	$tipo = "actualizar";
+			$tipo = "actualizar";
 		}
 		else
-			$tipo = "enlazar";
+		$tipo = "enlazar";
 
 		return $tipo;
 	}
@@ -40,8 +40,8 @@ class Query
 	* $params= array("ss","string_1","string_2");
 	*
 	**/
-    public function sentence($sql, $params)
-    {
+	public function sentence($sql, $params)
+	{
 		//connect
 		global $mysqli;
 		$response = array();
@@ -59,13 +59,13 @@ class Query
 
 			$tipo = $this ->obtenerTipoQuery();
 			foreach($params as $key => $value)
-				$tmp[$key] = &$params[$key];
+			$tmp[$key] = &$params[$key];
 			call_user_func_array(array($prepare_select, 'bind_param'), $tmp);
 
 			if(!$prepare_select->execute())
 			{
 				$this ->mensaje = "No se puede $tipo la información. Error al ejecutar los parámetros";
-                return false;
+				return false;
 			}
 			else
 			{
@@ -80,7 +80,7 @@ class Query
 					$res_select 	= $prepare_select->get_result();
 					$this ->num_rows= $res_select ->num_rows;
 					while($row 		= $res_select->fetch_array(MYSQLI_ASSOC))
-						$a_data[]	=$row;
+					$a_data[]	=$row;
 					$this ->data 	= $a_data;
 				}
 				$this ->mensaje 	= "Sentencia realizada con éxito";
@@ -96,7 +96,7 @@ class Query
 		}
 
 
-    }
+	}
 	public function mensaje()
 	{
 		return $this->mensaje;
