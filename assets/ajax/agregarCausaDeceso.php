@@ -13,9 +13,16 @@ else
 {
 	require "../php/responderJSON.php";
 	require ("../php/usuario.class.php");
-	require ("../php/query.class.php");
+	// require ("../php/query.class.php");
 	$usuario 	= new usuario($idUsuario,$mysqli);
-	$query 		= new Query();
+	// $query 		= new Query();
+	// $a = $query ->table('bitacora_eventos')
+	// 			->select('*')
+	// 			->where("id",">", "2", "i")
+	// 			->and()
+	// 			->where("id", "<", "10", "i")
+	// 			->get(TRUE);
+	// var_dump($a);
 	$permiso 	= $usuario->permiso("agregarDifunto",$mysqli);
 	if (!$permiso)
 	{
