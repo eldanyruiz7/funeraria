@@ -13,16 +13,9 @@ else
 {
 	require "../php/responderJSON.php";
 	require ("../php/usuario.class.php");
-	// require ("../php/query.class.php");
+	require ("../php/query.class.php");
 	$usuario 	= new usuario($idUsuario,$mysqli);
-	// $query 		= new Query();
-	// $a = $query ->table('bitacora_eventos')
-	// 			->select('*')
-	// 			->where("id",">", "2", "i")
-	// 			->and()
-	// 			->where("id", "<", "10", "i")
-	// 			->get(TRUE);
-	// var_dump($a);
+	$query 		= new Query();
 	$permiso 	= $usuario->permiso("agregarDifunto",$mysqli);
 	if (!$permiso)
 	{
@@ -35,11 +28,11 @@ else
 		"status"                    => 1
 	);
 	$idUsuario      				= $sesion->get('id');
-	$sql            				= "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
-	$res_noSucursal 				= $mysqli->query($sql);
-	$row_noSucursal 				= $res_noSucursal->fetch_assoc();
-	$idSucursal     				= $row_noSucursal['idSucursal'];
+	$resultSuc = $query ->table('cat_usuarios')->select("idSucursal")
+						->where("id", "=", $idUsuario, "i")->limit(1)
+						->execute();
 
+	$idSucursal     				= $resultSuc[0]['idSucursal'];
 	if (!$nombre = validarFormulario('s',$nombre,0))
 	{
 		$response['mensaje'] 		= "El campo Nombre no cumple con el formato esperado y no puede estar en blanco";
@@ -47,9 +40,11 @@ else
 		$response['focus'] 			= 'inputNuevaCausaDeceso';
 		responder($response, $mysqli);
 	}
-	$sql		= "SELECT nombre FROM cat_causasdecesos WHERE nombre = ? AND activo = 1";
-	$params		= array('s',$nombre);
-	if ($query 	->sentence($sql, $params))
+	$resultDec = $query ->table('cat_causasdecesos')->select("nombre")
+						->where("nombre", "=", $nombre, "s")->and()->where("activo", "=", 1, "i")
+						->limit(1)->execute();
+
+	if ($query 	->status())
 	{
 		if ($query->num_rows())
 		{
@@ -59,9 +54,10 @@ else
 		}
 		else
 		{
-			$sql = "INSERT INTO cat_causasdecesos (nombre, usuario) VALUES (?,?)";
-			$params 	= array("si",$nombre,$idUsuario);
-			if ($query ->sentence($sql, $params) && $query ->affected_rows())
+			$query 	->table("cat_causasdecesos")
+					->insert(array("nombre" => $nombre, "usuario" => $idUsuario), "si")->execute();
+
+			if ($query ->status() && $query ->affected_rows())
 			{
 				// Agregar evento en la bitácora de eventos
 				$idUsuario 			= $sesion->get("id");

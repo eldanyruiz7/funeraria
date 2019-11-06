@@ -6,15 +6,29 @@
 *
 *
 **/
+define("FILECFG","cnn.ini");
 class Query
 {
-	private $mysqli = NULL;
+	//  Data base
+	private $host;
+	private $dataBase;
+	private $user;
+	private $pass;
+	private $timeZone;
+	// Objeto que representa la conexión actual abierta
+	private static $mysqli = NULL;
+
 	private $query = NULL;
 	private $select = NULL;
 	private $table = NULL;
 	private $fields = NULL;
 	private $params = array();
 	private $types = "";
+	private $mensaje = NULL;
+	private $status = 0;
+	private $num_rows = 0;
+	private $ffected_rows = 0;
+	private $insert_id = 0;
 	// private $types = NULL;
 	/**
 	*
@@ -22,71 +36,143 @@ class Query
 	*
 	*
 	**/
+	function __construct()
+	{
+	    $this->loadConfig();
+	}
+	private function loadConfig()
+	{
+		$FichCfg = __DIR__.DIRECTORY_SEPARATOR.FILECFG;
+		if(!file_exists($FichCfg))
+		{
+		   $this ->mensaje = "Fallo al cargar las configuraciones. No se ha localizado el archivo: $FichCfg";
+		   exit();
+		}
+		$cfg_db = parse_ini_file($FichCfg,true);
+		if(!isset($cfg_db['DataBase'])) {
+	       $this ->mensaje = "Fallo en el fichero de configuraciones. No se ha localizado la sección [DataBase]";
+	       exit();
+    	}
+		$this->host = $cfg_db['DataBase']['host'];
+	    $this->dataBase = $cfg_db['DataBase']['db'];
+	    $this->user = $cfg_db['DataBase']['user'];
+	    $this->pass = $cfg_db['DataBase']['pass'];
+		$this->timeZone = $cfg_db['DataBase']['timeZone'];
+		$this->charCode = $cfg_db['DataBase']['charCode'];
+	}
+	private function restartParam()
+	{
+		$this ->mensaje = NULL;
+		$this ->status = 0;
+		$this ->num_rows = 0;
+		$this ->affected_rows = 0;
+		$this ->insert_id = 0;
+		$this ->data = 0;
+		$this ->types = "";
+	}
 	private function conectar()
 	{
-		date_default_timezone_set('America/Mexico_City');
-	    $servidor       = 'localhost';
-	    $usr            = 'root';
-	    $contrasena     = 'FlorVenenosa9';
-	    $bd             = 'funerariadb';
+		if(!empty(self::$mysqli))
+		   return;
 
-	    $mysqli         = new mysqli($servidor , $usr , $contrasena , $bd);
-	    $mysqli->set_charset("utf8");
+		date_default_timezone_set($this ->timeZone);
+		mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+	    self::$mysqli = new mysqli($this->host, $this->user, $this->pass, $this->dataBase);
+	    self::$mysqli ->set_charset($this ->charCode);
 
-	    if($mysqli->connect_errno)
+	    if(self::$mysqli->connect_errno)
 	    {
-	        echo "Error de Base de datos\n";
-	        echo "Errno: ". $mysqli->connect_errno . "\n";
-	        echo "Error: ". $mysqli->connect_error . "\n";
-	        exit;
+			$this ->mensaje = "Fallo en la conexión. Errno: ". self::$mysqli->connect_errno ."Error: ". self::$mysqli->connect_error;
+	        exit();
 	    }
-		else {
-			$this ->mysqli = $mysqli;
-		}
 	}
+
 	public function table($tb)
 	{
-		//echo $tb;
 		$this ->table = $tb;
-		// return self::$tb;
 		return $this;
 	}
+
 	public function select($fields)
 	{
-		if ($this ->mysqli === NULL)
-		{
-			$this ->conectar();
-		}
-
+		global $params;
+		$params = array();
+		$this ->conectar();
 		$this ->query = "SELECT $fields FROM ".$this ->table;
 		return $this;
 	}
-	public function join($tableJoin, $fieldAjoin, $rule, $fieldBjoin)
+
+	public function insert($arrayValues, $ty)
+	{
+		$fieldList = "";
+		$typesList = "";
+		$cont = 1;
+		global $params;
+		$params = $arrayValues;
+		foreach ($arrayValues as $key => $value)
+		{
+			if ($cont == 1)
+			{
+				$fieldList = $key;
+				$typesList = "?";
+			}
+			else
+			{
+				$fieldList .= ", ".$key;
+				$typesList .= ", ?";
+			}
+			$cont++;
+		}
+		$this ->types = $ty;
+		$this ->query = "INSERT INTO ".$this ->table." ($fieldList) VALUES ($typesList)";
+		return $this;
+	}
+	public function update($arrayValues, $ty)
+	{
+		$fieldList = "";
+		// $typesList = "";
+		$cont = 1;
+		global $params;
+		$params = $arrayValues;
+		foreach ($arrayValues as $key => $value)
+		{
+			if ($cont == 1)
+				$fieldList = $key." = ?";
+			else
+				$fieldList .= ", ".$key." = ?";
+			$cont++;
+		}
+		$this ->types = $ty;
+		$this ->query = "UPDATE ".$this ->table." SET $fieldList";
+		return $this;
+	}
+
+	public function innerJoin($tableJoin, $fieldAjoin, $rule, $fieldBjoin)
 	{
 		$this->query .= " INNER JOIN $tableJoin ON $fieldAjoin $rule $fieldBjoin";
 
 		return $this;
 	}
+
 	public function leftJoin($tableJoin, $fieldAjoin, $rule, $fieldBjoin)
 	{
 		$this->query .= " LEFT JOIN $tableJoin ON $fieldAjoin $rule $fieldBjoin";
 		return $this;
 	}
+
 	public function rightJoin($tableJoin, $fieldAjoin, $rule, $fieldBjoin)
 	{
 		$this->query .= " RIGHT JOIN $tableJoin ON $fieldAjoin $rule $fieldBjoin";
 		return $this;
 	}
+
 	public function where($fieldAwhere, $rule, $fieldBwhere, $type)
 	{
 		if (stripos($this ->query, 'WHERE') == true)
-		{
 			$this ->query .= " $fieldAwhere $rule ?";
-		}
 		else
-		{
 			$this ->query .= " WHERE $fieldAwhere $rule ?";
-		}
+
 		$this ->types .= $type;
 		global $params;
 		$params[] = $fieldBwhere;
@@ -99,41 +185,58 @@ class Query
 	}
 	public function or()
 	{
-		$query .= " OR";
+		$this ->query .= " OR";
 		return $this;
 	}
-	public function get($debug = FALSE)
+	public function limit($limit = 1)
 	{
-		//echo $this ->query;
-		if($prepare_select = $this ->mysqli ->prepare($this ->query))
+		$this ->query .= " LIMIT $limit";
+		return $this;
+	}
+	public function orderBy($fieldOrder, $order = 'ASC')
+	{
+		$this ->query .= " ORDER BY $fieldOrder $order";
+		return $this;
+	}
+	public function execute($debug = FALSE)
+	{
+		if($prepare_select = self::$mysqli ->prepare($this ->query))
 		{
 			$tmp = array();
 
-			// $tipo = $this ->obtenerTipoQuery();
+			$tipo = $this ->obtenerTipoQuery();
 			global $params;
-			// var_dump( $params );
-			$t = $this->types;
-			array_unshift($params, $t);
-			// var_dump($params);
-			foreach($params as $key => $value)
-			$tmp[$key] = &$params[$key];
-			call_user_func_array(array($prepare_select, 'bind_param'), $tmp);
-
+			if ($this ->types)
+			{
+				$t = $this->types;
+				@array_unshift($params, $t);
+				foreach($params as $key => $value)
+				$tmp[$key] = &$params[$key];
+				@call_user_func_array(array($prepare_select, 'bind_param'), $tmp);
+			}
 			if(!$prepare_select->execute())
 			{
-				$this ->mensaje = "No se puede consultar la información. Error al ejecutar los parámetros";
+				$this ->mensaje = "No se puede ejecutar la sentencia. Error al ejecutar los parámetros";
 				if ($debug)
 					$this ->mensaje .= "<br>$query";
 				return false;
 			}
 			else
 			{
-				$a_data = array();
-				$res_select 	= $prepare_select->get_result();
-				$this ->num_rows= $res_select ->num_rows;
-				while($row 		= $res_select->fetch_array(MYSQLI_ASSOC))
-				$a_data[]	=$row;
-				$this ->data 	= $a_data;
+				$this ->restartParam();
+				if ($tipo == 'guardar' || $tipo == 'actualizar')
+				{
+					$this ->affected_rows = $prepare_select ->affected_rows;
+					$this ->insert_id  = self::$mysqli->insert_id;
+				}
+				elseif($tipo == 'consultar')
+				{
+					$a_data = array();
+					$res_select 	= $prepare_select->get_result();
+					$this ->num_rows= $res_select ->num_rows;
+					$a_data = $res_select ->fetch_all(MYSQLI_ASSOC);
+					$this ->data 	= $a_data;
+				}
 				$this ->mensaje 	= "Sentencia realizada con éxito";
 				if ($debug)
 					$this ->mensaje .= "<br>".$this ->query;
@@ -144,7 +247,7 @@ class Query
 		}
 		else
 		{
-			$this ->mensaje 		= "No se puede consultar la información. Error al preparar los parámetros";
+			$this ->mensaje 		= "No se puede ejecutar la sentencia. Error al preparar los parámetros";
 			if ($debug)
 				return $this ->mensaje .= "<br>".$this->query;
 			return false;
@@ -152,13 +255,13 @@ class Query
 	}
 	private function obtenerTipoQuery()
 	{
-		if (stripos($this ->sql, 'select') !== false) {
+		if (stripos($this ->query, 'select') !== false) {
 			$tipo = "consultar";
 		}
-		elseif (stripos($this ->sql, 'insert') !== false) {
+		elseif (stripos($this ->query, 'insert') !== false) {
 			$tipo = "guardar";
 		}
-		elseif (stripos($this ->sql, 'update') !== false) {
+		elseif (stripos($this ->query, 'update') !== false) {
 			$tipo = "actualizar";
 		}
 		else
@@ -166,72 +269,7 @@ class Query
 
 		return $tipo;
 	}
-	/**
-	*
-	*
-	* @var string String con la consulta SQL
-	* @var array Array con parámetros, tipos y variables. Ejem: ("is","id, nombre")
-	*
-	*
-	* $params= array("ss","string_1","string_2");
-	*
-	**/
 
-	public function sentence($sql, $params)
-	{
-		//connect
-		global $mysqli;
-		$response = array();
-		$this ->mensaje = NULL;
-		$this ->status = 0;
-		$this ->num_rows = 0;
-		$this ->affected_rows = 0;
-		$this ->insert_id = 0;
-		$this ->data = 0;
-		$this ->sql = $sql;
-		//prepare
-		if($prepare_select = $mysqli->prepare($sql))
-		{
-			$tmp = array();
-
-			$tipo = $this ->obtenerTipoQuery();
-			foreach($params as $key => $value)
-			$tmp[$key] = &$params[$key];
-			call_user_func_array(array($prepare_select, 'bind_param'), $tmp);
-
-			if(!$prepare_select->execute())
-			{
-				$this ->mensaje = "No se puede $tipo la información. Error al ejecutar los parámetros";
-				return false;
-			}
-			else
-			{
-				$a_data = array();
-				if ($tipo == 'guardar' || $tipo == 'actualizar')
-				{
-					$this ->affected_rows = $prepare_select ->affected_rows;
-					$this ->insert_id  = $mysqli->insert_id;
-				}
-				else
-				{
-					$res_select 	= $prepare_select->get_result();
-					$this ->num_rows= $res_select ->num_rows;
-					while($row 		= $res_select->fetch_array(MYSQLI_ASSOC))
-					$a_data[]	=$row;
-					$this ->data 	= $a_data;
-				}
-				$this ->mensaje 	= "Sentencia realizada con éxito";
-				$this ->status 		= 1;
-				$prepare_select 	->close();
-				return true;
-			}
-		}
-		else
-		{
-			$this ->mensaje 		= "No se puede $tipo la información. Error al preparar los parámetros";
-			return false;
-		}
-	}
 	public function mensaje()
 	{
 		return $this->mensaje;
@@ -255,5 +293,9 @@ class Query
 	public function insert_id()
 	{
 		return $this->insert_id;
+	}
+	public function lastStatement()
+	{
+		return $this->query;
 	}
 }
