@@ -164,6 +164,9 @@
         $modificarUsuario       = 0;
         $eliminarUsuario        = 0;
 
+		$listarVariablesSistema = 0;
+        $modificarVariablesSistema= 0;
+
         if (isset($_POST['agregarContrato']))
         {
             $agregarContrato = 1;
@@ -320,6 +323,14 @@
                 }
             }
         }
+		if (isset($_POST['listarVariablesSistema']))
+        {
+            $listarVariablesSistema = 1;
+			if (isset($_POST['modificarVariablesSistema']))
+			{
+			    $modificarVariablesSistema = 1;
+			}
+        }
         //////////////////////////////////////////////////////////////////////////////////////////////////
         $idUsuario      = $sesion->get('id');
         $sql            = "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
@@ -365,11 +376,12 @@
                         listarServicios = ?, agregarServicio = ?, modificarServicio = ?, eliminarServicio = ?,
                         listarCompras = ?, agregarCompra = ?, modificarCompra = ?, eliminarCompra = ?,
                         listarPlanes = ?, agregarPlan = ?, modificarPlan = ?, eliminarPlan = ?,
-                        listarUsuarios = ?, agregarUsuario = ?, modificarUsuario = ?, eliminarUsuario = ?
+                        listarUsuarios = ?, agregarUsuario = ?, modificarUsuario = ?, eliminarUsuario = ?,
+						listarVariablesSistema = ?, modificarVariablesSistema = ?
                     WHERE idUsuario = ? LIMIT 1";
             if($prepare_perm     = $mysqli->prepare($sql))
             {
-                if(!$prepare_perm->bind_param('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',
+                if(!$prepare_perm->bind_param('iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii',
                         $listarContratos, $agregarContrato, $modificarContrato, $eliminarContrato,
                         $listarVentas, $agregarVenta, $modificarVenta, $eliminarVenta,
                         $listarProveedores, $agregarProveedor, $modificarProveedor, $eliminarProveedor,
@@ -379,7 +391,8 @@
                         $listarServicios, $agregarServicio, $modificarServicio, $eliminarServicio,
                         $listarCompras, $agregarCompra, $modificarCompra, $eliminarCompra,
                         $listarPlanes, $agregarPlan, $modificarPlan, $eliminarPlan,
-                        $listarUsuarios, $agregarUsuario, $modificarUsuario, $eliminarUsuario, $idUsuario_m))
+                        $listarUsuarios, $agregarUsuario, $modificarUsuario, $eliminarUsuario,
+						$listarVariablesSistema, $modificarVariablesSistema, $idUsuario_m))
                 {
                     $mysqli->rollback();
                     $response['mensaje'] = "Error. No se pudo modificar la información del detalle del usuario. Falló el la vinculación de parámetros. Inténtalo nuevamente";

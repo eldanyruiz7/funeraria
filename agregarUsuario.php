@@ -17,6 +17,8 @@
 		{
 			header("Location: listarUsuarios.php");
 		}
+		require_once ("assets/php/query.class.php");
+		$query = new Query();
 		$modificar = FALSE;
 		$usuarioActivo = TRUE;
 
@@ -161,16 +163,13 @@
 											<div class="col-sm-8">
 												<select id="estado" name="estado" class="col-xs-5">
 													<?php
-															$sql = "SELECT * FROM cat_estados WHERE activo = 1";
-															$res_estado = $mysqli->query($sql);
-															while ($row_estado = $res_estado->fetch_assoc())
-															{
-																if ($modificar && $row_estado['id'] == $usuario_m->idEstado)
-																{
-																	echo "<option selected value=".$row_estado['id'].">".$row_estado['estado']."</option>";
+															$rowEstados = $query->table("cat_estados")->select("*")->where("activo", "=", 1, "i")->execute();
+															foreach ($rowEstados as $rowEstado) {
+																if ($modificar && $rowEstado['id'] == $usuario_m->idEstado) {
+																	echo "<option selected value=".$rowEstado['id'].">".$rowEstado['estado']."</option>";
 																	continue;
 																}
-																	echo "<option value=".$row_estado['id'].">".$row_estado['estado']."</option>";
+																	echo "<option value=".$rowEstado['id'].">".$rowEstado['estado']."</option>";
 															}
 													 ?>
 												 </select>
@@ -572,6 +571,29 @@
 																	<input <?php echo $modificar && $usuario_m->permiso("eliminarUsuario",$mysqli) ? 'checked' : '';?> tipo="e" id="eliminarUsuario" name="eliminarUsuario" class="ace ace-switch ace-switch-6" type="checkbox">
 																	<span class="lbl"></span>
 																</label>
+															</td>
+														</tr>
+														<tr>
+															<td>
+																<i class="fa fa-cogs" aria-hidden="true"></i> Variables del sistema
+															</td>
+															<td class="text-center">
+																<label>
+																	<input <?php echo $modificar && $usuario_m->permiso("listarVariablesSistema",$mysqli) ? 'checked' : '';?> tipo="l" id="listarVariablesSistema" name="listarVariablesSistema" class="ace ace-switch ace-switch-6" type="checkbox">
+																	<span class="lbl"></span>
+																</label>
+															</td>
+															<td class="text-center">
+
+															</td>
+															<td class="text-center">
+																<label>
+																	<input <?php echo $modificar && $usuario_m->permiso("modificarVariablesSistema",$mysqli) ? 'checked' : '';?> tipo="m" id="modificarVariablesSistema" name="modificarVariablesSistema" class="ace ace-switch ace-switch-6" type="checkbox">
+																	<span class="lbl"></span>
+																</label>
+															</td>
+															<td class="text-center">
+
 															</td>
 														</tr>
 													</tbody>
