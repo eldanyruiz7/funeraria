@@ -38,7 +38,7 @@
             // die;
 
         }
-        $sql = "SELECT id, nombre FROM cat_causasdecesos WHERE activo = ?";
+        $sql = "SELECT id, nombre FROM cat_causasdecesos WHERE activo = ? ORDER BY nombre ASC";
         if ($prepare = $mysqli->prepare($sql))
         {
             $activo = 1;
