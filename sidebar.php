@@ -1,4 +1,4 @@
-<div id="sidebar" class="sidebar                  responsive                    ace-save-state sidebar-fixed">
+<div id="sidebar" class="sidebar                  responsive                    ace-save-state">
     <script type="text/javascript">
         try{ace.settings.loadState('sidebar')}catch(e){}
     </script>
@@ -436,6 +436,31 @@ $usuario_side = new usuario($sesion->get("id"),$mysqli);
             </ul>
         </li>
     <?php } ?>
+	<?php if($usuario_side->permiso("listarVariablesSistema",$mysqli)){?>
+
+	<li class="">
+		<a href="#" class="dropdown-toggle">
+			<i class="menu-icon fa fa-cogs" aria-hidden="true"></i>
+			<span class="menu-text"> Configuraci&oacute;n </span>
+
+			<b class="arrow fa fa-angle-down"></b>
+		</a>
+
+		<b class="arrow"></b>
+
+		<ul class="submenu">
+			<li class="">
+				<a href="variablesSistema.php">
+					<i class="menu-icon fa fa-caret-right"></i>
+					Variables del sistema
+				</a>
+
+				<b class="arrow"></b>
+			</li>
+		</ul>
+	</li>
+<?php } ?>
+
         <!-- <li class="">
             <a href="#" class="dropdown-toggle">
                 <i class="fa fa-cog menu-icon" aria-hidden="true"></i>

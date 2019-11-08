@@ -38,7 +38,8 @@ class usuario
             $this ->apellidom                  = $apellidom;
             $this ->nombres                 = $nombre." ".$apellidop." ".$apellidom;
             $this ->direccion1              = $direccion1;
-            $this ->direccion2              = $direccion2;
+			$this ->direccion2              = $direccion2;
+            $this ->idEstado              	= $idEstado;
             $this ->nombreEstado            = $nombreEstado;
             $this ->nickName                = $nickName;
             $this ->telefono                = $telefono;
@@ -87,9 +88,8 @@ class usuario
     public function permiso($string,$mysqli)
     {
         if ($this->id == 1)
-        {
             return TRUE;
-        }
+
         switch ($string)
         {
             case 'listarContratos':
@@ -211,6 +211,12 @@ class usuario
                 break;
             case 'eliminarUsuario':
                 $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND eliminarUsuario = 1 LIMIT 1";
+                break;
+			case 'listarVariablesSistema':
+                $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND listarVariablesSistema = 1 LIMIT 1";
+                break;
+			case 'modificarVariablesSistema':
+                $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND modificarVariablesSistema = 1 LIMIT 1";
                 break;
             default:
                 return FALSE;
