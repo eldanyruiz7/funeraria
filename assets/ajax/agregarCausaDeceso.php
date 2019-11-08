@@ -40,6 +40,7 @@ else
 		$response['focus'] 			= 'inputNuevaCausaDeceso';
 		responder($response, $mysqli);
 	}
+	$query ->autocommit(FALSE);
 	$resultDec = $query ->table('cat_causasdecesos')->select("nombre")
 						->where("nombre", "=", $nombre, "s")->and()->where("activo", "=", 1, "i")
 						->limit(1)->execute();
@@ -57,7 +58,7 @@ else
 			$query 	->table("cat_causasdecesos")
 					->insert(array("nombre" => $nombre, "usuario" => $idUsuario), "si")->execute();
 
-			if ($query ->status() && $query ->affected_rows())
+			if ($query ->status() && $query ->affected_rows() && $query ->commit())
 			{
 				// Agregar evento en la bitácora de eventos
 				$idUsuario 			= $sesion->get("id");
@@ -72,6 +73,7 @@ else
 			}
 			else
 			{
+				$query ->rollback();
 				$response['mensaje']= $query ->mensaje();
 				$response['status']	= 0;
 				responder($response, $mysqli);
@@ -80,6 +82,7 @@ else
 	}
 	else
 	{
+		$query ->rollback();
 		$response['mensaje'] 		= $query ->mensaje();
 		$response['status'] 		= 0;
 		responder($response, $mysqli);
