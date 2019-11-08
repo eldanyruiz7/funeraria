@@ -298,4 +298,19 @@ class Query
 	{
 		return $this->query;
 	}
+
+	// Soporte para transacciones
+	public function autocommit($bool)
+	{
+		self::$mysqli -> autocommit($bool);
+	}
+	public function commit()
+	{
+		$resp = self::$mysqli -> commit();
+		return $resp;
+	}
+	public function rollback()
+	{
+		self::$mysqli -> rollback();
+	}
 }
