@@ -17,6 +17,8 @@
 		{
 			header("Location: listarCompras.php");
 		}
+		require_once ("assets/php/query.class.php");
+		$query = new Query();
 		$modificar = FALSE;
 		$compraActiva = TRUE;
 		if (isset($_GET['idCompra']))
@@ -24,32 +26,25 @@
 			if (is_numeric($_GET['idCompra']))
 			{
 				$idCompra = $_GET['idCompra'];
-				$sql = "SELECT
-							id 				AS idCompra,
-							activo			AS activo,
-							idProveedor		AS idProveedor
-						FROM compras
-						WHERE id = ? LIMIT 1";
-				if ($res = $mysqli->prepare($sql))
+				$resCompra = $query	->table("compras")->select("id AS idCompra, activo AS activo, idProveedor AS idProveedor")
+									->where("id", "=", $idCompra, "i") ->limit(1) ->execute();
+
+				if ($query->status() && $query->num_rows())
 				{
-				    $res->bind_param("i", $idCompra);
-				    $res->execute();
-					$res->store_result();
-				    if ($res->num_rows == 1)
+					$idCompra_ = $resCompra[0]['idCompra'];
+					$activo = $resCompra[0]['activo'];
+					$idProveedor_ = $resCompra[0]['idProveedor'];
+					$modificar = TRUE;
+					$compraActiva = ($activo == 1) ? TRUE : FALSE;
+					$res_detalle = $query 	->table("detalle_compras") ->select("precioCompra, cantidad")
+											->where("idCompra", "=", $idCompra_, "i") ->and()
+											->where("activo", "=", 1, "i")->execute();
+	                $totalCompra = 0;
+					foreach ($res_detalle as $row_detalle)
 					{
-						$modificar = TRUE;
-						$res->bind_result($idCompra_, $activo, $idProveedor_);
-						$res->fetch();
-						$compraActiva = ($activo == 1) ? TRUE : FALSE;
-		                $sql = "SELECT precioCompra, cantidad FROM detalle_compras WHERE idCompra = $idCompra_ AND activo = 1";
-		                $res_detalle = $mysqli->query($sql);
-		                $totalCompra = 0;
-		                while ($row_detalle = $res_detalle->fetch_assoc())
-		                {
-		                    $precioCompra = $row_detalle['precioCompra'];
-		                    $cantidad = $row_detalle['cantidad'];
-		                    $totalCompra += $precioCompra * $cantidad;
-		                }
+						$precioCompra = $row_detalle['precioCompra'];
+	                    $cantidad = $row_detalle['cantidad'];
+	                    $totalCompra += $precioCompra * $cantidad;
 					}
 				}
 			}
@@ -198,12 +193,11 @@
 												<select class="chosen-select form-control" id="proveedor" data-placeholder="Proveedor...">
 													<option value="">  </option>
 										<?php
-											$sql 				= "SELECT id, rsocial FROM cat_proveedores WHERE activo = 1";
-											$res_prov 			= $mysqli->query($sql);
-											while ($row_prov 	= $res_prov->fetch_assoc())
+											$res_prov = $query->table("cat_proveedores")->select("id, rsocial")->where("activo", "=", 1, "i")->execute();
+											foreach ($res_prov as $row_prov)
 											{
-												$idProv 		= $row_prov['id'];
-												$nombreProv 	= $row_prov['rsocial'];
+												$idProv = $row_prov['id'];
+												$nombreProv = $row_prov['rsocial'];
 												if ($modificar && $idProv == $idProveedor_)
 													echo "<option selected value='$idProv'>$nombreProv</option>";
 												else
@@ -231,17 +225,13 @@
 										<?php
 											if ($modificar)
 											{
-												$sql = "SELECT
-										                    cat_productos.id                    AS idProducto,
-										                    cat_productos.nombre                AS nombreProducto,
-															detalle_compras.precioCompra		AS precioCompra,
-															detalle_compras.cantidad			AS cantidad
-										                FROM cat_productos
-														INNER JOIN detalle_compras
-														ON cat_productos.id = detalle_compras.idProducto
-										                WHERE detalle_compras.idCompra = $idCompra_ AND detalle_compras.activo = 1";
-												$res_det_compra = $mysqli->query($sql);
-												while ($row_det_compra = $res_det_compra->fetch_assoc())
+												$res_det_compra = $query->table("cat_productos AS cp")->select("cp.id 			AS idProducto,
+																												cp.nombre 		AS nombreProducto,
+																												dc.precioCompra AS precioCompra,
+																												dc.cantidad 	AS cantidad")
+																		 ->innerJoin("detalle_compras AS dc", "cp.id", "dc.idProducto")->where("dc.idCompra", "=", $idCompra_, "i")
+																		 ->and()->where("dc.activo", "=", 1, "i")->execute();
+												foreach ($res_det_compra as $row_det_compra)
 												{
 													$idEsteProducto = $row_det_compra['idProducto'];
 													$nombreEsteProducto = $row_det_compra['nombreProducto'];
@@ -249,16 +239,15 @@
 													$cantidadEsteProducto = $row_det_compra['cantidad'];
 													$subTotalEsteProducto = $precioEsteProducto * $cantidadEsteProducto;
 													echo "	<tr class='trProductoAgregar' name='$idEsteProducto' nombre='$nombreEsteProducto' precio='$precioEsteProducto' cantidad='$cantidadEsteProducto' subTotal='$subTotalEsteProducto'>
-				                                                <td> $idEsteProducto</td>
-				                                                <td> $nombreEsteProducto</td>
-				                                                <td class='text-right'> $<input type='number' class='text-right inputP_Compra' style='width:80px;border-style:hidden' min='1' step='1' value='$precioEsteProducto'/></td>
-				                                                <td class='text-right'>
-				                                                    <input type='number' class='text-right inputCantidad' min='1' value='$cantidadEsteProducto' style='width:80px;border-style:hidden'>
-				                                                </td>
-				                                                <td class='text-right'> $<span class='spanSubTotal'>".$subTotalEsteProducto."</span></td>
-
-				                                                <td class='text-center pointer tdEliminarProd' data-rel='tooltip' title='Quitar de esta lista' idProd='$idEsteProducto'> <i class='fa fa-times red bigger-160' aria-hidden='true'></i></td>
-				                                            </tr>";
+																<td> $idEsteProducto</td>
+																<td> $nombreEsteProducto</td>
+																<td class='text-right'> $<input type='number' class='text-right inputP_Compra' style='width:80px;border-style:hidden' min='1' step='1' value='$precioEsteProducto'/></td>
+																<td class='text-right'>
+																	<input type='number' class='text-right inputCantidad' min='1' value='$cantidadEsteProducto' style='width:80px;border-style:hidden'>
+																</td>
+																<td class='text-right'> $<span class='spanSubTotal'>".$subTotalEsteProducto."</span></td>
+																<td class='text-center pointer tdEliminarProd' data-rel='tooltip' title='Quitar de esta lista' idProd='$idEsteProducto'> <i class='fa fa-times red bigger-160' aria-hidden='true'></i></td>
+															</tr>";
 												}
 											}
 											else
@@ -656,15 +645,7 @@
 			} );
 			jQuery(function($) {
 
-
-				//select/deselect a row when the checkbox is checked/unchecked
-				//And for the first simple table, which doesn't have TableTools or dataTables
-				//select/deselect all rows according to table header checkbox
-
-				/********************************/
-				//add tooltip for small view action buttons in dropdown menu
 				$('[data-rel="tooltip"]').tooltip({placement: tooltip_placement});
-
 				//tooltip placement on right or left
 				function tooltip_placement(context, source) {
 					var $source = $(source);
