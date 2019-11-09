@@ -19,6 +19,7 @@ class Query
 	private static $mysqli = NULL;
 
 	private $query = NULL;
+	private $queryFields = NULL;
 	private $select = NULL;
 	private $table = NULL;
 	private $fields = NULL;
@@ -253,6 +254,133 @@ class Query
 			return false;
 		}
 	}
+	//////////////////////// MIGRATIONS ///////////////////////
+	public function createTable($table, $replace = TRUE)
+	{
+		if ($replace)
+			$this ->query = "CREATE TABLE IF NOT EXISTS $table";
+		else
+			$this ->query = "CREATE TABLE $table";
+		$this ->queryFields = "";
+		$this ->queryTablesKeys = "";
+
+		return $this;
+	}
+
+	public function bigIncrements($name)
+	{
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= " $name BIGINT UNSIGNED NOT NULL AUTO_INCREMENT";
+
+		if (strlen($this ->queryTablesKeys))
+			$this ->queryTablesKeys .= ", ";
+
+		$this ->queryTablesKeys .= " PRIMARY KEY ($name)";
+
+		return $this;
+	}
+	public function intIncrements($name)
+	{
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name INT UNSIGNED NOT NULL AUTO_INCREMENT";
+
+		if (strlen($this ->queryTablesKeys))
+			$this ->queryTablesKeys .= ", ";
+
+		$this ->queryTablesKeys .= "PRIMARY KEY ($name)";
+
+		return $this;
+	}
+
+	public function bigInt($name, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+
+		if (strlen($this ->queryFields))
+		$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name BIGINT UNSIGNED $nullable";
+
+		return $this;
+	}
+
+	public function int($name, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name INT UNSIGNED $nullable";
+
+		if (strlen($this ->queryTablesKeys))
+			$this ->queryTablesKeys .= ", ";
+
+		$this ->queryTablesKeys .= "PRIMARY KEY ($name)";
+
+		return $this;
+	}
+
+	public function varChar($name, $size = 250, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name VARCHAR($size) $nullable";
+		return $this;
+	}
+
+	public function date($name, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name DATE $nullable";
+
+		return $this;
+	}
+
+	public function dateTime($name, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name DATETIME $nullable";
+
+		return $this;
+	}
+	public function dateCurrent($name, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name DATE $nullable DEFAULT CURRENT_TIMESTAMP";	
+
+		return $this;
+	}
+
+	public function dateTimeCurrent($name, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name DATETIME $nullable DEFAULT CURRENT_TIMESTAMP";
+
+		return $this;
+	}
+
 	private function obtenerTipoQuery()
 	{
 		if (stripos($this ->query, 'select') !== false) {
