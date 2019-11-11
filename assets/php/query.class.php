@@ -21,16 +21,16 @@ class Query
 	private $query = NULL;
 	private $queryFields = NULL;
 	private $select = NULL;
-	private $table = NULL;
+	private $table = "";
 	private $fields = NULL;
 	private $params = array();
 	private $types = "";
 	private $mensaje = NULL;
 	private $status = 0;
 	private $num_rows = 0;
-	private $ffected_rows = 0;
+	private $affected_rows = 0;
 	private $insert_id = 0;
-	// private $types = NULL;
+
 	/**
 	*
 	* Obtiene el tipo de query (Select, Insert, Update)
@@ -70,6 +70,9 @@ class Query
 		$this ->insert_id = 0;
 		$this ->data = 0;
 		$this ->types = "";
+		$this ->queryFields = "";
+		$this ->queryTablesKeys = "";
+		$this ->table = "";
 	}
 	private function conectar()
 	{
@@ -201,11 +204,33 @@ class Query
 	}
 	public function execute($debug = FALSE)
 	{
+		$tipo = $this ->obtenerTipoQuery();
+		if ($tipo == "crearTabla")
+		{
+			$this ->query .= "(".$this ->queryFields."".$this ->queryTablesKeys.");";
+			if($prepare_select = self::$mysqli ->query($this ->query))
+			{
+				$this ->restartParam();
+
+				$this ->mensaje = "Tabla creada con éxito";
+				if ($debug)
+					$this ->mensaje .= "<br>".$this ->query;
+				$this ->status = 1;
+				return true;
+			}
+			else
+			{
+				$this ->mensaje = "No se puede crear la tabla. Error al preparar los parámetros";
+				if ($debug)
+					return $this ->mensaje .= "<br>".$this->query;
+				return false;
+			}
+
+		}
 		if($prepare_select = self::$mysqli ->prepare($this ->query))
 		{
 			$tmp = array();
 
-			$tipo = $this ->obtenerTipoQuery();
 			global $params;
 			if ($this ->types)
 			{
@@ -233,22 +258,22 @@ class Query
 				elseif($tipo == 'consultar')
 				{
 					$a_data = array();
-					$res_select 	= $prepare_select->get_result();
+					$res_select = $prepare_select->get_result();
 					$this ->num_rows= $res_select ->num_rows;
 					$a_data = $res_select ->fetch_all(MYSQLI_ASSOC);
-					$this ->data 	= $a_data;
+					$this ->data = $a_data;
 				}
-				$this ->mensaje 	= "Sentencia realizada con éxito";
+				$this ->mensaje = "Sentencia realizada con éxito";
 				if ($debug)
 					$this ->mensaje .= "<br>".$this ->query;
-				$this ->status 		= 1;
-				$prepare_select 	->close();
+				$this ->status = 1;
+				$prepare_select ->close();
 				return $this ->data;
 			}
 		}
 		else
 		{
-			$this ->mensaje 		= "No se puede ejecutar la sentencia. Error al preparar los parámetros";
+			$this ->mensaje = "No se puede ejecutar la sentencia. Error al preparar los parámetros";
 			if ($debug)
 				return $this ->mensaje .= "<br>".$this->query;
 			return false;
@@ -261,10 +286,19 @@ class Query
 			$this ->query = "CREATE TABLE IF NOT EXISTS $table";
 		else
 			$this ->query = "CREATE TABLE $table";
-		$this ->queryFields = "";
-		$this ->queryTablesKeys = "";
-
+		$this ->table = $table;
 		return $this;
+	}
+	public function dropTable($table)
+	{
+		$this ->query = "DROP TABLE IF EXISTS $table;";
+		if($prepare_select = self::$mysqli ->query($this ->query))
+		{
+			return TRUE;
+		}
+		else {
+			return FALSE;
+		}
 	}
 
 	public function bigIncrements($name)
@@ -274,7 +308,7 @@ class Query
 
 		$this ->queryFields .= " $name BIGINT UNSIGNED NOT NULL AUTO_INCREMENT";
 
-		if (strlen($this ->queryTablesKeys))
+		//if (strlen($this ->queryTablesKeys))
 			$this ->queryTablesKeys .= ", ";
 
 		$this ->queryTablesKeys .= " PRIMARY KEY ($name)";
@@ -288,7 +322,7 @@ class Query
 
 		$this ->queryFields .= "$name INT UNSIGNED NOT NULL AUTO_INCREMENT";
 
-		if (strlen($this ->queryTablesKeys))
+		//if (strlen($this ->queryTablesKeys))
 			$this ->queryTablesKeys .= ", ";
 
 		$this ->queryTablesKeys .= "PRIMARY KEY ($name)";
@@ -315,11 +349,6 @@ class Query
 			$this ->queryFields .= ", ";
 
 		$this ->queryFields .= "$name INT UNSIGNED $nullable";
-
-		if (strlen($this ->queryTablesKeys))
-			$this ->queryTablesKeys .= ", ";
-
-		$this ->queryTablesKeys .= "PRIMARY KEY ($name)";
 
 		return $this;
 	}
@@ -364,7 +393,7 @@ class Query
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
 
-		$this ->queryFields .= "$name DATE $nullable DEFAULT CURRENT_TIMESTAMP";	
+		$this ->queryFields .= "$name DATE $nullable DEFAULT CURRENT_TIMESTAMP";
 
 		return $this;
 	}
@@ -392,8 +421,11 @@ class Query
 		elseif (stripos($this ->query, 'update') !== false) {
 			$tipo = "actualizar";
 		}
+		elseif (stripos($this ->query, 'create table') !== false) {
+			$tipo = "crearTabla";
+		}
 		else
-		$tipo = "enlazar";
+			$tipo = "enlazar";
 
 		return $tipo;
 	}
