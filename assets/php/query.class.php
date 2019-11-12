@@ -40,6 +40,12 @@ class Query
 	function __construct()
 	{
 	    $this->loadConfig();
+		$this ->conectar();
+
+	}
+	function __destruct()
+	{
+		self::$mysqli->close();
 	}
 	private function loadConfig()
 	{
@@ -83,11 +89,10 @@ class Query
 		mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 	    self::$mysqli = new mysqli($this->host, $this->user, $this->pass, $this->dataBase);
 	    self::$mysqli ->set_charset($this ->charCode);
-
 	    if(self::$mysqli->connect_errno)
 	    {
 			$this ->mensaje = "Fallo en la conexión. Errno: ". self::$mysqli->connect_errno ."Error: ". self::$mysqli->connect_error;
-	        exit();
+			exit();
 	    }
 	}
 
@@ -101,7 +106,6 @@ class Query
 	{
 		global $params;
 		$params = array();
-		$this ->conectar();
 		$this ->query = "SELECT $fields FROM ".$this ->table;
 		return $this;
 	}
@@ -208,11 +212,13 @@ class Query
 		if ($tipo == "crearTabla")
 		{
 			$this ->query .= "(".$this ->queryFields."".$this ->queryTablesKeys.");";
+			// echo $this ->query;
 			if($prepare_select = self::$mysqli ->query($this ->query))
 			{
+				$table = $this->table;
 				$this ->restartParam();
 
-				$this ->mensaje = "Tabla creada con éxito";
+				$this ->mensaje = "Tabla <b>".$table."</b> creada con éxito";
 				if ($debug)
 					$this ->mensaje .= "<br>".$this ->query;
 				$this ->status = 1;
@@ -282,6 +288,7 @@ class Query
 	//////////////////////// MIGRATIONS ///////////////////////
 	public function createTable($table, $replace = TRUE)
 	{
+		// $this ->conectar();
 		if ($replace)
 			$this ->query = "CREATE TABLE IF NOT EXISTS $table";
 		else
@@ -309,7 +316,7 @@ class Query
 		$this ->queryFields .= " $name BIGINT UNSIGNED NOT NULL AUTO_INCREMENT";
 
 		//if (strlen($this ->queryTablesKeys))
-			$this ->queryTablesKeys .= ", ";
+			$this ->queryTablesKeys = ", ";
 
 		$this ->queryTablesKeys .= " PRIMARY KEY ($name)";
 
@@ -323,7 +330,7 @@ class Query
 		$this ->queryFields .= "$name INT UNSIGNED NOT NULL AUTO_INCREMENT";
 
 		//if (strlen($this ->queryTablesKeys))
-			$this ->queryTablesKeys .= ", ";
+			$this ->queryTablesKeys = ", ";
 
 		$this ->queryTablesKeys .= "PRIMARY KEY ($name)";
 
@@ -342,13 +349,14 @@ class Query
 		return $this;
 	}
 
-	public function int($name, $null = TRUE)
+	public function int($name, $null = TRUE, $defaultVal = FALSE)
 	{
+		$defaultValue = !$defaultVal ? "" : "DEFAULT '$defaultVal'";
 		$nullable = $null ? "NULL" : "NOT NULL";
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
 
-		$this ->queryFields .= "$name INT UNSIGNED $nullable";
+		$this ->queryFields .= "$name INT UNSIGNED $nullable $defaultValue";
 
 		return $this;
 	}
@@ -462,15 +470,16 @@ class Query
 	// Soporte para transacciones
 	public function autocommit($bool)
 	{
-		self::$mysqli -> autocommit($bool);
+		// $this ->conectar();
+		self::$mysqli ->autocommit($bool);
 	}
 	public function commit()
 	{
-		$resp = self::$mysqli -> commit();
+		$resp = self::$mysqli ->commit();
 		return $resp;
 	}
 	public function rollback()
 	{
-		self::$mysqli -> rollback();
+		self::$mysqli ->rollback();
 	}
 }
