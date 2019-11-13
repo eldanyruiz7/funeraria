@@ -32,6 +32,7 @@ foreach ($a as $key) {
 	echo $query ->num_rows();
 	echo $query ->lastStatement();
 	echo $query ->mensaje();
+
 	// $query	->table('bitacora_eventos')
 	// 		->insert(array("idUsuario" 		=> 1,
 	// 						"ip" 			=> "192.168.1.100",
@@ -43,12 +44,23 @@ foreach ($a as $key) {
 	// echo $query ->mensaje();
 	// echo $query ->insert_id();
 
-	$query	->table("bitacora_eventos")
-			->update(array("descripcion" => "Descripcion modiicada"), "s")
-			->where("id", "=", 127, "i")
-			->limit()
-			->execute();
-
+	// $query	->table("bitacora_eventos")
+	// 		->update(array("descripcion" => "Descripcion modiicada"), "s")
+	// 		->where("id", "=", 127, "i")
+	// 		->limit()
+	// 		->execute();
+	// $query ->table("tablaEjemplo")->insert(array("numero" => 1, "nombre" =>"alfa", "fechaCreacion" => "2019-03-03"), "iss")->execute();
+	$query ->dropTable("tablaEjemplo");
+	$crearTabla = $query->createTable("tablaEjemplo", TRUE)
+						->bigIncrements("id")
+						->int("numero", TRUE)
+						->varChar("nombre",100, TRUE)
+						->date("fechaCreacion")
+						->execute(TRUE);
+	if ($crearTabla)
+		echo "Tabla creada con éxito";
+	else
+		echo $query ->mensaje();
 	echo $query ->lastStatement();
 	echo $query ->mensaje();
 	echo "affected rows: ".$query ->affected_rows();

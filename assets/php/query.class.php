@@ -19,17 +19,18 @@ class Query
 	private static $mysqli = NULL;
 
 	private $query = NULL;
+	private $queryFields = NULL;
 	private $select = NULL;
-	private $table = NULL;
+	private $table = "";
 	private $fields = NULL;
 	private $params = array();
 	private $types = "";
 	private $mensaje = NULL;
 	private $status = 0;
 	private $num_rows = 0;
-	private $ffected_rows = 0;
+	private $affected_rows = 0;
 	private $insert_id = 0;
-	// private $types = NULL;
+
 	/**
 	*
 	* Obtiene el tipo de query (Select, Insert, Update)
@@ -39,6 +40,12 @@ class Query
 	function __construct()
 	{
 	    $this->loadConfig();
+		$this ->conectar();
+
+	}
+	function __destruct()
+	{
+		self::$mysqli->close();
 	}
 	private function loadConfig()
 	{
@@ -69,6 +76,9 @@ class Query
 		$this ->insert_id = 0;
 		$this ->data = 0;
 		$this ->types = "";
+		$this ->queryFields = "";
+		$this ->queryTablesKeys = "";
+		$this ->table = "";
 	}
 	private function conectar()
 	{
@@ -79,11 +89,10 @@ class Query
 		mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 	    self::$mysqli = new mysqli($this->host, $this->user, $this->pass, $this->dataBase);
 	    self::$mysqli ->set_charset($this ->charCode);
-
 	    if(self::$mysqli->connect_errno)
 	    {
 			$this ->mensaje = "Fallo en la conexión. Errno: ". self::$mysqli->connect_errno ."Error: ". self::$mysqli->connect_error;
-	        exit();
+			exit();
 	    }
 	}
 
@@ -97,7 +106,6 @@ class Query
 	{
 		global $params;
 		$params = array();
-		$this ->conectar();
 		$this ->query = "SELECT $fields FROM ".$this ->table;
 		return $this;
 	}
@@ -200,11 +208,35 @@ class Query
 	}
 	public function execute($debug = FALSE)
 	{
+		$tipo = $this ->obtenerTipoQuery();
+		if ($tipo == "crearTabla")
+		{
+			$this ->query .= "(".$this ->queryFields."".$this ->queryTablesKeys.");";
+			// echo $this ->query;
+			if($prepare_select = self::$mysqli ->query($this ->query))
+			{
+				$table = $this->table;
+				$this ->restartParam();
+
+				$this ->mensaje = "Tabla <b>".$table."</b> creada con éxito";
+				if ($debug)
+					$this ->mensaje .= "<br>".$this ->query;
+				$this ->status = 1;
+				return true;
+			}
+			else
+			{
+				$this ->mensaje = "No se puede crear la tabla. Error al preparar los parámetros";
+				if ($debug)
+					return $this ->mensaje .= "<br>".$this->query;
+				return false;
+			}
+
+		}
 		if($prepare_select = self::$mysqli ->prepare($this ->query))
 		{
 			$tmp = array();
 
-			$tipo = $this ->obtenerTipoQuery();
 			global $params;
 			if ($this ->types)
 			{
@@ -232,27 +264,160 @@ class Query
 				elseif($tipo == 'consultar')
 				{
 					$a_data = array();
-					$res_select 	= $prepare_select->get_result();
+					$res_select = $prepare_select->get_result();
 					$this ->num_rows= $res_select ->num_rows;
 					$a_data = $res_select ->fetch_all(MYSQLI_ASSOC);
-					$this ->data 	= $a_data;
+					$this ->data = $a_data;
 				}
-				$this ->mensaje 	= "Sentencia realizada con éxito";
+				$this ->mensaje = "Sentencia realizada con éxito";
 				if ($debug)
 					$this ->mensaje .= "<br>".$this ->query;
-				$this ->status 		= 1;
-				$prepare_select 	->close();
+				$this ->status = 1;
+				$prepare_select ->close();
 				return $this ->data;
 			}
 		}
 		else
 		{
-			$this ->mensaje 		= "No se puede ejecutar la sentencia. Error al preparar los parámetros";
+			$this ->mensaje = "No se puede ejecutar la sentencia. Error al preparar los parámetros";
 			if ($debug)
 				return $this ->mensaje .= "<br>".$this->query;
 			return false;
 		}
 	}
+	//////////////////////// MIGRATIONS ///////////////////////
+	public function createTable($table, $replace = TRUE)
+	{
+		// $this ->conectar();
+		if ($replace)
+			$this ->query = "CREATE TABLE IF NOT EXISTS $table";
+		else
+			$this ->query = "CREATE TABLE $table";
+		$this ->table = $table;
+		return $this;
+	}
+	public function dropTable($table)
+	{
+		$this ->query = "DROP TABLE IF EXISTS $table;";
+		if($prepare_select = self::$mysqli ->query($this ->query))
+		{
+			return TRUE;
+		}
+		else {
+			return FALSE;
+		}
+	}
+
+	public function bigIncrements($name)
+	{
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= " $name BIGINT UNSIGNED NOT NULL AUTO_INCREMENT";
+
+		//if (strlen($this ->queryTablesKeys))
+			$this ->queryTablesKeys = ", ";
+
+		$this ->queryTablesKeys .= " PRIMARY KEY ($name)";
+
+		return $this;
+	}
+	public function intIncrements($name)
+	{
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name INT UNSIGNED NOT NULL AUTO_INCREMENT";
+
+		//if (strlen($this ->queryTablesKeys))
+			$this ->queryTablesKeys = ", ";
+
+		$this ->queryTablesKeys .= "PRIMARY KEY ($name)";
+
+		return $this;
+	}
+
+	public function bigInt($name, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+
+		if (strlen($this ->queryFields))
+		$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name BIGINT UNSIGNED $nullable";
+
+		return $this;
+	}
+
+	public function int($name, $null = TRUE, $defaultVal = FALSE)
+	{
+		$defaultValue = !$defaultVal ? "" : "DEFAULT '$defaultVal'";
+		$nullable = $null ? "NULL" : "NOT NULL";
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name INT UNSIGNED $nullable $defaultValue";
+
+		return $this;
+	}
+
+	public function varChar($name, $size = 250, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name VARCHAR($size) $nullable";
+		return $this;
+	}
+
+	public function date($name, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name DATE $nullable";
+
+		return $this;
+	}
+
+	public function dateTime($name, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name DATETIME $nullable";
+
+		return $this;
+	}
+	public function dateCurrent($name, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name DATE $nullable DEFAULT CURRENT_TIMESTAMP";
+
+		return $this;
+	}
+
+	public function dateTimeCurrent($name, $null = TRUE)
+	{
+		$nullable = $null ? "NULL" : "NOT NULL";
+
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name DATETIME $nullable DEFAULT CURRENT_TIMESTAMP";
+
+		return $this;
+	}
+
 	private function obtenerTipoQuery()
 	{
 		if (stripos($this ->query, 'select') !== false) {
@@ -264,8 +429,11 @@ class Query
 		elseif (stripos($this ->query, 'update') !== false) {
 			$tipo = "actualizar";
 		}
+		elseif (stripos($this ->query, 'create table') !== false) {
+			$tipo = "crearTabla";
+		}
 		else
-		$tipo = "enlazar";
+			$tipo = "enlazar";
 
 		return $tipo;
 	}
@@ -302,15 +470,16 @@ class Query
 	// Soporte para transacciones
 	public function autocommit($bool)
 	{
-		self::$mysqli -> autocommit($bool);
+		// $this ->conectar();
+		self::$mysqli ->autocommit($bool);
 	}
 	public function commit()
 	{
-		$resp = self::$mysqli -> commit();
+		$resp = self::$mysqli ->commit();
 		return $resp;
 	}
 	public function rollback()
 	{
-		self::$mysqli -> rollback();
+		self::$mysqli ->rollback();
 	}
 }

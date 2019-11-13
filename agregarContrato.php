@@ -17,6 +17,8 @@
 		{
 			header("Location: index.php");
 		}
+		require_once ("assets/php/query.class.php");
+		$query = new Query();
 		$modificar = FALSE;
 		$difuntoActivo = TRUE;
 		if (isset($_GET['idContrato']))
@@ -183,9 +185,8 @@
 										<div class="col-sm-8">
 											<select id="estado" name="estado" class="col-xs-5">
 												<?php
-														$sql = "SELECT * FROM cat_estados WHERE activo = 1";
-														$res_estado = $mysqli->query($sql);
-														while ($row_estado = $res_estado->fetch_assoc())
+													$res_estados = $query->table("cat_estados")->select("*")->where("activo", "=", 1, "i")->execute();
+														foreach ($res_estados as $row_estado)
 														{
 															if ($modificar && $row_estado['id'] == $contrato->idEstado)
 															{
@@ -291,9 +292,9 @@
 										<div class="col-sm-8">
 											<select id="vendedor" name="vendedor" class="col-xs-5">
 												<?php
-													$sql = "SELECT id, nombres, apellidop, apellidom FROM cat_usuarios WHERE activo = 1 AND tipo <> 0 ORDER BY nombres ASC";
-													$res_vendedor = $mysqli->query($sql);
-													while ($row_vendedor = $res_vendedor->fetch_assoc())
+													$res_vendedor = $query 	->table("cat_usuarios")->select("id, nombres, apellidop, apellidom")->where("activo", "=", 1, "i")
+																			->and()->where("tipo", "<>", 0, "i")->orderBy("nombres")->execute();
+													foreach ($res_vendedor as $row_vendedor)
 													{
 														if ($modificar && $row_vendedor['id'] == $contrato->idVendedor)
 														{

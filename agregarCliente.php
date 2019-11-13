@@ -11,12 +11,14 @@
 	else
 	{
 		require_once ("assets/php/usuario.class.php");
+		require_once ("assets/php/query.class.php");
 		$usuario = new usuario($idUsuario,$mysqli);
 		$permiso = $usuario->permiso("agregarCliente",$mysqli);
 		if (!$permiso)
 		{
 			header("Location: listarClientes.php");
 		}
+		$query = new Query();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -150,10 +152,9 @@
 										<div class="col-sm-8">
 											<select id="estado" name="estado" class="col-xs-5">
 												<?php
-														$sql = "SELECT * FROM cat_estados WHERE activo = 1";
-														$res_estado = $mysqli->query($sql);
-														while ($row_estado = $res_estado->fetch_assoc())
-															echo "<option value=".$row_estado['id'].">".$row_estado['estado']."</option>";
+													$res_estados = $query->table("cat_estados")->select("*")->where("activo", "=", 1, "i")->execute();
+													foreach ($res_estados as $row_estado)
+														echo "<option value=".$row_estado['id'].">".$row_estado['estado']."</option>";
 												 ?>
 											 </select>
 										</div>

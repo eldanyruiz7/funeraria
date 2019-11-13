@@ -17,6 +17,8 @@
 		{
 			header("Location: listarDifuntos.php");
 		}
+		require_once ("assets/php/query.class.php");
+		$query = new Query();
 		$modificar = FALSE;
 		$difuntoActivo = TRUE;
 		if (isset($_GET['idDifunto']))
@@ -24,27 +26,17 @@
 			if (is_numeric($_GET['idDifunto']))
 			{
 				$idDifunto = $_GET['idDifunto'];
-				$sql = "SELECT
-							id, idCliente, idContrato, idVenta, nombres, apellidop, apellidom, domicilio1_part, domicilio2_part, cp_part,
-							idEstado_part, rfc, fechaNac, fechaHrDefuncion, idLugarDefuncion, nombreLugarDefuncion,	domicilioLugarDefuncion,
-							domicilioParticularDefuncion, noCertificadoDefuncion, noActaDefuncion, idSucursal, usuario, activo
-						FROM cat_difuntos
-						WHERE id = ? LIMIT 1";
-				if ($res = $mysqli->prepare($sql))
+				$resDifunto = $query->table("cat_difuntos")->select("id, nombres, apellidop, apellidom, domicilio1_part, domicilio2_part, cp_part,
+																	idEstado_part, rfc, fechaNac, fechaHrDefuncion, idLugarDefuncion,
+																	domicilioParticularDefuncion, noCertificadoDefuncion, noActaDefuncion, activo")
+									->where("id", "=", $idDifunto, "i")->limit()->execute();
+				if ($query->status())
 				{
-				    if($res->bind_param("i", $idDifunto) && $res->execute())
+					if ($query->num_rows())
 					{
-						$res->store_result();
-						if ($res->num_rows == 1)
-						{
-							$modificar = TRUE;
-							$res->bind_result($idDifunto_, $idCliente_, $idContrato_, $idVenta_, $nombres_, $apellidop_, $apellidom_,
-												$domicilio1_part_, $domicilio2_part, $cp_part_, $idEstado_part_, $rfc_, $fechNac_,
-												$fechaHrDefuncion_, $idLugarDefuncion_, $nombreLugarDefuncion_, $domicilioLugarDefuncion_,
-												$domicilioParticularDefuncion_, $noCertificadoDefuncion_, $noActaDefuncion_, $idSucursal_, $usuario_, $activo_);
-							$res->fetch();
-							$difuntoActivo = ($activo_ == 1) ? TRUE : FALSE;
-						}
+						$modificar = TRUE;
+						$rowDifunto = $resDifunto[0];
+						$difuntoActivo = ($rowDifunto['activo'] == 1) ? TRUE : FALSE;
 					}
 				}
 			}
@@ -134,7 +126,7 @@
 								 <?php echo $modificar ? "<i class='fa fa-user-circle' aria-hidden='true'></i> Modificar difunto" : "<i class='fa fa-user-circle-o' aria-hidden='true'></i> Agregar difunto";?>
 								<small>
 									<i class="ace-icon fa fa-angle-double-right"></i>
-									<?php echo $modificar ? $nombres_." ".$apellidop_." ".$apellidom_ : "Agregar un nuevo difunto";?>
+									<?php echo $modificar ? $rowDifunto['nombres']." ".$rowDifunto['apellidop']." ".$rowDifunto['apellidom'] : "Agregar un nuevo difunto";?>
 								</small>
 							</h1>
 							<?php
@@ -155,42 +147,42 @@
 										<label class="col-sm-4 control-label no-padding-right"> Nombre(s)(*) </label>
 
 										<div class="col-sm-8">
-											<input value="<?php echo $modificar ? $nombres_ : '';?>" type="text" id="nombres" autocomplete="off" name="nombres" placeholder="Nombres" class="col-xs-5">
+											<input value="<?php echo $modificar ? $rowDifunto['nombres'] : '';?>" type="text" id="nombres" autocomplete="off" name="nombres" placeholder="Nombres" class="col-xs-5">
 										</div>
 									</div>
 									<div class="form-group">
 										<label class="col-sm-4 control-label no-padding-right"> Apellido paterno(*) </label>
 
 										<div class="col-sm-8">
-											<input value="<?php echo $modificar ? $apellidop_ : '';?>" type="text" id="apellidop" autocomplete="off" name="apellidop" placeholder="Apellido paterno" class="col-xs-5">
+											<input value="<?php echo $modificar ? $rowDifunto['apellidop'] : '';?>" type="text" id="apellidop" autocomplete="off" name="apellidop" placeholder="Apellido paterno" class="col-xs-5">
 										</div>
 									</div>
 									<div class="form-group">
 										<label class="col-sm-4 control-label no-padding-right"> Apellido materno </label>
 
 										<div class="col-sm-8">
-											<input value="<?php echo $modificar ? $apellidom_ : '';?>" type="text" id="apellidom" autocomplete="off" name="apellidom" placeholder="Apellido materno" class="col-xs-5">
+											<input value="<?php echo $modificar ? $rowDifunto['apellidom'] : '';?>" type="text" id="apellidom" autocomplete="off" name="apellidom" placeholder="Apellido materno" class="col-xs-5">
 										</div>
 									</div>
 									<div class="form-group">
 										<label class="col-sm-4 control-label no-padding-right"> Domicilio particular (Calle, No Ext, No Int) </label>
 
 										<div class="col-sm-8">
-											<input value="<?php echo $modificar ? $domicilio1_part_ : '';?>" type="text" id="domicilio1" autocomplete="off" name="domicilio1" placeholder="Domicilio (Calle, No Ext, No Int)" class="col-xs-9">
+											<input value="<?php echo $modificar ? $rowDifunto['domicilio1_part'] : '';?>" type="text" id="domicilio1" autocomplete="off" name="domicilio1" placeholder="Domicilio (Calle, No Ext, No Int)" class="col-xs-9">
 										</div>
 									</div>
 									<div class="form-group">
 										<label class="col-sm-4 control-label no-padding-right"> Domicilio particular(Colonia, Población, Municipio) </label>
 
 										<div class="col-sm-8">
-											<input value="<?php echo $modificar ? $domicilio2_part : '';?>" type="text" id="domicilio2" autocomplete="off" name="domicilio2" placeholder="Domicilio (Colonia, Población, Municipio)" class="col-xs-9">
+											<input value="<?php echo $modificar ? $rowDifunto['domicilio2_part'] : '';?>" type="text" id="domicilio2" autocomplete="off" name="domicilio2" placeholder="Domicilio (Colonia, Población, Municipio)" class="col-xs-9">
 										</div>
 									</div>
 									<div class="form-group">
 										<label class="col-sm-4 control-label no-padding-right"> Código postal particular(*) </label>
 
 										<div class="col-sm-8">
-											<input value="<?php echo $modificar ? $cp_part_ : '';?>" type="text" id="cp" autocomplete="off" name="cp" placeholder="Código postal" class="col-xs-">
+											<input value="<?php echo $modificar ? $rowDifunto['cp_part'] : '';?>" type="text" id="cp" autocomplete="off" name="cp" placeholder="Código postal" class="col-xs-">
 										</div>
 									</div>
 									<div class="form-group">
@@ -199,13 +191,12 @@
 										<div class="col-sm-8">
 											<select id="estado" name="estado" class="col-xs-5">
 												<?php
-														$sql = "SELECT * FROM cat_estados WHERE activo = 1";
-														$res_estado = $mysqli->query($sql);
-														while ($row_estado = $res_estado->fetch_assoc())
-															if ($modificar && $row_estado['id'] == $idEstado_part_)
-																echo "<option selected value=".$row_estado['id'].">".$row_estado['estado']."</option>";
-															else
-																echo "<option value=".$row_estado['id'].">".$row_estado['estado']."</option>";
+													$res_estado = $query->table("cat_estados")->select("*")->where("activo", "=", 1 ,"i")->execute();
+													foreach ($res_estado as $row_estado)
+														if ($modificar && $row_estado['id'] == $rowDifunto['idEstado_part'])
+															echo "<option selected value=".$row_estado['id'].">".$row_estado['estado']."</option>";
+														else
+															echo "<option value=".$row_estado['id'].">".$row_estado['estado']."</option>";
 												 ?>
 											 </select>
 										</div>
@@ -214,14 +205,14 @@
 										<label class="col-sm-4 control-label no-padding-right"> RFC </label>
 
 										<div class="col-sm-8">
-											<input value="<?php echo $modificar ? $rfc_ : '';?>" type="text" id="rfc"  autocomplete="off" name="rfc" placeholder="RFC" class="col-xs-3">
+											<input value="<?php echo $modificar ? $rowDifunto['rfc'] : '';?>" type="text" id="rfc"  autocomplete="off" name="rfc" placeholder="RFC" class="col-xs-3">
 										</div>
 									</div>
 									<div class="form-group">
 										<label class="col-sm-4 control-label no-padding-right"> Fecha de nacimiento (*) </label>
 
 										<div class="col-sm-8">
-											<input value="<?php echo $modificar ? $fechNac_ : '';?>" type="date" id="fechaNac" autocomplete="off" name="fechaNac" class="col-xs-4">
+											<input value="<?php echo $modificar ? $rowDifunto['fechaNac'] : '';?>" type="date" id="fechaNac" autocomplete="off" name="fechaNac" class="col-xs-4">
 										</div>
 									</div>
 									<div class="form-group">
@@ -231,7 +222,7 @@
 								<?php
 								if ($modificar)
 								{
-									$fechaDef_part = explode(" ",$fechaHrDefuncion_);
+									$fechaDef_part = explode(" ",$rowDifunto['fechaHrDefuncion']);
 								}
 								 ?>
 											<input value="<?php echo $modificar ? $fechaDef_part[0]."T".$fechaDef_part[1] : '';?>" type="datetime-local" autocomplete="off" id="fechaDef" name="fechaDef" class="col-xs-4">
@@ -240,52 +231,37 @@
 									<hr>
 									<div class="form-group">
 										<label style="margin:0px;padding-top:8px;padding-left:8px;">
-											<input <?php echo ($modificar && $idLugarDefuncion_ == 0) ? "checked" : '';?> name="chkDomicilio" autocomplete="off" id="chkDomicilio" class="ace ace-switch ace-switch-6" type="checkbox">
+											<input <?php echo ($modificar && $rowDifunto['idLugarDefuncion'] == 0) ? "checked" : '';?> name="chkDomicilio" autocomplete="off" id="chkDomicilio" class="ace ace-switch ace-switch-6" type="checkbox">
 											<span class="lbl"></span>
 										</label>
 										<label class="col-sm-4 control-label no-padding-right"> El difunto falleció en domicilio particular </label>
 									</div>
 								<?php
 								 	if ($modificar)
-									{
-								 		if ($idLugarDefuncion_ != 0)
-										{
+								 		if ($rowDifunto['idLugarDefuncion'] != 0)
 								 			$dsp = "display:none";
-								 		}
 										else
-										{
 											$dsp = "display:block";
-										}
-								 	}
 									else
-									{
 										$dsp = "display:none";
-									}
 								 ?>
 									<div id="divDomParticular" style="<?php echo $dsp;?>">
 										<div class="form-group">
 											<label class="col-sm-4 control-label no-padding-right"> Domicilio particular de defunción (*)</label>
 
 											<div class="col-sm-8">
-												<input value="<?php echo $modificar ? $domicilioParticularDefuncion_ : '';?>" type="text" autocomplete="off" id="domicilioParticularDefuncion" name="domicilioParticularDefuncion" placeholder="Domicilio particular de defunción" class="col-xs-11">
+												<input value="<?php echo $modificar ? $rowDifunto['domicilioParticularDefuncion'] : '';?>" type="text" autocomplete="off" id="domicilioParticularDefuncion" name="domicilioParticularDefuncion" placeholder="Domicilio particular de defunción" class="col-xs-11">
 											</div>
 										</div>
 									</div>
 								<?php
 								 	if ($modificar)
-									{
-								 		if ($idLugarDefuncion_ != 0)
-										{
+								 		if ($rowDifunto['idLugarDefuncion'] != 0)
 								 			$dsp = "display:block";
-								 		}
-										else {
+										else
 											$dsp = "display:none";
-										}
-								 	}
 									else
-									{
 										$dsp = "display:block";
-									}
 								 ?>
 									<div id="divDomInstitucion" style="<?php echo $dsp;?>">
 										<div class="form-group">
@@ -296,10 +272,11 @@
 									<?php
 										$nombreLugarDefuncion_select = "";
 										$domicilioLugarDefuncion_select = "";
-										$sql = "SELECT id, nombre, domicilio FROM cat_lugares_defuncion WHERE activo = 1";
-										$res_lugares_def = $mysqli->query($sql);
-										while ($row_lugares_def = $res_lugares_def->fetch_assoc())
-											if ($modificar && $row_lugares_def['id'] == $idLugarDefuncion_)
+										$res_lugares_def = $query->table("cat_lugares_defuncion")->select("id, nombre, domicilio")->where("activo", "=", 1, "i")->execute();
+										// $sql = "SELECT id, nombre, domicilio FROM cat_lugares_defuncion WHERE activo = 1";
+										// $res_lugares_def = $mysqli->query($sql);
+										foreach ($res_lugares_def as $row_lugares_def)
+											if ($modificar && $row_lugares_def['id'] == $rowDifunto['idLugarDefuncion'])
 											{
 												echo '<option selected nombre-institucion="'.$row_lugares_def['nombre'].'" domicilio-institucion="'.$row_lugares_def['domicilio'].'" value="'.$row_lugares_def['id'].'">'.$row_lugares_def['nombre'].' - '.$row_lugares_def['domicilio'].'  </option>';
 												$nombreLugarDefuncion_select = $row_lugares_def['nombre'];
@@ -351,13 +328,13 @@
 									<div class="form-group">
 										<label class="col-sm-4 control-label no-padding-right"> No. certificado defunción</label>
 										<div class="col-sm-8">
-											<input value="<?php echo $modificar ? $noCertificadoDefuncion_ : '';?>" type="text" autocomplete="off" id="certificadoDefuncion" name="certificadoDefuncion" placeholder="Número de certificado de defunción" class="col-xs-7">
+											<input value="<?php echo $modificar ? $rowDifunto['noCertificadoDefuncion'] : '';?>" type="text" autocomplete="off" id="certificadoDefuncion" name="certificadoDefuncion" placeholder="Número de certificado de defunción" class="col-xs-7">
 										</div>
 									</div>
 									<div class="form-group">
 										<label class="col-sm-4 control-label no-padding-right"> No. acta de defunción</label>
 										<div class="col-sm-8">
-											<input value="<?php echo $modificar ? $noActaDefuncion_ : '';?>" type="text" autocomplete="off" id="actaDefuncion" name="actaDefuncion" placeholder="Número de acta de defunción" class="col-xs-7">
+											<input value="<?php echo $modificar ? $rowDifunto['noActaDefuncion'] : '';?>" type="text" autocomplete="off" id="actaDefuncion" name="actaDefuncion" placeholder="Número de acta de defunción" class="col-xs-7">
 										</div>
 									</div>
 								</form>
@@ -369,8 +346,8 @@
 						<?php
 								if ($modificar)
 								{
-									// $idDifunto = $_POST['idDifunto'];
-							        $directorio = 'assets/images/avatars/difuntos/'.$idDifunto_;
+									$idDifunto = $rowDifunto['id'];
+							        $directorio = 'assets/images/avatars/difuntos/'.$idDifunto;
 							        $total_imagenes = count(glob($directorio."/{*.jpg,*.gif,*.png,*.BMP,*.JPG,*.GIF,*.PNG,*.bmp}",GLOB_BRACE));
 							        // echo "total_imagenes = ".$total_imagenes;
 							        //var_dump(glob($directorio));
@@ -619,7 +596,7 @@
 				{
 					method: "POST",
 					url:"assets/ajax/obtenerRowCausas_decesos.php",
-					data: {idDifunto:<?php echo $modificar ? $idDifunto_ : '0';?>}
+					data: {idDifunto:<?php echo $modificar ? $idDifunto : '0';?>}
 				})
 				.done(function(e)
 				{
@@ -661,15 +638,6 @@
 				e.preventDefault();
 				$("#modal-agregar-causa-deceso").modal();
 			});
-			// $("form")submit(function(e)
-			// {
-			// 	e.preventDefault();
-			// 	return false;
-			// 	var self = this;
-			// 	window.setTimeout(function() {
-			// 		self.submit();
-			// 	}, 2000);
-			// });
 			$("#modal-agregar-causa-deceso").on('hidden.bs.modal', function()
 			{
 				$("button.multiselect").click();
@@ -807,27 +775,17 @@
 					if ($(this).prop("checked"))
 					{
 						$('.chosen-select option:selected').removeAttr('selected');
-						// $('.chosen-select option').attr("readonly",true);
-						// // $('.chosen-select').attr("readonly",true);
 						$('.chosen-select').trigger('chosen:updated');
 						$("#nombreLugarDefuncion").val('');
 						$("#domicilioLugarDefuncion").val('');
-						// $('.chosen-select>option:selected').prop('selected', false);
-						// $('.chosen-select').prop('selected', false);
-						// $('.chosen-select').val("1");
-        				// $('chosen-select').trigger("chosen:updated");
 						$("#nombreLugarDefuncion").attr("readonly",false);
 						$("#domicilioLugarDefuncion").attr("readonly",false);
 						$("#nombreLugarDefuncion").focus();
-
-
 					}
 					else
 					{
 						$("#nombreLugarDefuncion").attr("readonly",true);
 						$("#domicilioLugarDefuncion").attr("readonly",true);
-
-
 					}
 				});
 				$("#btnGuardar").click(function()
@@ -893,7 +851,7 @@
 
 					});
 					adjuntarImagenes();
-					var imagenesJSON 		= JSON.stringify(objetoInfoImagenes);
+					var imagenesJSON = JSON.stringify(objetoInfoImagenes);
 					var data =
 					{
 					  'arrayImagenes' : imagenesJSON
