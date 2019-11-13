@@ -203,6 +203,13 @@
 												<input type="number" id="tasaComision" name="tasaComision" min="1" max="99" value="<?php echo $modificar ? $usuario_m->tasaComision : '1';?>" class="col-xs-1"style="text-align:right">
 											</div>
 										</div>
+										<div class="form-group">
+											<label class="col-sm-4 control-label no-padding-right"> Tasa comisión cobranza (%)(*) </label>
+
+											<div class="col-sm-8">
+												<input type="number" id="tasaComisionCobranza" name="tasaComisionCobranza" min="1" max="99" value="<?php echo $modificar ? $usuario_m->tasaComisionCobranza : '1';?>" class="col-xs-1"style="text-align:right">
+											</div>
+										</div>
 										<div class="hr hr-24"></div>
 										<div class="form-group">
 											<label class="col-sm-4 control-label no-padding-right"> Nick name(*) </label>
@@ -255,15 +262,16 @@
 												</span>
 												<label class="green">Perfil:</label>
 												<select id="perfil" name="perfil" class="">
-													<option <?php echo $modificar && $usuario_m->tipo == 3 ? "selected" : '';?> value="3">
-														Vendedor
-													</option>
-													<option <?php echo $modificar && $usuario_m->tipo == 2 ? "selected" : '';?> value="2">
-														Secreatria/o
-													</option>
-													<option <?php echo $modificar && $usuario_m->tipo == 1 ? "selected" : '';?> value="1">
-														Administrador
-													</option>
+												<?php
+													$resPerfil = $query->table("tipos_usuarios")->select("id, nombre")->where("activo", "=", 1, "i")->orderBy("nombre")->execute();
+													foreach ($resPerfil as $rowPerfil) {
+														if ($modificar && $usuario_m->tipo == $rowPerfil['id']) {
+															echo "<option selected value = '".$rowPerfil['id']."'>".$rowPerfil['nombre']."</option>";
+															continue;
+														}
+														echo "<option value = '".$rowPerfil['id']."'>".$rowPerfil['nombre']."</option>";
+													}
+												 ?>
 												 </select>
 											</div>
 

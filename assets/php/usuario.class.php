@@ -14,7 +14,7 @@ class usuario
                     cat_usuarios.email,         cat_usuarios.tipo,
                     cat_usuarios.tasaComision,  cat_usuarios.fechaCreacion,
                     cat_usuarios.idSucursal,    cat_usuarios.usuario,
-                    cat_estados.estado
+                    cat_estados.estado,			cat_usuarios.tasaComisionCobranza
                 FROM cat_usuarios
                 INNER JOIN cat_estados
                 ON cat_usuarios.estado      = cat_estados.id
@@ -28,7 +28,7 @@ class usuario
             $prepare_usr->store_result() &&
             $prepare_usr->bind_result($idUsuario, $nombre, $apellidop, $apellidom, $direccion1, $direccion2, $idEstado,
                                         $nickName, $telefono, $celular, $email, $tipo, $tasaComision, $fechaCreacion, $idSucursal,
-                                        $usuarioRegistro, $nombreEstado) &&
+                                        $usuarioRegistro, $nombreEstado, $tasaComisionCobranza) &&
             $prepare_usr->fetch() &&
             $prepare_usr->num_rows > 0)
         {
@@ -46,7 +46,8 @@ class usuario
             $this ->celular                 = $celular;
             $this ->email                   = $email;
             $this ->tipo                    = $tipo;
-            $this ->tasaComision            = $tasaComision;
+			$this ->tasaComision            = $tasaComision;
+            $this ->tasaComisionCobranza    = $tasaComisionCobranza;
             $this ->fechaCreacion           = $fechaCreacion;
             $this ->idSucursal              = $idSucursal;
             $this ->idUsuarioRegistro       = $usuarioRegistro;
