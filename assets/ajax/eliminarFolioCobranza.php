@@ -32,8 +32,12 @@
             $response['focus']          = '';
             responder($response, $mysqli);
         }
-        $idUsuario      = $sesion->get('id');
-        $sql = "SELECT id FROM folios_cobranza_asignados WHERE id = $id AND activo = 1 AND asignado = 0";
+		$idUsuario      				= $sesion->get('id');
+        $sql            				= "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
+        $res_noSucursal 				= $mysqli->query($sql);
+        $row_noSucursal 				= $res_noSucursal->fetch_assoc();
+        $idSucursal     				= $row_noSucursal['idSucursal'];
+        $sql = "SELECT id, folio FROM folios_cobranza_asignados WHERE id = $id AND activo = 1 AND asignado = 0";
         $res_compra = $mysqli->query($sql);
         if ($res_compra->num_rows == 0)
         {
@@ -43,7 +47,9 @@
             responder($response, $mysqli);
         }
         $row_recibo = $res_compra->fetch_assoc();
-        $idRecibo = $row_recibo['id'];
+        $idFolio 	= $row_recibo['folio'];
+		$idRecibo 	= $row_recibo['id'];
+
         $mysqli->autocommit(FALSE);
         $sql = "UPDATE folios_cobranza_asignados
                 SET activo              = 0
@@ -74,6 +80,12 @@
             }
             else
             {
+				// Agregar evento en la bitácora de eventos ///////
+				$ipUsuario 					= $sesion->get("ip");
+				$pantalla					= "Folios de cobranza";
+				$descripcion				= "Folio cancelado. Folio=$idRecibo, id=$idFolio";
+				$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+				$mysqli						->query($sql);
 
                 if($mysqli->commit())
                 {

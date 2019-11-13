@@ -23,6 +23,11 @@
             responder($response, $mysqli);
         }
         $id                             = $_POST['idCliente'];
+		$idUsuario      				= $sesion->get('id');
+		$sql            				= "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
+		$res_noSucursal 				= $mysqli->query($sql);
+		$row_noSucursal 				= $res_noSucursal->fetch_assoc();
+		$idSucursal     				= $row_noSucursal['idSucursal'];
         $response = array(
             "status"                    => 1
         );
@@ -75,7 +80,13 @@
             }
             else
             {
-
+				// Agregar evento en la bitácora de eventos ///////
+				$ipUsuario 				= $sesion->get("ip");
+				$pantalla				= "Listar contratos";
+				$descripcion			= "Se ha reactivado el contrato id=$id";
+				$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+				$mysqli					->query($sql);
+				//////////////////////////////////////////////////
                 if($mysqli->commit())
                 {
                     $response['mensaje']    = "Contrato reactivado correctamente";

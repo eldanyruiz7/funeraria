@@ -650,7 +650,7 @@
 			{
 				idProd = $(this).attr('idprod');
 				servicio = $(this).attr('servicio');
-				alert(idProd+" "+servicio);
+				// alert(idProd+" "+servicio);
 				for (var i = 0; i < objetoAgregarProd.length; i++)
 				{
 					if(objetoAgregarProd[i]['id'] == idProd && objetoAgregarProd[i]['servicio'] == servicio)

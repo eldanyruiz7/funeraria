@@ -22,12 +22,17 @@
             responder($response, $mysqli);
         }
         $id                             = $_POST['idCliente'];
+		$idUsuario      				= $sesion->get('id');
+        $sql            				= "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
+        $res_noSucursal 				= $mysqli->query($sql);
+        $row_noSucursal 				= $res_noSucursal->fetch_assoc();
+        $idSucursal     				= $row_noSucursal['idSucursal'];
         $response = array(
             "status"                    => 1
         );
         if(!$id = validarFormulario('i', $id))
         {
-            $response['mensaje']        = "El ID del registro delcobro no es el correcto";
+            $response['mensaje']        = "El ID del registro del cobro no es el correcto";
             $response['status']         = 0;
             $response['focus']          = '';
             responder($response, $mysqli);
@@ -92,6 +97,16 @@
                         $mysqli->rollback();
                         responder($response, $mysqli);
                     }
+					// Agregar evento en la bitácora de eventos ///////
+					$sql = "SELECT folio FROM folios_cobranza_asignados WHERE id=$idFolio LIMIT 1";
+					$res_folio 					= $mysqli->query($sql);
+					$row_folio					= $res_folio->fetch_assoc();
+					$foloRecibo					= $row_folio['folio'];
+					$ipUsuario 					= $sesion->get("ip");
+					$pantalla					= "Reporte cobranza";
+					$descripcion				= "Cobro cancelado. Folio=$foloRecibo, id=$idFolio";
+					$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+					$mysqli						->query($sql);
                     if($mysqli->commit())
                     {
                         $response['mensaje']    = "Este cobro ha sido cancelado correctamente";

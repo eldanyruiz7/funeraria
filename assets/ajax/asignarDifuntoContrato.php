@@ -55,7 +55,7 @@
         }
         else
         {
-            $sql = "SELECT id FROM cat_difuntos WHERE id = $idDifunto AND idCliente = 0 AND idContrato = 0 AND idVenta = 0 AND activo = 1";
+            $sql = "SELECT id, nombres, apellidop, apellidom FROM cat_difuntos WHERE id = $idDifunto AND idCliente = 0 AND idContrato = 0 AND idVenta = 0 AND activo = 1";
             $res_difunto = $mysqli->query($sql);
             if ($res_difunto->num_rows == 0)
             {
@@ -193,7 +193,17 @@
                             responder($response, $mysqli);
                         }
                     }
-
+					// Agregar evento en la bitácora de eventos ///////
+					$row_difunto 				= $res_difunto->fetch_assoc();
+					$nombreDifunto				= $row_difunto['nombres']." ".$row_difunto['apellidop']." ".$row_difunto['apellidom'];
+					$folioContrato				= $contrato->folio;
+					$idDifunto					= $row_difunto['id'];
+					$idUsuario 					= $sesion->get("id");
+					$ipUsuario 					= $sesion->get("ip");
+					$pantalla					= "Listar contratos";
+					$descripcion				= "Se asignó el difunto($nombreDifunto) con id=$idDifunto al Contrato id=$idContrato, folio=$folioContrato.";
+					$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+					$mysqli						->query($sql);
                     $mysqli->commit();
                     $response['mensaje'] = "Difunto asignado correctamente al contrato No. <b>".str_pad($idContrato, 10, "0", STR_PAD_LEFT)."</b>";
                     $response['status'] = 1;

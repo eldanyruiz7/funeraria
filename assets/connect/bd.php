@@ -2,7 +2,7 @@
 date_default_timezone_set('America/Mexico_City');
     $servidor       = 'localhost';
     $usr            = 'root';
-    $contrasena     = 'FlorVenenosa9';
+    $contrasena     = '12345';
     $bd             = 'funerariadb';
 
     $mysqli         = new mysqli($servidor , $usr , $contrasena , $bd);

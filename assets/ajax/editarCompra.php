@@ -425,9 +425,16 @@
                     responder($response, $mysqli);
                 }
             }
+			// Agregar evento en la bitácora de eventos ///////
+			$idUsuario 					= $sesion->get("id");
+			$ipUsuario 					= $sesion->get("ip");
+			$idTicket               	= $idCompra;
+			$pantalla					= "Editar compra";
+			$descripcion				= "Se ha modificado la compra con id=$idTicket";
+			$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+			$mysqli						->query($sql);
             if($mysqli->commit())
             {
-                $idTicket               = $idCompra;
                 $response['status']     = 1;
                 $response['respuesta']  = "La compra se ha ctualizado correctamente.
                                             </br>No. de compra: <strong>$idTicket</strong> </br> <strong><a href='listarCompras.php' class='orange'>Lista de compras</a></strong>

@@ -53,9 +53,9 @@
         $idSucursal     = $row_noSucursal['idSucursal'];
         $mysqli->autocommit(FALSE);
         $sql            = "INSERT INTO cat_productos
-                                (nombre, descripcion, precio, idSucursal, usuario)
+                                (unidadVenta, nombre, descripcion, precio, idSucursal, usuario)
                             VALUES
-                                (?,?,?,?,?)";
+                                (4,?,?,?,?,?)";
         if($prepare     = $mysqli->prepare($sql))
         {
             if(!$prepare->bind_param('ssiii', $nombres, $descripcion, $precio, $idSucursal, $idUsuario))
@@ -79,6 +79,13 @@
             else
             {
                 $insert_id                  = $mysqli->insert_id;
+				// Agregar evento en la bitácora de eventos ///////
+				$idUsuario 				= $sesion->get("id");
+				$ipUsuario 				= $sesion->get("ip");
+				$pantalla				= "Agregar producto";
+				$descripcion			= "Se agregó un nuevo producto ($nombres) con id=$insert_id, precio=$$precio";
+				$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+				$mysqli					->query($sql);
                 if (strlen($imagenBinario) > 0)
                 {
                     $insert_id_left = str_pad($insert_id, 10, "0", STR_PAD_LEFT);
@@ -89,7 +96,7 @@
                         $im         = imagecreatefromstring($imagen_d); // php function to create image from string
                         if ($im     !== false)
                         {
-                            $resp   = imagejpeg($im, $_SERVER['DOCUMENT_ROOT']."/funeraria/ace-master/assets/images/avatars/productos/$insert_id_left.jpg");
+                            $resp   = imagejpeg($im, $_SERVER['DOCUMENT_ROOT']."/funeraria/dev/assets/images/avatars/productos/$insert_id_left.jpg");
                             imagedestroy($im);
                         }
                     }

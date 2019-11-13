@@ -25,6 +25,12 @@
         $nombre                         = $_POST['inputNombreEdit'];
         $descripcion                    = $_POST['inputDescripcionEdit'];
         $precio                         = $_POST['inputPrecioEdit'];
+
+		$idUsuario      				= $sesion->get('id');
+        $sql            				= "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
+        $res_noSucursal 				= $mysqli->query($sql);
+        $row_noSucursal 				= $res_noSucursal->fetch_assoc();
+        $idSucursal     				= $row_noSucursal['idSucursal'];
         $response = array(
             "status"                    => 1
         );
@@ -76,7 +82,13 @@
                 $response['status']     = 2;
                 responder($response, $mysqli);
             }
-            $insert_id                  = $mysqli->insert_id;
+			// Agregar evento en la bitácora de eventos ///////
+			$ipUsuario 					= $sesion->get("ip");
+			$pantalla					= "Agregar/Modificar plan";
+			$descripcion				= "Se modificó un servicio ($nombre) con id=$id. Precio al público=$$precio";
+			$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+			$mysqli						->query($sql);
+			//////////////////////////////////////////////////
             $response['mensaje']        = "Servicio '$nombre' fue modificado exitosamente";
             $response['status']         = 1;
             responder($response, $mysqli);

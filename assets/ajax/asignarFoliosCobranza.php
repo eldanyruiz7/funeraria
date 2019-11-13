@@ -16,6 +16,7 @@
 
         $idUsuarioAsignado               = $_POST['idUsuario'];
         $listaRango                      = $_POST['listaRango'];
+		$inputPrefijo					= $_POST['inputPrefijo'];
         $response = array(
             "status"                    => 1
         );
@@ -26,6 +27,8 @@
             $response['status'] = 0;
             responder($response, $mysqli);
         }
+		$inputPrefijo = validarFormulario('s',$inputPrefijo, FALSE);
+		$inputPrefijo = (!$inputPrefijo) ? "" : $inputPrefijo;
         $array = array(" ", "\\");
         $listaRango = str_replace($array, "", $listaRango);
         if (!$listaRango = validarFormulario('s',$listaRango,0))
@@ -63,9 +66,10 @@
         $comma = substr_count($listaRango, '-'); // Cuenta el número de apariciones del caracter (-)
         if ($comma == 0)
         {
+			$str_pad	= strlen($listaRango);
             for ($a=0; $a < sizeof($foliosRegistrados); $a++)
             {
-                if ($listaRango == $foliosRegistrados[$a]['noFolio'])
+                if ($inputPrefijo.$listaRango == $foliosRegistrados[$a]['noFolio'])
                 {
                     $usuarioAsignoFolio = $foliosRegistrados[$a]['nombreUsuario_asignado']." ".$foliosRegistrados[$a]['apellidopUsuario_asignado']." ".$foliosRegistrados[$a]['apellidomUsuario_asignado'];
                     $response['mensaje'] = "No se puede guardar. El folio No. <b>$listaRango</b> ya existe y está asignado al usuario: <br><b>$usuarioAsignoFolio</b>";
@@ -76,7 +80,8 @@
             }
             if (strlen($listaRango) > 0)
             {
-                $listaAgregar[] = $listaRango;
+				// $code               .=  $code_ = str_pad($factura->id, 10, "0", STR_PAD_LEFT);
+                $listaAgregar[] = str_pad($listaRango, $str_pad, "0", STR_PAD_LEFT);
             }
         }
         elseif ($comma == 1)
@@ -96,20 +101,22 @@
                 $response['focus'] = 'textAreaFolios';
                 responder($response, $mysqli);
             }
+			$str_pad = strlen($lista_explode[0]);
+
             for ($x=$lista_explode[0]; $x <= $lista_explode[1] ; $x++)
             {
                 for ($a=0; $a < sizeof($foliosRegistrados); $a++)
                 {
-                    if ($x == $foliosRegistrados[$a]['noFolio'])
+                    if ($inputPrefijo.str_pad(strval($x), $str_pad, "0", STR_PAD_LEFT) == $foliosRegistrados[$a]['noFolio'])
                     {
                         $usuarioAsignoFolio = $foliosRegistrados[$a]['nombreUsuario_asignado']." ".$foliosRegistrados[$a]['apellidopUsuario_asignado']." ".$foliosRegistrados[$a]['apellidomUsuario_asignado'];
-                        $response['mensaje'] = "No puede asignarse. El folio No. <b>".$x."</b> ya existe y está asignado al usuario: <br><b>$usuarioAsignoFolio</b>";
+                        $response['mensaje'] = "No puede asignarse. El folio No. <b>".$inputPrefijo."".$x."</b> ya existe y está asignado al usuario: <br><b>$usuarioAsignoFolio</b>";
                         $response['status'] = 0;
                         $response['focus'] = 'textAreaFolios';
                         responder($response, $mysqli);
                     }
                 }
-                $listaAgregar[] = $x;
+                $listaAgregar[] = str_pad(strval($x), $str_pad, "0", STR_PAD_LEFT);
             }
         }
         else {
@@ -121,7 +128,7 @@
         $mysqli->autocommit(FALSE);
         for ($i=0; $i < sizeof($listaAgregar) ; $i++)
         {
-            $esteFolio = $listaAgregar[$i];
+            $esteFolio = $inputPrefijo.$listaAgregar[$i];
             $sql = "INSERT INTO folios_cobranza_asignados (idUsuario_asignado, folio, idSucursal, idUsuario) VALUES (?,?,?,?)";
             $prepare = $mysqli->prepare($sql);
             if (!$prepare ||
@@ -140,6 +147,14 @@
                     $listaMostrar .= $esteFolio." ";
                 }
         }
+
+		// Agregar evento en la bitácora de eventos ///////
+		$idUsuario 					= $sesion->get("id");
+		$ipUsuario 					= $sesion->get("ip");
+		$pantalla					= "Listar usuarios";
+		$descripcion				= "Se asignó folio(s) de cobranza($listaRango), prefijo=$inputPrefijo, al usuario con id=$idUsuarioAsignado.";
+		$sql						= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+		$mysqli						->query($sql);
         if ($mysqli->commit())
         {
             $response['mensaje'] = "Folios agregados correctamente.<br> Lista de folios: <b> $listaMostrar";

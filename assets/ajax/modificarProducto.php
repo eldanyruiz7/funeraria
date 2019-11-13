@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
     require_once ('../connect/bd.php');
     require_once ("../connect/sesion.class.php");
     $sesion = new sesion();
@@ -95,52 +93,49 @@ ini_set('display_errors', '1');
                 $response['status'] = 0;
                 responder($response, $mysqli);
             }
-            // if($prepare->affected_rows == 0)
-            // {
-            //     $response['mensaje']        = "No se modificó nada";
-            //     $response['status']         = 0;
-            //     responder($response, $mysqli);
-            // }
-            // else
-            // {
-                $insert_id                  = $idProducto;
-                $insert_id_left = str_pad($insert_id, 10, "0", STR_PAD_LEFT);
-                if (file_exists($_SERVER['DOCUMENT_ROOT']."/funeraria/ace-master/assets/images/avatars/productos/$insert_id_left.jpg"))
+            $insert_id                  = $idProducto;
+            $insert_id_left = str_pad($insert_id, 10, "0", STR_PAD_LEFT);
+            if (file_exists($_SERVER['DOCUMENT_ROOT']."/funeraria/ace-master/assets/images/avatars/productos/$insert_id_left.jpg"))
+            {
+                unlink($_SERVER['DOCUMENT_ROOT']."/funeraria/ace-master/assets/images/avatars/productos/$insert_id_left.jpg");
+            }
+            if (strlen($imagenBinario) == 0)
+            {
+                $sql            = "UPDATE cat_productos SET imagen = '' WHERE id = $insert_id LIMIT 1";
+                if (!$mysqli     ->query($sql))
                 {
-                    unlink($_SERVER['DOCUMENT_ROOT']."/funeraria/ace-master/assets/images/avatars/productos/$insert_id_left.jpg");
+                    $response['mensaje'] = "Error. No se pudo actualizar el campo imagen del registro. Inténtalo nuevamente";
+                    $response['status'] = 0;
+                    $mysqli->rollback();
+                    responder($response, $mysqli);
                 }
-                if (strlen($imagenBinario) == 0)
+            }
+            else
+            {
+                $sql            = "UPDATE cat_productos SET imagen = '$insert_id_left' WHERE id = $insert_id LIMIT 1";
+                if ($mysqli     ->query($sql))
                 {
-                    $sql            = "UPDATE cat_productos SET imagen = '' WHERE id = $insert_id LIMIT 1";
-                    if (!$mysqli     ->query($sql))
+                    $imagen_d   = base64_decode($imagenBinario); // decode an image
+                    $im         = imagecreatefromstring($imagen_d); // php function to create image from string
+                    // condition check if valid conversion
+                    if ($im     !== false)
                     {
-                        $response['mensaje'] = "Error. No se pudo actualizar el campo imagen del registro. Inténtalo nuevamente";
-                        $response['status'] = 0;
-                        $mysqli->rollback();
-                        responder($response, $mysqli);
-                    }
-                }
-                else
-                {
-                    $sql            = "UPDATE cat_productos SET imagen = '$insert_id_left' WHERE id = $insert_id LIMIT 1";
-                    if ($mysqli     ->query($sql))
-                    {
-                        $imagen_d   = base64_decode($imagenBinario); // decode an image
-                        $im         = imagecreatefromstring($imagen_d); // php function to create image from string
-                        // condition check if valid conversion
-                        if ($im     !== false)
-                        {
 
-                            $resp   = imagejpeg($im, $_SERVER['DOCUMENT_ROOT']."/funeraria/ace-master/assets/images/avatars/productos/$insert_id_left.jpg");
-                            imagedestroy($im);
-                        }
+                        $resp   = imagejpeg($im, $_SERVER['DOCUMENT_ROOT']."/funeraria/ace-master/assets/images/avatars/productos/$insert_id_left.jpg");
+                        imagedestroy($im);
                     }
                 }
-                $mysqli->commit();
-                $response['mensaje']        = "$nombres";
-                $response['status']         = 1;
-                responder($response, $mysqli);
-            // }
+            }
+			// Agregar evento en la bitácora de eventos ///////
+			$ipUsuario 				= $sesion->get("ip");
+			$pantalla				= "Agregar/Modificar producto";
+			$descripcion			= "Se modificó un producto ($nombres) con id=$idProducto, precio=$$precio";
+			$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+			$mysqli					->query($sql);
+            $mysqli->commit();
+            $response['mensaje']	= "$nombres";
+            $response['status']		= 1;
+            responder($response, $mysqli);
         }
         else
         {

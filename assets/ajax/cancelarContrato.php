@@ -24,6 +24,13 @@
         }
         $id                             = $_POST['idCliente'];
         $motivo                         = $_POST['motivo'];
+
+		$idUsuario      = $sesion->get('id');
+		$sql            = "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
+		$res_noSucursal = $mysqli->query($sql);
+		$row_noSucursal = $res_noSucursal->fetch_assoc();
+		$idSucursal     = $row_noSucursal['idSucursal'];
+		
         $response = array(
             "status"                    => 1
         );
@@ -41,7 +48,18 @@
             $response['focus']          = '';
             responder($response, $mysqli);
         }
-        $motivo = $motivo > 5 || $motivo < 1 ? 1 : $motivo;
+		$sql = "SELECT id, nombre FROM cat_motivosCancelacionContratos WHERE id = $motivo LIMIT 1";
+		$res_motivo = $mysqli->query($sql);
+		if ($res_motivo->num_rows == 0)
+		{
+			$response['mensaje']        = "El ID del motivo de cancelación no existe";
+            $response['status']         = 0;
+            $response['focus']          = '';
+            responder($response, $mysqli);
+		}
+		$row_motivo 	= $res_motivo->fetch_assoc();
+		$idMotivo		= $row_motivo['id'];
+        // $motivo = $motivo > 5 || $motivo < 1 ? 1 : $motivo;
         $idUsuario      = $sesion->get('id');
         $sql = "SELECT id FROM contratos WHERE id = $id AND activo = 1 AND motivoCancelado = 0";
         $res_contrato = $mysqli->query($sql);
@@ -71,7 +89,7 @@
                 LIMIT 1";
         if($prepare                     = $mysqli->prepare($sql))
         {
-            if(!$prepare->bind_param('ii', $motivo, $id))
+            if(!$prepare->bind_param('ii', $idMotivo, $id))
             {
                 $response['mensaje']    = "Error. No se pudo modificar la información. Falló el la vinculación de parámetros. Inténtalo nuevamente";
                 $response['status']     = 0;
@@ -94,7 +112,15 @@
             }
             else
             {
-
+				// Agregar evento en la bitácora de eventos ///////
+				$idUsuario				= $sesion->get("id");
+				$ipUsuario 				= $sesion->get("ip");
+				$nombreMotivo			= $row_motivo['nombre'];
+				$pantalla				= "Listar contratos";
+				$descripcion			= "Se ha cancelado el contrato id=$id. Motivo de cancelación=$nombreMotivo";
+				$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
+				$mysqli					->query($sql);
+				//////////////////////////////////////////////////
                 if($mysqli->commit())
                 {
                     $response['mensaje']    = "Contrato cancelado correctamente";
@@ -103,6 +129,7 @@
                 }
                 else
                 {
+					$mysqli->rollback();
                     $response['mensaje']    = "Error en commit. Ocurrió un rollback. No se modificó nada. Vuelve  intentarlo";
                     $response['status']     = 0;
                     responder($response, $mysqli);
