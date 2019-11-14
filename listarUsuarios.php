@@ -113,7 +113,8 @@
 												<th>Id</th>
 								                <th>Nombre</th>
 												<th>Nick Name</th>
-												<th>% comisión</th>
+												<th>% Comisión venta</th>
+												<th>% Comisión cobranza</th>
 												<th>Fecha de alta</th>
 												<th>Perfil</th>
 												<th>Id Sucursal</th>
@@ -534,6 +535,10 @@
 						{ "data": "nickName" },
 						{
 							"data": "tasaComision",
+							"className":'text-right'
+						},
+						{
+							"data": "tasaComisionCobranza",
 							"className":'text-right'
 						},
 						{ "data": "fechaReg" },

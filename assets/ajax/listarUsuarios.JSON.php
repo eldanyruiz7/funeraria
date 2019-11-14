@@ -11,8 +11,10 @@
     else
     {
         require "../php/responderJSON.php";
-        require ("../php/usuario.class.php");
+		require ("../php/usuario.class.php");
+        require ("../php/query.class.php");
         $usuario = new usuario($idUsuario,$mysqli);
+		$query = new Query();
         $permiso = $usuario->permiso("listarUsuarios",$mysqli);
         if (!$permiso)
         {
@@ -25,22 +27,10 @@
         $response = array(
             "status"        => 1
         );
-        $sql = "SELECT
-                    cat_usuarios.id                 AS id,
-                    cat_usuarios.nombres            AS nombre,
-                    cat_usuarios.apellidop          AS apellidop,
-                    cat_usuarios.apellidom          AS apellidom,
-                    cat_usuarios.nickName           AS nickName,
-                    cat_usuarios.tasaComision       AS tasaComision,
-                    cat_usuarios.fechaCreacion      AS fechaCreacion,
-                    cat_usuarios.idSucursal         AS idSucursal,
-                    cat_usuarios.tipo               AS tipoUsuario
-                FROM cat_usuarios
-                WHERE cat_usuarios.activo = 1 AND cat_usuarios.tipo > 0";
+		$res_usuario = $query->table("cat_usuarios")->select("id")->where("activo", "=", 1, "i")->and()->where("tipo", ">", 0, "i")->execute();
 
-        $res_ = $mysqli->query($sql);
-        $num = $res_->num_rows;
-        if ($num == 0)
+
+        if ($query->num_rows() == 0)
         {
             $json_data = [
                 "data"   => 0
@@ -48,32 +38,14 @@
         }
         else
         {
-            while ($row = $res_->fetch_assoc())
-            {
+            foreach ($res_usuario as $row)
+			{
                 $usuario = new usuario($row['id'], $mysqli);
-                // $fechaReg = ;
-                // $fechaReg = date_format($fechaReg, 'd/m/Y H:i:s');
-                // $tipoUsuario = ;
-                // switch ($row['tipoUsuario'])
-                // {
-                //     case 1:
-                //         $tipoUsuario = '<span class="badge badge-info">Admin</span>';
-                //         break;
-                //     case 2:
-                //         $tipoUsuario = '<span class="badge badge-success">Secetario/a</span>';
-                //         break;
-                //     case 3:
-                //         $tipoUsuario = '<span class="badge badge-yellow">Visitante</span>';
-                //         break;
-                //
-                //     default:
-                //         $tipoUsuario = '<span class="badge badge-yellow">Visitante</span>';
-                //         break;
-                // }
                 $InfoData[] = array(
                     'id'                => $usuario->id,//$row['id'],
                     'nombre'            => $usuario->nombres,//$row['nombre']." ".$row['apellidop']." ".$row['apellidom'],
-                    'tasaComision'      => $usuario->tasaComision." %",
+					'tasaComision'      => $usuario->tasaComision." %",
+                    'tasaComisionCobranza' => $usuario->tasaComisionCobranza." %",
                     'nickName'          => $usuario->nickName,
                     'fechaReg'          => $usuario->fechaCreacion(),
                     'tipo'              => $usuario->tipoUsuario(TRUE),

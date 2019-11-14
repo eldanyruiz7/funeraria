@@ -14,10 +14,13 @@ class usuario
                     cat_usuarios.email,         cat_usuarios.tipo,
                     cat_usuarios.tasaComision,  cat_usuarios.fechaCreacion,
                     cat_usuarios.idSucursal,    cat_usuarios.usuario,
-                    cat_estados.estado,			cat_usuarios.tasaComisionCobranza
+                    cat_estados.estado,			cat_usuarios.tasaComisionCobranza,
+					tipos_usuarios.nombre
                 FROM cat_usuarios
                 INNER JOIN cat_estados
                 ON cat_usuarios.estado      = cat_estados.id
+				LEFT JOIN tipos_usuarios
+				ON cat_usuarios.tipo = tipos_usuarios.id
                 WHERE cat_usuarios.id       = ?
                 AND cat_usuarios.activo     = 1
                 LIMIT 1";
@@ -28,7 +31,7 @@ class usuario
             $prepare_usr->store_result() &&
             $prepare_usr->bind_result($idUsuario, $nombre, $apellidop, $apellidom, $direccion1, $direccion2, $idEstado,
                                         $nickName, $telefono, $celular, $email, $tipo, $tasaComision, $fechaCreacion, $idSucursal,
-                                        $usuarioRegistro, $nombreEstado, $tasaComisionCobranza) &&
+                                        $usuarioRegistro, $nombreEstado, $tasaComisionCobranza, $tipoUsuarioNombre) &&
             $prepare_usr->fetch() &&
             $prepare_usr->num_rows > 0)
         {
@@ -45,7 +48,8 @@ class usuario
             $this ->telefono                = $telefono;
             $this ->celular                 = $celular;
             $this ->email                   = $email;
-            $this ->tipo                    = $tipo;
+			$this ->tipo                    = $tipo;
+            $this ->tipoUsuarioNombre       = $tipoUsuarioNombre;
 			$this ->tasaComision            = $tasaComision;
             $this ->tasaComisionCobranza    = $tasaComisionCobranza;
             $this ->fechaCreacion           = $fechaCreacion;
@@ -71,26 +75,26 @@ class usuario
         switch ($this->tipo)
         {
             case 1:
-                $tipoUsuario = ($html) ? '<span class="badge badge-info">Admin</span>' : 'Admin';
+				$class = 'badge-info';
                 break;
             case 2:
-                $tipoUsuario = ($html) ? '<span class="badge badge-success">Secetario/a</span>' : 'Secretario/a';
+				$class = 'badge-success';
                 break;
             case 3:
-                $tipoUsuario = ($html) ? '<span class="badge badge-yellow">Vendedor</span>' : 'Vendedor';
+				$class = 'badge-yellow';
                 break;
-
             default:
-                $tipoUsuario = ($html) ? '<span class="badge badge-yellow">Vendedor</span>' : 'Vendedor';
-                break;
+				$class = 'badge-pink';
+				break;
         }
+		$tipoUsuario = ($html) ? '<span class="badge '.$class.'">'.$this->tipoUsuarioNombre.'</span>' : $this->tipoUsuarioNombre;
+
         return $tipoUsuario;
     }
     public function permiso($string,$mysqli)
     {
         if ($this->id == 1)
             return TRUE;
-
         switch ($string)
         {
             case 'listarContratos':

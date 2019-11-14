@@ -234,6 +234,29 @@ else
 // 			->execute();
 // 			echo $query ->mensaje()."</br>";
 
+
+	// $query 	->table("cat_motivosCancelacion")
+	// 		->insert(array( "nombre" 	=> "Problemas económicos",
+	// 						"idUsuario" 	=> 1), "si")->execute();
+	// 						echo $query ->mensaje()."</br>";
+	// $query 	->table("cat_motivosCancelacion")
+	// 		->insert(array( "nombre" 	=> "Desempleo",
+	// 						"idUsuario" 	=> 1), "si")->execute();
+	// 						echo $query ->mensaje()."</br>";
+	// $query 	->table("cat_motivosCancelacion")
+	// 		->insert(array( "nombre" 	=> "No localizable",
+	// 						"idUsuario" 	=> 1), "si")->execute();
+	// 						echo $query ->mensaje()."</br>";
+	// $query 	->table("cat_motivosCancelacion")
+	// 		->insert(array( "nombre" 	=> "Pérdida de interés",
+	// 						"idUsuario" 	=> 1), "si")->execute();
+	// 						echo $query ->mensaje()."</br>";
+	// $query 	->table("cat_motivosCancelacion")
+	// 		->insert(array( "nombre" 	=> "Transferencia de contrato",
+	// 						"idUsuario" 	=> 1), "si")->execute();
+	// 						echo $query ->mensaje()."</br>";
+	
+//////////////////////////////////////////////// tipos_usuarios /////////////////////////////////////////////////////////
 	$query 	->dropTable("tipos_usuarios");
 	$query ->createTable("tipos_usuarios", TRUE)
 			->intIncrements("id")
@@ -258,26 +281,4 @@ else
 	$query ->table("tipos_usuarios")->insert(array("nombre" 	=> "Cobrador",
 													"idUsuario" => 1), "si")->execute();
 													echo $query ->mensaje()."</br>";
-
-
-	// $query 	->table("cat_motivosCancelacion")
-	// 		->insert(array( "nombre" 	=> "Problemas económicos",
-	// 						"idUsuario" 	=> 1), "si")->execute();
-	// 						echo $query ->mensaje()."</br>";
-	// $query 	->table("cat_motivosCancelacion")
-	// 		->insert(array( "nombre" 	=> "Desempleo",
-	// 						"idUsuario" 	=> 1), "si")->execute();
-	// 						echo $query ->mensaje()."</br>";
-	// $query 	->table("cat_motivosCancelacion")
-	// 		->insert(array( "nombre" 	=> "No localizable",
-	// 						"idUsuario" 	=> 1), "si")->execute();
-	// 						echo $query ->mensaje()."</br>";
-	// $query 	->table("cat_motivosCancelacion")
-	// 		->insert(array( "nombre" 	=> "Pérdida de interés",
-	// 						"idUsuario" 	=> 1), "si")->execute();
-	// 						echo $query ->mensaje()."</br>";
-	// $query 	->table("cat_motivosCancelacion")
-	// 		->insert(array( "nombre" 	=> "Transferencia de contrato",
-	// 						"idUsuario" 	=> 1), "si")->execute();
-	// 						echo $query ->mensaje()."</br>";
 }
