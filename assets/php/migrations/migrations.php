@@ -23,21 +23,21 @@ else
 // 	$query ->dropTable("bitacora_eventos");
 // 	$query 	->createTable("bitacora_eventos", TRUE)
 // 			->bigIncrements("id")
-// 			->int("idUsuario", FALSE)
-// 			->dateTimeCurrent("fecha", FALSE)
-// 			->varChar("ip",30, FALSE)
-// 			->varChar("pantalla",100, FALSE)
-// 			->varChar("descripcion",500, FALSE)
-// 			->int("idSucursal", FALSE)
+// 			->int("idUsuario")
+// 			->dateTimeCurrent("fecha")
+// 			->varChar("ip",30)
+// 			->varChar("pantalla",100)
+// 			->varChar("descripcion",500)
+// 			->int("idSucursal")
 // 			->execute();
 // 	echo $query ->mensaje()."</br>";
 //
 // 	$query ->dropTable("cat_causasdecesos");
 // 	$query 	->createTable("cat_causasdecesos", TRUE)
 // 			->intIncrements("id")
-// 			->varChar("nombre",100, FALSE)
-// 			->dateTimeCurrent("fechaCreacion", FALSE)
-// 			->int("usuario", FALSE)
+// 			->varChar("nombre",100)
+// 			->dateTimeCurrent("fechaCreacion")
+// 			->int("usuario")
 // 			->int("activo", FALSE, '1')
 // 			->execute();
 // 			echo $query ->mensaje()."</br>";
@@ -64,9 +64,9 @@ else
 // 	$query ->dropTable("cat_formas_pago");
 // 	$query 	->createTable("cat_formas_pago", TRUE)
 // 			->intIncrements("id")
-// 			->varChar("c_FormaPago",5, FALSE)
-// 			->varChar("nombre",50, FALSE)
-// 			->int("bancarizado", FALSE)
+// 			->varChar("c_FormaPago",5)
+// 			->varChar("nombre",50)
+// 			->int("bancarizado")
 // 			->int("activo", FALSE, '1')
 // 			->execute();
 // 			echo $query ->mensaje()."</br>";
@@ -182,10 +182,10 @@ else
 // 	$query ->dropTable("cat_lugares_defuncion");
 // 	$query 	->createTable("cat_lugares_defuncion", TRUE)
 // 			->intIncrements("id")
-// 			->varChar("nombre",30, FALSE)
-// 			->varChar("domicilio",300, FALSE)
-// 			->dateTimeCurrent("fechaCreacion", FALSE)
-// 			->int("usuario", FALSE)
+// 			->varChar("nombre",30)
+// 			->varChar("domicilio",300)
+// 			->dateTimeCurrent("fechaCreacion")
+// 			->int("usuario")
 // 			->int("activo", FALSE, '1')
 // 			->execute();
 // 			echo $query ->mensaje()."</br>";
@@ -211,8 +211,8 @@ else
 // 	$query ->dropTable("cat_metodos_pago");
 // 	$query 	->createTable("cat_metodos_pago", TRUE)
 // 			->intIncrements("id")
-// 			->varChar("c_MetodoPago",10, FALSE)
-// 			->varChar("nombre",100, FALSE)
+// 			->varChar("c_MetodoPago",10)
+// 			->varChar("nombre",100)
 // 			->int("activo", FALSE, '1')
 // 			->execute();
 // 			echo $query ->mensaje()."</br>";
@@ -227,9 +227,9 @@ else
 // 	$query ->dropTable("cat_motivosCancelacion");
 // 	$query 	->createTable("cat_motivosCancelacion", TRUE)
 // 			->intIncrements("id")
-// 			->varChar("nombre",50, FALSE)
-// 			->dateTimeCurrent("fechaCreacion", FALSE)
-// 			->int("idUsuario", FALSE)
+// 			->varChar("nombre",50)
+// 			->dateTimeCurrent("fechaCreacion")
+// 			->int("idUsuario")
 // 			->int("activo", FALSE, '1')
 // 			->execute();
 // 			echo $query ->mensaje()."</br>";
@@ -255,30 +255,77 @@ else
 	// 		->insert(array( "nombre" 	=> "Transferencia de contrato",
 	// 						"idUsuario" 	=> 1), "si")->execute();
 	// 						echo $query ->mensaje()."</br>";
-	
+
 //////////////////////////////////////////////// tipos_usuarios /////////////////////////////////////////////////////////
-	$query 	->dropTable("tipos_usuarios");
-	$query ->createTable("tipos_usuarios", TRUE)
-			->intIncrements("id")
-			->varChar("nombre",50, FALSE)
-			->int("idUsuario", FALSE)
-			->int("activo", FALSE, '1')
-			->execute();
-			echo $query ->mensaje()."</br>";
+	// $query 	->dropTable("tipos_usuarios");
+	// $query ->createTable("tipos_usuarios", TRUE)
+	// 		->intIncrements("id")
+	// 		->varChar("nombre",50)
+	// 		->int("idUsuario")
+	// 		->int("activo", FALSE, '1')
+	// 		->execute();
+	// 		echo $query ->mensaje()."</br>";
+	//
+	// $query ->table("tipos_usuarios")->insert(array("nombre" 	=> "Administrador",
+	// 												"idUsuario" => 1), "si")->execute();
+	// 												echo $query ->mensaje()."</br>";
+	//
+	// $query ->table("tipos_usuarios")->insert(array("nombre" 	=> "Secretario",
+	// 												"idUsuario" => 1), "si")->execute();
+	// 												echo $query ->mensaje()."</br>";
+	//
+	// $query ->table("tipos_usuarios")->insert(array("nombre" 	=> "Vendedor",
+	// 												"idUsuario" => 1), "si")->execute();
+	// 												echo $query ->mensaje()."</br>";
+	//
+	// $query ->table("tipos_usuarios")->insert(array("nombre" 	=> "Cobrador",
+	// 												"idUsuario" => 1), "si")->execute();
+	// 												echo $query ->mensaje()."</br>";
 
-	$query ->table("tipos_usuarios")->insert(array("nombre" 	=> "Administrador",
-													"idUsuario" => 1), "si")->execute();
-													echo $query ->mensaje()."</br>";
 
-	$query ->table("tipos_usuarios")->insert(array("nombre" 	=> "Secretario",
-													"idUsuario" => 1), "si")->execute();
-													echo $query ->mensaje()."</br>";
+	///////////////////////////////////////////// Nómina ////////////////////////////////////////////////////
 
-	$query ->table("tipos_usuarios")->insert(array("nombre" 	=> "Vendedor",
-													"idUsuario" => 1), "si")->execute();
-													echo $query ->mensaje()."</br>";
+	// $query ->dropTable("cat_nominas");
+	// $query ->createTable("cat_nominas", TRUE)
+	// 		->bigIncrements("id")
+	// 		->date("fechaInicio")
+	// 		->date("fechaFin")
+	// 		->dateTimeCurrent("fechaCreacion")
+	// 		->int("idUsuario")
+	// 		->int("idSucursal")
+	// 		->int("activo", FALSE, '1')
+	// 		->execute();
+	$query ->table("cat_nominas")->insert(array("fechaInicio" => "2019-11-15", "fechaFin" => "2019-11-15", "idUsuario" => 1, "idSucursal" => 1 ), "ssii")->execute();
+	// $query ->dropTable("detalle_nomina");
+	// $query ->createTable("detalle_nomina", TRUE)
+	// 		->bigIncrements("id")
+	// 		->bigInt("idNomina")
+	// 		->bigInt("idConcepto")
+	// 		->varChar("nombreConcepto", 50)
+	// 		->int("cantidad")
+	// 		->decimal("monto")
+	// 		->dateTimeCurrent("fechaCreacion")
+	// 		->int("idUsuario")
+	// 		->int("idSucursal")
+	// 		->int("activo", FALSE, '1')
+	// 		->execute();
+	//
+	// $query ->dropTable("cat_conceptos_nomina");
+	// $query ->createTable("cat_conceptos_nomina", TRUE)
+	// 		->bigIncrements("id")
+	// 		->varChar("nombreConcepto", 50)
+	// 		->int("tipo", FALSE, "1") //1 = Percepcion 2 = Deducción
+	// 		->dateTimeCurrent("fechaCreacion")
+	// 		->int("idUsuario")
+	// 		->int("idSucursal")
+	// 		->int("activo", FALSE, '1')
+	// 		->execute();
+	//
+	// $query ->table("cat_conceptos_nomina")->insert(array("nombreConcepto" => "Comisión ventas",
+	// 													 "idUsuario" => 1,
+	// 												 	 "idSucursal" => 1), "sii")->execute();
+	// $query ->table("cat_conceptos_nomina")->insert(array("nombreConcepto" => "Comisión cobranza",
+ 	// 													 "idUsuario" => 1,
+ 	// 												 	 "idSucursal" => 1), "sii")->execute();
 
-	$query ->table("tipos_usuarios")->insert(array("nombre" 	=> "Cobrador",
-													"idUsuario" => 1), "si")->execute();
-													echo $query ->mensaje()."</br>";
 }

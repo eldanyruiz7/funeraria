@@ -176,14 +176,33 @@ class Query
 
 	public function where($fieldAwhere, $rule, $fieldBwhere, $type)
 	{
-		if (stripos($this ->query, 'WHERE') == true)
-			$this ->query .= " $fieldAwhere $rule ?";
+		global $params;
+		if ($rule == "BETWEEN")
+		{
+			if (stripos($this ->query, 'WHERE') == true)
+				$this ->query .= " $fieldAwhere BETWEEN ? AND ?";
+			else
+				$this ->query .= " WHERE $fieldAwhere BETWEEN ? AND ?";
+
+			$chars = array("'");
+			$str = str_ireplace($chars, "", $fieldBwhere);
+			$chars = array(" AND ");
+			$str = str_ireplace($chars, " AND ", $str);
+			$explode = explode(" AND ", $str);
+			$params[] = $explode[0];
+			$params[] = $explode[1];
+		}
 		else
-			$this ->query .= " WHERE $fieldAwhere $rule ?";
+		{
+			if (stripos($this ->query, 'WHERE') == true)
+				$this ->query .= " $fieldAwhere $rule ?";
+			else
+				$this ->query .= " WHERE $fieldAwhere $rule ?";
+
+			$params[] = $fieldBwhere;
+		}
 
 		$this ->types .= $type;
-		global $params;
-		$params[] = $fieldBwhere;
 		return $this;
 	}
 	public function and()
@@ -212,7 +231,6 @@ class Query
 		if ($tipo == "crearTabla")
 		{
 			$this ->query .= "(".$this ->queryFields."".$this ->queryTablesKeys.");";
-			// echo $this ->query;
 			if($prepare_select = self::$mysqli ->query($this ->query))
 			{
 				$table = $this->table;
@@ -236,7 +254,6 @@ class Query
 		if($prepare_select = self::$mysqli ->prepare($this ->query))
 		{
 			$tmp = array();
-
 			global $params;
 			if ($this ->types)
 			{
@@ -337,7 +354,7 @@ class Query
 		return $this;
 	}
 
-	public function bigInt($name, $null = TRUE)
+	public function bigInt($name, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
 
@@ -349,7 +366,7 @@ class Query
 		return $this;
 	}
 
-	public function int($name, $null = TRUE, $defaultVal = FALSE)
+	public function int($name, $null = FALSE, $defaultVal = FALSE)
 	{
 		$defaultValue = !$defaultVal ? "" : "DEFAULT '$defaultVal'";
 		$nullable = $null ? "NULL" : "NOT NULL";
@@ -361,7 +378,7 @@ class Query
 		return $this;
 	}
 
-	public function varChar($name, $size = 250, $null = TRUE)
+	public function varChar($name, $size = 250, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
 		if (strlen($this ->queryFields))
@@ -371,7 +388,7 @@ class Query
 		return $this;
 	}
 
-	public function date($name, $null = TRUE)
+	public function date($name, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
 
@@ -383,7 +400,7 @@ class Query
 		return $this;
 	}
 
-	public function dateTime($name, $null = TRUE)
+	public function dateTime($name, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
 
@@ -394,7 +411,7 @@ class Query
 
 		return $this;
 	}
-	public function dateCurrent($name, $null = TRUE)
+	public function dateCurrent($name, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
 
@@ -406,7 +423,7 @@ class Query
 		return $this;
 	}
 
-	public function dateTimeCurrent($name, $null = TRUE)
+	public function dateTimeCurrent($name, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
 
@@ -414,6 +431,17 @@ class Query
 			$this ->queryFields .= ", ";
 
 		$this ->queryFields .= "$name DATETIME $nullable DEFAULT CURRENT_TIMESTAMP";
+
+		return $this;
+	}
+	public function decimal($name, $digits = "(10,2)", $null = FALSE, $defaultVal = FALSE)
+	{
+		$defaultValue = !$defaultVal ? "" : "DEFAULT '$defaultVal'";
+		$nullable = $null ? "NULL" : "NOT NULL";
+		if (strlen($this ->queryFields))
+			$this ->queryFields .= ", ";
+
+		$this ->queryFields .= "$name DECIMAL $digits $nullable $defaultValue";
 
 		return $this;
 	}
