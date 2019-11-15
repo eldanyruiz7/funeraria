@@ -720,6 +720,7 @@
 						$("input[tipo=m]").prop("checked",false);
 						$("input[tipo=e]").prop("checked",false);
 						$("input[tipo=e]").click();
+						$("#modificarVariablesSistema").click();
 						break;
 					case '2':
 						$("input[tipo=l]").prop("checked",false);
@@ -735,8 +736,11 @@
 						$("#agregarServicio").click();
 						$("#agregarCompra").click();
 						$("#listarPlanes").click();
+						$("#listarVariablesSistema").click();
+
 						break;
 					case '3':
+					case '4':
 						$("input[tipo=l]").prop("checked",false);
 						$("input[tipo=a]").prop("checked",false);
 						$("input[tipo=m]").prop("checked",false);

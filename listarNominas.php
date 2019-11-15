@@ -12,7 +12,7 @@
 	{
 		require_once ("assets/php/usuario.class.php");
 		$usuario = new usuario($idUsuario,$mysqli);
-		$permiso = $usuario->permiso("listarUsuarios",$mysqli);
+		$permiso = $usuario->permiso("listarNominas",$mysqli);
 		if (!$permiso)
 		{
 			header("Location: index.php");
@@ -23,7 +23,7 @@
 	<head>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 		<meta charset="utf-8" />
-		<title>Lista de usuarios</title>
+		<title>Lista de periodos de nóminas</title>
 
 		<meta name="description" content="Static &amp; Dynamic Tables" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
@@ -34,6 +34,8 @@
 		<!-- text fonts -->
 		<link rel="stylesheet" href="assets/css/fonts.googleapis.com.css" />
 		<link rel="stylesheet" href="assets/css/jquery.gritter.min.css" />
+		<link rel="stylesheet" href="assets/css/daterangepicker.min.css" />
+
 		<!-- ace styles -->
 		<link rel="stylesheet" href="assets/css/ace.min.css" class="ace-main-stylesheet" id="main-ace-style" />
 		<!--[if lte IE 9]>
@@ -58,6 +60,10 @@
 			.pointer
 			{
 				cursor: pointer;
+			}
+			.img-prev
+			{
+				cursor: zoom-in;
 			}
 			td.details-control {
 			    background: url('assets/images/icons/details_open.png') no-repeat center center;
@@ -85,7 +91,7 @@
 								<i class="ace-icon fa fa-home home-icon"></i>
 								<a href="index.php">Inicio</a>
 							</li>
-							<li class="active">Listar usuarios</li>
+							<li class="active">Listar periodos de nóminas</li>
 						</ul><!-- /.breadcrumb -->
 
 					</div>
@@ -93,15 +99,17 @@
 					<div class="page-content">
 						<div class="page-header">
 							<h1>
-								<i class="fa fa-user-o" aria-hidden="true"></i> Usuarios
+								<i class="fa fa-shopping-cart" aria-hidden="true"></i> Listar periodos de nóminas
 								<small>
 									<i class="ace-icon fa fa-angle-double-right"></i>
-									Lista de usuarios registrados
+									Listar periodos de nóminas, por rango de fechas
 								</small>
 							</h1>
 						</div><!-- /.page-header -->
 						<div class="row">
 							<div class="col-xs-12">
+								<input type="hidden" id="hiddenFInicio" value="<?php echo date("Y-01-01");?>"/>
+								<input type="hidden" id="hiddenFFin" value="<?php echo date("Y-m-d");?>"/>
 								<div class="clearfix">
 									<div class="pull-right tableTools-container"></div>
 								</div>
@@ -111,13 +119,9 @@
 								            <tr>
 												<th></th>
 												<th>Id</th>
-								                <th>Nombre</th>
-												<th>Nick Name</th>
-												<th>% Comisión venta</th>
-												<th>% Comisión cobranza</th>
-												<th>Fecha de alta</th>
-												<th>Perfil</th>
-												<th>Id Sucursal</th>
+												<th>Fecha inicio</th>
+												<th>Fecha fin</th>
+								                <th>Fecha creaci&oacute;n</th>
 												<th></th>
 								            </tr>
 								        </thead>
@@ -128,62 +132,7 @@
 								<!-- PAGE CONTENT ENDS -->
 					</div><!-- /.col -->
 				</div><!-- /.row -->
-				<!-- //////////////////////////// Modal agregar folios cobranza ////////////////////////////////// -->
-				<div id="modal-agregar-folios" class="modal fade" tabindex="-1" data-keyboard="false" data-backdrop="static">
-					<div class="modal-dialog">
-						<div class="modal-content">
-							<div class="modal-header">
-								<h3 class="smaller lighter blue no-margin">
-									<span class="smaller lighter purple no-margin">
-										<i class="fa fa-ticket" aria-hidden="true"></i>
-									</span>
-									Asignar folios de cobranza
-								</h3>
-							</div>
-
-							<div class="modal-body">
-								<form class="form-horizontal" role="form" onSubmit="return false">
-									<div class="form-group divError">
-										<label class="col-sm-4 control-label no-padding-right" for="form-field-1"> Usuario al que se asignarán: </label>
-										<div class="col-sm-8">
-											<span class="input-icon" style="width: 100%;">
-												<input class="form-control" readonly="readonly" type="text" id="inputNombreUsuario">
-												<input type="hidden" id="hiddenIdUsuario" name="hiddenIdUsuario">
-												<i class="ace-icon fa fa-user-o"></i>
-											</span>
-										</div>
-									</div>
-									<div class="form-group divError" id="divRango">
-										<label class="col-sm-4 control-label no-padding-right" for="form-field-1"> Prefijo: </label>
-
-										<div class="col-sm-8">
-											<input class="form-control" type="text" id="inputPrefijo">
-										</div>
-									</div>
-									<div class="form-group divError" id="divRango">
-										<label class="col-sm-4 control-label no-padding-right" for="form-field-1"> Lista de folios a asignar: </label>
-
-										<div class="col-sm-8">
-											<textarea placeholder="Ingresar el rango de inicio y fin, separados por un guión medio '-' y sin espacios en blanco. El no de inicio debe ser menor que el número final. Por ejemplo: 2300-2350. Si es un único valor agregar el número sin espacios en blanco ni signos raros." id="textAreaFolios" name="textAreaFolios" class="autosize-transition form-control" style="overflow: hidden visible; overflow-wrap: break-word; resize: none; height: 100.9965px; margin-left: 0px; margin-right: 34.1146px; width: 100%;"></textarea>
-										</div>
-									</div>
-								</form>
-							</div>
-
-							<div class="modal-footer">
-								<button class="btn btn-white btn-info btn-bold btn-round" id="btnAgregarFolios">
-									<i class="ace-icon fa fa-floppy-o"></i>
-									Agregar folios
-								</button>
-								<button class="btn btn-white btn-danger btn-bold no-border btn-round" id="btnCancelarPago" data-dismiss="modal">
-									<i class="ace-icon fa fa-times"></i>
-									Cancelar
-								</button>
-							</div>
-						</div><!-- /.modal-content -->
-					</div><!-- /.modal-dialog -->
-				</div>
-				<!-- ///////////////////////////////////////////////////////////////////////////////////// -->
+				<!--/////////////////////modal cancelar ////////////////////////-->
 				<div id="my-modal-eliminar" class="modal fade" tabindex="-1">
 					<div class="modal-dialog">
 						<div class="modal-content">
@@ -191,16 +140,22 @@
 								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 								<h3 class="smaller red no-margin">
 									<span class="smaller lighter red no-margin">
-										<i class="fa fa-user-times" aria-hidden="true"></i>
+										<i class="fa fa-ban" aria-hidden="true"></i>
 									</span>
-									Eliminar este registro del sistema
+									Eliminar este periodo del sistema
 								</h3>
 							</div>
 
 							<div class="modal-body">
 								<form class="form-horizontal" role="form" onSubmit="return false">
 									<div class="form-group">
-										<label class="col-xs-12 text-left"><i class="fa fa-question-circle" aria-hidden="true"></i> ¿Deseas eliminar este registro del sistema? <br/>Esta acci&oacute;n no se puede deshacer</label>
+										<label class="col-xs-12 text-left">
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+											¿Deseas cancelar este periodo del sistema?
+											<br/> Esta acción no puede deshacerse.
+											<br/> El sistema eliminará las nóminas que estén dentro de este periodo, tras lo cuál será recomendable
+											revisar que los cambios se hayan efectuado correctamente de forma manual
+										</label>
 									</div>
 								</form>
 								<input type="hidden" id="hiddenEliminar" />
@@ -208,8 +163,8 @@
 
 							<div class="modal-footer">
 								<button class="btn btn-white btn-danger btn-bold btn-round" id="btnEliminarModal">
-									<i class="ace-icon fa fa-user-times"></i>
-									Eliminar registro
+									<i class="ace-icon fa fa-ban"></i>
+									Cancelar periodo
 								</button>
 								<button class="btn btn-white btn-default btn-bold no-border btn-round" data-dismiss="modal">
 									<i class="ace-icon fa fa-times"></i>
@@ -241,7 +196,6 @@
 			if('ontouchstart' in document.documentElement) document.write("<script src='assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
 		</script>
 		<script src="assets/js/bootstrap.min.js"></script>
-
 		<!-- page specific plugin scripts -->
 		<script src="assets/js/jquery.dataTables.min.js"></script>
 		<script src="assets/js/jquery.dataTables.bootstrap.min.js"></script>
@@ -254,6 +208,8 @@
 		<script src="assets/js/buttons.colVis.min.js"></script>
 		<script src="assets/js/dataTables.select.min.js"></script>
 		<script src="assets/js/bootbox.js"></script>
+		<script src="assets/js/moment.min.js"></script>
+		<script src="assets/js/daterangepicker.min.js"></script>
 		<script src="assets/js/jquery.gritter.min.js"></script>
 		<!-- ace scripts -->
 		<script src="assets/js/ace-elements.min.js"></script>
@@ -262,43 +218,26 @@
 		<!-- inline scripts related to this page -->
 		<script type="text/javascript">
 			myTable = "";
-			function format ( d ) {
-				idCliente 	= d.id;
-				// alert("Logrado");
+			function format ( d )
+			{
 				console.log(d);
+				htmlReturn ='<table class="table table-striped table-bordered table-hover" style="width:70%">'+
+							'	<th>ID</th>'+
+							'	<th>Nombre</th>'+
+							'	<th>Tipo</th>'+
+							'	<th>Precio de venta</th>'+
+							'	<th>Cantidad</th>'+
+							'	<th>Sub total</th>'
 
-				html = '<div class="col-xs-10">';
-				html +='    <div class="table-responsive">';
-				html +='       <table class="table table-striped table-bordered table-hover">';
-				html +='			<tr>';
-				html +='				<td>';
-				html +='					<b>Teléfono:</b> '+d.telefono;
-				html +='				</td>';
-				html +='				<td>';
-				html +='					<b>Celular:</b> '+d.celular;
-				html +='				</td>';
-				html +='				<td>';
-				html +='					<b>E-mail:</b> '+d.email;
-				html +='				</td>';
-				html +='				<td>';
-				html +='					<b>Sucursal:</b> '+d.sucursal;
-				html +='				</td>';
-				html +='			</tr>';
-				html +='			<tr>';
-				html +='				<td colspan="4">';
-				html +='					<b>Dirección:</b> '+d.domicilio;
-				html +='				</td>';
-				html +='			</tr>';
-				html +='		</table>';
-				html +='	</div>';
-				html +='</div>';
+								+d.htmlDetalle+
+						'	</table>';
 				html_hist = d.htmlDetalle_hist;
 				if (html_hist.length > 0)
 				{
-					html +='<div class="col-sm-8 widget-container-col ui-sortable" id="widget-container-col-12">'+
+					htmlReturn +='<div class="col-sm-8 widget-container-col ui-sortable" id="widget-container-col-12">'+
 						'<div class="widget-box collapsed transparent ui-sortable-handle" id="widget-box-12">'+
 							'<div class="widget-header text-center">'+
-								'<h4 class="widget-title lighter pointer"><i class="fa fa-ticket" aria-hidden="true"></i> Mostrar folios de cobranza asignados</h4>'+
+								'<h4 class="widget-title lighter pointer">Mostrar historal de cambios</h4>'+
 								'<div class="widget-toolbar no-border">'+
 									'<a class="blue" href="#" data-action="collapse">'+
 										'<i class="ace-icon fa fa-search-plus" data-icon-show="fa-search-plus" data-icon-hide="fa-search-minus""></i>'+
@@ -307,144 +246,37 @@
 							'</div>'+
 							'<div class="widget-body"> '+
 								'<table class="table table-striped table-bordered table-hover" style="width:100%">'+
-								'	<th></th>'+
-								'	<th>Folio</th>'+
-								'	<th>Fecha de asignación</th>'+
-								'	<th>Usuario asignó</th>'+
-								html_hist+
+								'	<th>ID Producto</th>'+
+								'	<th>Nombre</th>'+
+								'	<th>Tipo</th>'+
+								'	<th>Precio de venta</th>'+
+								'	<th>Cantidad</th>'+
+								'	<th>Sub total</th>'+
+								'	<th>Fecha</th>'+
+								'	<th>Usuario</th>'
+								+html_hist+
 							'	</table>'+
 							'</div>'+
 						'</div>'+
 					'</div>';
 				}
-				return html;
-			}
-			function agregarFolios(idUsuario, listaRango, inputPrefijo)
-			{
-				icon = $("#btnAgregarFolios");
-				iconOriginal = icon.html();
-				icon.html(cargarSpinner+" Espera...");
-				icon.attr("disabled",true);
-				$("#textAreaFolios").attr("disabled",true);
-				$("#inputPrefijo").attr("disabled",true);
-
-				$.ajax(
-				{
-					method: "POST",
-					url:"assets/ajax/asignarFoliosCobranza.php",
-					data: {idUsuario:idUsuario,listaRango:listaRango,inputPrefijo:inputPrefijo}
-				})
-				.done(function(p)
-				{
-					console.log(p);
-					if (p.status == 0)
-					{
-						$("#"+p.focus).parent().parent().addClass('has-error');
-						$("#inputPrefijo").parent().parent().addClass('has-error');;
-
-						mensaje("error",p.mensaje);
-					}
-					else
-					{
-						mensaje("success",p.mensaje);
-						$('#modal-agregar-folios').modal('hide');
-						myTable.ajax.reload( null, false );
-					}
-				})
-				.always(function(p)
-				{
-					icon.html(iconOriginal);
-					$("#textAreaFolios").attr("disabled",false);
-					$("#inputPrefijo").attr("disabled",false);
-
-					icon.attr("disabled",false);
-					console.log(p);
-				})
-				.error(function()
-				{
-					mensaje("error", "Error al intentar conectar al servidor. No hay conexión");
-				});
+				return htmlReturn;
 			}
 			$(document).ready(function()
 			{
 				abrirMenu();
-				$("#chkTipoFolio").change(function()
-				{
-					if ($(this).prop('checked'))
-					{
-						$("#divRango").show();
-						$("#divIndividual").hide();
-					}
-					else {
-						$("#divRango").hide();
-						$("#divIndividual").show();
-					}
-				});
-				$(document).on('click','.aAsignarFolios',function()
-				{
-					$("#modal-agregar-folios").modal();
-					nombreUsuario 	= $(this).attr("nombre-usuario");
-					idUsuario 		= $(this).attr("id-usuario");
-					$("#inputNombreUsuario").val(nombreUsuario);
-					$("#hiddenIdUsuario").val(idUsuario);
-					$("#textAreaFolios").val('').focus();
-					$("#inputPrefijo").val('');
-
-					$("#textAreaFoliosIndividual").val('');
-					if ($("#chkTipoFolio").prop("checked") == false)
-					{
-						$("#chkTipoFolio").click();
-					}
-					$(".has-error").removeClass('has-error');
-				});
 				$(document).on('click','.btnEliminar',function()
 				{
 					idEliminar = $(this).attr('idCliente');
 					$("#hiddenEliminar").val(idEliminar);
 					$("#my-modal-eliminar").modal();
 				});
-				$("#btnAgregarFolios").click(function()
-				{
-					$(".has-error").removeClass('has-error');
-					dialog = bootbox.dialog(
-					{
-					    title: '¿Seguro que quieres asignar los folios a este usuario?',
-					    message: '<i class="fa fa-question-circle-o" aria-hidden="true"></i> ¿Estás seguro que quieres asignar el(los) folios a este usuario? Presiona "Agregar" para continuar o "cancelar" si quieres regresar',
-						closeButton: false,
-						buttons:
-						{
-							"Sí" :
-							{
-								"label" : '<i class="fa fa-check" aria-hidden="true"></i> Agregar',
-								"className" : "btn btn-primary",
-
-								callback: function()
-								{
-									idUsuario = $("#hiddenIdUsuario").val();
-									listaRango = $("#textAreaFolios").val();
-									inputPrefijo = $("#inputPrefijo").val();
-
-									agregarFolios(idUsuario, listaRango, inputPrefijo);
-								}
-							},
-							"No" :
-							{
-								"label" : '<i class="fa fa-times" aria-hidden="true"></i> Cancelar',
-								"className" : "btn btn-light",
-
-								callback: function(result)
-								{
-								}
-							},
-						}
-					});
-				});
 				$(document).on('click','#btnEliminarModal',function()
 				{
 					$("#my-modal-eliminar").modal('hide');
 					dialog = bootbox.dialog(
 					{
-					    title: 'Eliminar',
+					    title: 'Cancelar',
 					    message: '<p><i class="fa fa-spin fa-spinner"></i> Procesando...</p>',
 						closeButton: true,
 						buttons:
@@ -456,15 +288,20 @@
 								callback: function(result)
 								{
 									myTable.ajax.reload( null, false );
+									setTimeout(function()
+									{
+										$("body").css("padding-right",0);
+								    }, 500);
 								}
 							}
 						}
+
 					});
 					idPac_ = $("#hiddenEliminar").val();
 					$.ajax(
 			        {
 			            method: "POST",
-			            url:"assets/ajax/eliminarUsuario.php",
+			            url:"assets/ajax/eliminarVenta.php",
 			            data: {idCliente:idPac_}
 			        })
 			        .done(function(p)
@@ -474,7 +311,7 @@
 						{
 							dialog.init(function()
 							{
-							 	dialog.find('.bootbox-body').html('<i class="fa fa-check" aria-hidden="true"></i> Este registro ha sido eliminado correctamente');
+							 	dialog.find('.bootbox-body').html('<i class="fa fa-check" aria-hidden="true"></i> Este periodo ha sido eliminado correctamente');
 								dialog.find('.oculto').removeClass('oculto');
 								// dialog.find('button')
 								// body > div.bootbox.modal.fade.in > div > div > div.modal-footer > button:nth-child(3)
@@ -487,6 +324,8 @@
 							{
 							 	dialog.find('.bootbox-body').html('<i class="fa fa-times" aria-hidden="true"></i> No se pudo eliminar este registro');
 								dialog.find('.oculto').removeClass('oculto');
+								// dialog.find('button')
+								// body > div.bootbox.modal.fade.in > div > div > div.modal-footer > button:nth-child(3)
 							});
 							mensaje("error",p.mensaje);
 						}
@@ -501,20 +340,62 @@
 				{
 					$(this).next().find(".blue").click();
 				});
-			} );
+			});
 			jQuery(function($) {
 
 				myTable = $('#dynamic-table').DataTable( {
 
 			        "ajax":
 					{
-						"url":"assets/ajax/listarUsuarios.JSON.php",
+						"url":"assets/ajax/listarNominas.JSON.php",
+						"type": "GET",
+						"data": function(d)
+						{
+							d.fechaInicio =  $("#hiddenFInicio").val();
+							d.fechaFin = $("#hiddenFFin").val();
+						},
 						"complete": function()
 						{
 							myTable.columns.adjust().draw();
 						}
 					},
 					"processing": 	true,
+					"initComplete": function(settings, json)
+					{
+						$('.dataTables_length').prepend('Rango de fechas: <div class="input-group"><input class="form-control input-sm" type="text" name="date-range-picker" id="id-date-range-picker-1" /><span class="input-group-addon"><i class="fa fa-calendar bigger-110"></i></span></div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+						$('input[name=date-range-picker]').daterangepicker({
+							'applyClass' : 'btn-sm btn-success btn-white btn-bold',
+							'cancelClass' : 'btn-sm btn-default btn-white btn-bold',
+							//'showDropdowns': true,
+							"locale": {
+						        "format": "DD/MM/YYYY",
+						        "separator": " - ",
+						        "applyLabel": "Apply",
+						        "cancelLabel": "Cancel",
+						        "fromLabel": "From",
+						        "toLabel": "To",
+						        "customRangeLabel": "Custom",
+						        "daysOfWeek": ["Dom","Lun","Mar","Mie","Jue","Vie","Sab"],
+						        "monthNames": ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Deciembre"],
+						        "firstDay": 0,
+								applyLabel: 'Aplicar',
+								cancelLabel: 'Cancelar'
+						    }
+							// locale: {
+							//
+							// }
+						},	function(start, end, label)
+							{
+								$("#hiddenFInicio").val(start.format('YYYY-MM-DD'));
+								$("#hiddenFFin").val(end.format('YYYY-MM-DD'));
+								myTable.ajax.reload();
+						    	console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+						  	})
+						.next().on(ace.click_event, function(){
+							$(this).prev().focus();
+						});
+
+					},
 					"aLengthMenu":[
 						[10, 25, 50, -1],
 						[10, 25, 50, "Todos"]
@@ -531,27 +412,11 @@
  			                "defaultContent": 	'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
  			            },
 						{ "data": "id" },
-			            { "data": "nombre" },
-						{ "data": "nickName" },
-						{
-							"data": "tasaComision",
-							"className":'text-right'
-						},
-						{
-							"data": "tasaComisionCobranza",
-							"className":'text-right'
-						},
-						{ "data": "fechaReg" },
-						{
-							"data": "tipo",
-							"className":'text-center'
-						 },
+						{ "data": "fechaInicio" },
+						{ "data": "fechaFin" },
+						{ "data": "fechaCreacion" },
 			            {
-							"data": "idSucursal",
-							"className":'text-center'
-						 },
-			            // { "data": "direccion" },
-			            {
+							"className":      	'text-right',
 							"data": 			"btns",
 						 	"orderable":      	false
 						}
@@ -559,17 +424,11 @@
 					'createdRow': function( row, data, dataIndex ) {
 					     $(row).attr('id', data.id);
 					 },
-			        "order": 		[[0, 'asc']]
+			        "order": 		[[1, 'desc']]
 			    } );
 				$.fn.dataTable.Buttons.defaults.dom.container.className = 'dt-buttons btn-overlap btn-group btn-overlap';
 				new $.fn.dataTable.Buttons( myTable, {
 					buttons: [
-					  {
-						"extend": "colvis",
-						"text": "<i class='fa fa-search bigger-110 blue'></i> <span class='hidden'>Mostrar/Ocultar columnas</span>",
-						"className": "btn btn-white btn-primary btn-bold",
-						columns: ':not(:first):not(:last)'
-					  },
 					  {
 						"extend": "copy",
 						"text": "<i class='fa fa-copy bigger-110 pink'></i> <span class='hidden'>Copiar al Portapapeles</span>",
@@ -589,14 +448,14 @@
 						"extend": "pdf",
 						"text": "<i class='fa fa-file-pdf-o bigger-110 red'></i> <span class='hidden'>Exportar formato PDF</span>",
 						"className": "btn btn-white btn-primary btn-bold",
-						"message": "Reporte de lista de usuarios"
+						"message": "Reporte de lista de clientes"
 					},
 					 {
 						"extend": "print",
 						"text": "<i class='fa fa-print bigger-110 grey'></i> <span class='hidden'>Imprimir</span>",
 						"className": "btn btn-white btn-primary btn-bold",
 						autoPrint: true,
-						message: 'Reporte de lista de usuarios'
+						message: 'Reporte de lista de clientes'
 					  }
 					]
 				} );
@@ -725,7 +584,7 @@
 						infoRow = $.ajax(
 						{
 							method: "POST",
-							url:"assets/ajax/infoUsuario.php",
+							url:"assets/ajax/obtenerRowDet_venta.php",
 							dataType:'JSON',
 							data: {idCliente:idCliente}
 						})
