@@ -347,7 +347,7 @@
 
 			        "ajax":
 					{
-						"url":"assets/ajax/listarNominas.JSON.php",
+						"url":"assets/ajax/listarPeriodosNominas.JSON.php",
 						"type": "GET",
 						"data": function(d)
 						{
