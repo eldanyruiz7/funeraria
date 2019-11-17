@@ -108,8 +108,8 @@
 						</div><!-- /.page-header -->
 						<div class="row">
 							<div class="col-xs-12">
-								<input type="hidden" id="hiddenFInicio" value="<?php echo date("Y-01-01");?>"/>
-								<input type="hidden" id="hiddenFFin" value="<?php echo date("Y-m-d");?>"/>
+								<input type="hidden" id="hiddenFInicio" value="<?php echo date("01-01-Y");?>"/>
+								<input type="hidden" id="hiddenFFin" value="<?php echo date("d-m-Y");?>"/>
 								<div class="clearfix">
 									<div class="pull-right tableTools-container"></div>
 								</div>
@@ -366,6 +366,9 @@
 						$('input[name=date-range-picker]').daterangepicker({
 							'applyClass' : 'btn-sm btn-success btn-white btn-bold',
 							'cancelClass' : 'btn-sm btn-default btn-white btn-bold',
+							startDate: $("#hiddenFInicio").val(),
+							endDate: $("#hiddenFFin").val(),
+							"showWeekNumbers": true,
 							//'showDropdowns': true,
 							"locale": {
 						        "format": "DD/MM/YYYY",
