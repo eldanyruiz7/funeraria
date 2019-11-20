@@ -25,11 +25,9 @@
         $Y_fin = intval($fFin_e[0]);
         $m_fin = intval($fFin_e[1]);
         $d_fin = intval($fFin_e[2]);
+
         if(checkdate($m_ini,$d_ini,$Y_ini) == FALSE || checkdate($m_fin,$d_fin,$Y_fin) == FALSE)
         {
-            $json_data = [
-                "data"   => 0
-            ];
             echo json_encode($json_data);
             die;
         }
@@ -39,9 +37,10 @@
                 // echo $sql;
         $res_ = $mysqli->query($sql);
         $num = $res_->num_rows;
+		$InfoData = array();
         if ($num == 0)
         {
-            $json_data = [
+			$json_data = [
                 "data"   => 0
             ];
         }

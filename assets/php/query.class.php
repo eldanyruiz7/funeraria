@@ -251,6 +251,7 @@ class Query
 			}
 
 		}
+		// echo $this ->query;
 		if($prepare_select = self::$mysqli ->prepare($this ->query))
 		{
 			$tmp = array();

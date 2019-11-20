@@ -255,6 +255,50 @@ else
 	// 		->insert(array( "nombre" 	=> "Transferencia de contrato",
 	// 						"idUsuario" 	=> 1), "si")->execute();
 	// 						echo $query ->mensaje()."</br>";
+	//////////////////////////////////////////////// cat_departamentos /////////////////////////////////////////////////////////
+		// $query 	->dropTable("cat_departamentos");
+		// $query ->createTable("cat_departamentos", TRUE)
+		// 		->intIncrements("id")
+		// 		->varChar("nombre",50)
+		// 		->int("idUsuario")
+		// 		->int("activo", FALSE, '1')
+		// 		->execute();
+		// 		echo $query ->mensaje()."</br>";
+		//
+		// $query ->table("cat_departamentos")->insert(array("nombre" 	=> "Administrativo",
+		// 												"idUsuario" => 1), "si")->execute();
+		// 												echo $query ->mensaje()."</br>";
+		//
+		// $query ->table("cat_departamentos")->insert(array("nombre" 	=> "Ventas",
+		// 												"idUsuario" => 1), "si")->execute();
+		// 												echo $query ->mensaje()."</br>";
+		//
+		// $query ->table("cat_departamentos")->insert(array("nombre" 	=> "Cobranza",
+		// 												"idUsuario" => 1), "si")->execute();
+		// 												echo $query ->mensaje()."</br>";
+
+		//////////////////////////////////////////////// periodos_noomina /////////////////////////////////////////////////////////
+		// $query 	->dropTable("periodos_noomina");
+		// 	$query 	->dropTable("periodos_nomina");
+		// 	$query ->createTable("periodos_nomina", TRUE)
+		// 			->intIncrements("id")
+		// 			->varChar("nombre",50)
+		// 			->int("idUsuario")
+		// 			->int("activo", FALSE, '1')
+		// 			->execute();
+		// 			echo $query ->mensaje()."</br>";
+		//
+		// 	$query ->table("periodos_nomina")->insert(array("nombre" 	=> "Semanal",
+		// 													"idUsuario" => 1), "si")->execute();
+		// 													echo $query ->mensaje()."</br>";
+		//
+		// 	$query ->table("periodos_nomina")->insert(array("nombre" 	=> "Quincenal",
+		// 													"idUsuario" => 1), "si")->execute();
+		// 													echo $query ->mensaje()."</br>";
+		//
+		// 	$query ->table("periodos_nomina")->insert(array("nombre" 	=> "Mensual",
+		// 													"idUsuario" => 1), "si")->execute();
+		// 													echo $query ->mensaje()."</br>";
 
 //////////////////////////////////////////////// tipos_usuarios /////////////////////////////////////////////////////////
 	// $query 	->dropTable("tipos_usuarios");
