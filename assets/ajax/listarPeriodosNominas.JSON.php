@@ -49,7 +49,7 @@
         }
         $fInicio       .= " 00:00:00";
         $fFin          .= " 23:59:59";
-		$res_nominas = $query ->table("cat_nominas")->select("id, fechaInicio, fechaFin, fechaCreacion")
+		$res_nominas = $query ->table("cat_periodos_nominas")->select("id, fechaInicio, fechaFin, fechaCreacion")
 							->where("fechaInicio", "BETWEEN", "'$fInicio' AND '$fFin'", "ss")->and()->where("activo", "=", 1 ,"i")->execute();
         if ($query->num_rows() == 0)
         {

@@ -81,7 +81,12 @@
         $curp                        	= validarFormulario('s', $_POST['curp'], FALSE);
 		$correo                      	= validarFormulario('s', $_POST['email'], FALSE);
         $idRegimenFiscal             	= validarFormulario('i', $_POST['regimen'], FALSE);
-
+		if (!$periodoNomina				= validarFormulario('i', $_POST['periodoNomina']))
+		{
+			$response['mensaje']        = "El formato del campo Periodo n&oacute;mina no es el correcto";
+			$response['focus']          = 'periodoNomina';
+			responder($response, $mysqli);
+		}
 		if (!$tasaVenta                  	= validarFormulario('i', $_POST['tasaVentas']))
 		{
 			$response['mensaje']        = "El formato del campo Tasa default comisi&oacute;n ventas no es el correcto";
@@ -96,8 +101,8 @@
 		}
 		$query ->table("cat_sucursales") ->update(compact(	"nombre", "lema", "representante", "direccion1", "direccion2",
 															"cp", "estado", "telefono1", "telefono2", "celular", "rfc", "curp",
-															"correo", "idRegimenFiscal", "tasaVenta", "tasaCobranza",
-															"clausulasContrato"), "ssssssissssssiiis")
+															"correo", "idRegimenFiscal", "periodoNomina", "tasaVenta", "tasaCobranza",
+															"clausulasContrato"), "ssssssissssssiiiis")
 										->execute();
 		if ($query ->status() && $query ->affected_rows())
 		{

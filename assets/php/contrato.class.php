@@ -1,9 +1,11 @@
 <?php
 require_once "funcionesVarias.php";
+require_once "query.class.php";
 class contrato
 {
     function __construct($idC, $mysqli)
     {
+		$this->Query = new Query();
         $idC = validarFormulario("i",$idC);
         $sql = "SELECT
                     contratos.id,                       contratos.fechaCreacion,
@@ -322,6 +324,40 @@ class contrato
         $totalAbonado = $this->anticipo + $row['totalPagos'];
         return $totalAbonado;
     }
+
+	/**
+	 * [arrayPagosRecibidos]
+	 * @param  [string] $fechaInicio [fecha en formato string (Y-m-d)]
+	 * @param  [string] $fechaFinal    [fecha en formato string (Y-m-d)]
+	 * @return [array]  $aray      [Array con el total de pagos o false si no hay registros]
+	 */
+	public function arrayPagosRecibidos($fechaInicio, $fechaFinal)
+	{
+		// global $query;
+		$id = $this->id;
+		$row = $this->Query ->table("detalle_pagos_contratos AS dpc")
+							->select("dpc.monto AS monto,
+								dpc.usuario_cobro AS idUsuarioCobro,
+								dpc.usuario_registro AS idUsuarioRegistro,
+								cuc.nombres AS nombreUsuarioCobro,
+								cuc.apellidop AS apellidopUsuarioCobro,
+								cuc.apellidom AS apellidomUsuarioCobro,
+								cur.nombres AS nombreUsuarioRegistro,
+								cur.apellidop AS apellidopUsuarioRegistro,
+								cur.apellidom AS apellidomUsuarioRegistro,
+								cli.nombres AS nombreTitular,
+								cli.apellidop AS apellidopTitular,
+								cli.apellidom AS apellidomTitular,
+								con.folio AS folioContrato")
+							->leftJoin("cat_usuarios AS cuc", "cuc.id", "=", "dpc.usuario_cobro")
+							->leftJoin("cat_usuarios AS cur", "cur.id", "=", "dpc.usuario_registro")
+							->leftJoin("contratos AS con", "dpc.idContrato", "=", "con.id")
+							->leftJoin("clientes AS cli", "con.idTitular", "=", "cli.id")
+							->where("dpc.idContrato", "=", $id, "i")->and()
+							->where("dpc.activo", "=", 1, "i")->execute(TRUE);
+							echo "---------------".$this ->Query->mensaje();
+		return $row;
+	}
     public function nombreDifunto($mysqli)
     {
         $idDifunto = $this->idDifunto;

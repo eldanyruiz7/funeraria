@@ -20,6 +20,7 @@ class Query
 
 	private $query = NULL;
 	private $queryFields = NULL;
+	private $queryForeign = NULL;
 	private $select = NULL;
 	private $table = "";
 	private $fields = NULL;
@@ -78,6 +79,7 @@ class Query
 		$this ->types = "";
 		$this ->queryFields = "";
 		$this ->queryTablesKeys = "";
+		$this ->queryForeign = "";
 		$this ->table = "";
 	}
 	private function conectar()
@@ -230,7 +232,9 @@ class Query
 		$tipo = $this ->obtenerTipoQuery();
 		if ($tipo == "crearTabla")
 		{
-			$this ->query .= "(".$this ->queryFields."".$this ->queryTablesKeys.");";
+			$this ->query .= "(".$this ->queryFields."".$this ->queryTablesKeys."".$this ->queryForeign.");";
+			// echo $this ->query;
+
 			if($prepare_select = self::$mysqli ->query($this ->query))
 			{
 				$table = $this->table;
@@ -251,6 +255,7 @@ class Query
 			}
 
 		}
+		// echo $this ->query;
 		if($prepare_select = self::$mysqli ->prepare($this ->query))
 		{
 			$tmp = array();
@@ -443,6 +448,11 @@ class Query
 
 		$this ->queryFields .= "$name DECIMAL $digits $nullable $defaultValue";
 
+		return $this;
+	}
+	public function foreignKey($constraint, $field, $tableForeign, $fieldForeign)
+	{
+		$this ->queryForeign .= ", CONSTRAINT $constraint FOREIGN KEY ($field) REFERENCES $tableForeign ($fieldForeign)";
 		return $this;
 	}
 

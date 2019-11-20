@@ -435,6 +435,39 @@ $usuario_side = new usuario($sesion->get("id"),$mysqli);
             <?php } ?>
             </ul>
         </li>
+
+		<li class="">
+            <a href="#" class="dropdown-toggle">
+                <i class="menu-icon fa fa-columns" aria-hidden="true"></i>
+                <span class="menu-text"> N&oacute;mina </span>
+
+                <b class="arrow fa fa-angle-down"></b>
+            </a>
+
+            <b class="arrow"></b>
+
+            <ul class="submenu">
+                <li class="">
+                    <a href="listarPeriodosNominas.php">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Listar periodos
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+            <?php //if($usuario_side->permiso("agregarUsuario",$mysqli)){?>
+                <li class="">
+                    <a href="agregarPeriodoNomina.php">
+                        <i class="menu-icon fa fa-caret-right"></i>
+                        Agregar periodo
+                    </a>
+
+                    <b class="arrow"></b>
+                </li>
+            <?php //} ?>
+            </ul>
+        </li>
+
     <?php } ?>
 	<?php if($usuario_side->permiso("listarVariablesSistema",$mysqli)){?>
 

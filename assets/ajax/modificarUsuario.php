@@ -63,6 +63,12 @@
 		$telefono   = validarFormulario('s', $_POST['telefono'], FALSE);
 		$celular    = validarFormulario('s', $_POST['celular'], FALSE);
 		$email      = validarFormulario('s', $_POST['email'], FALSE);
+		if (!$departamento = validarFormulario('i',$_POST['departamento']))
+        {
+            $response['mensaje'] = "El formato del campo departamento no es el correcto";
+            $response['focus'] = 'departamento';
+            responder($response, $mysqli);
+        }
 		if ( $_POST['tasaComision'] > 99 || !$tasaComision = validarFormulario('i',$_POST['tasaComision']))
 		{
 			$response['mensaje'] = "El formato del campo tasa comisión por ventas no es el correcto y no puede ser menor que cero (0) ni mayor a 99";
@@ -319,7 +325,7 @@
         $idSucursal     = $res_noSucursal[0]['idSucursal'];
         $query			->autocommit(FALSE);
 		$query->table("cat_usuarios")->update(compact( "nombres", "apellidop", "apellidom", "direccion1", "direccion2", "estado", "nickName",
-														"telefono", "celular", "email", "tipo", "tasaComision", "tasaComisionCobranza", "idSucursal"), "sssssissssiiii")
+														"telefono", "celular", "email", "tipo", "departamento", "tasaComision", "tasaComisionCobranza", "idSucursal"), "sssssissssiiiii")
 									 ->where("id", "=", $idUsuario_m, "i")->limit(1)->execute();
 		if ($query->status())
 		{

@@ -197,17 +197,49 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label class="col-sm-4 control-label no-padding-right"> Tasa comisión por ventas (%)(*) </label>
+											<label class="col-sm-4 control-label no-padding-right"> Departamento (*) </label>
 
 											<div class="col-sm-8">
-												<input type="number" id="tasaComision" name="tasaComision" min="1" max="99" value="<?php echo $modificar ? $usuario_m->tasaComision : '1';?>" class="col-xs-1"style="text-align:right">
+												<select id="departamento" name="departamento" class="col-xs-5">
+													<?php
+															$rowDepartamentos = $query->table("cat_departamentos")->select("*")->where("activo", "=", 1, "i")->orderBy("nombre", "DESC")->execute();
+															foreach ($rowDepartamentos as $rowDepartamento) {
+																if ($modificar && $rowDepartamento['id'] == $usuario_m->idDepartamento) {
+																	echo "<option selected value=".$rowDepartamento['id'].">".$rowDepartamento['nombre']."</option>";
+																	continue;
+																}
+																	echo "<option value=".$rowDepartamento['id'].">".$rowDepartamento['nombre']."</option>";
+															}
+													 ?>
+												 </select>
+											</div>
+										</div>
+										<div class="form-group">
+											<label class="col-sm-4 control-label no-padding-right"> Tasa comisión por ventas (%)(*) </label>
+										<?php
+											/**
+											 * Calcular tasa de comisión por ventas
+											 * y tasa de comisión de cobranza
+											 * por defecto
+											 */
+											 $resultSuc = $query->table('cat_usuarios')->select("idSucursal")
+ 																->where("id", "=", $idUsuario, "i")->limit(1)
+ 																->execute();
+
+ 											$idSucursal = $resultSuc[0]['idSucursal'];
+											$resTasas = $query	->table("cat_sucursales")->select("tasaVenta, tasaCobranza")
+																->where("id", "=", $idSucursal, "i")->limit(1)
+																->execute();
+										 ?>
+											<div class="col-sm-8">
+												<input type="number" id="tasaComision" name="tasaComision" min="1" max="99" value="<?php echo $modificar ? $usuario_m->tasaComision : $resTasas[0]["tasaVenta"];?>" class="col-xs-1"style="text-align:right">
 											</div>
 										</div>
 										<div class="form-group">
 											<label class="col-sm-4 control-label no-padding-right"> Tasa comisión cobranza (%)(*) </label>
 
 											<div class="col-sm-8">
-												<input type="number" id="tasaComisionCobranza" name="tasaComisionCobranza" min="1" max="99" value="<?php echo $modificar ? $usuario_m->tasaComisionCobranza : '1';?>" class="col-xs-1"style="text-align:right">
+												<input type="number" id="tasaComisionCobranza" name="tasaComisionCobranza" min="1" max="99" value="<?php echo $modificar ? $usuario_m->tasaComisionCobranza : $resTasas[0]["tasaCobranza"];?>" class="col-xs-1"style="text-align:right">
 											</div>
 										</div>
 										<div class="hr hr-24"></div>
@@ -263,7 +295,7 @@
 												<label class="green">Perfil:</label>
 												<select id="perfil" name="perfil" class="">
 												<?php
-													$resPerfil = $query->table("tipos_usuarios")->select("id, nombre")->where("activo", "=", 1, "i")->orderBy("nombre")->execute();
+													$resPerfil = $query->table("tipos_usuarios")->select("id, nombre")->where("activo", "=", 1, "i")->orderBy("nombre", "DESC")->execute();
 													foreach ($resPerfil as $rowPerfil) {
 														if ($modificar && $usuario_m->tipo == $rowPerfil['id']) {
 															echo "<option selected value = '".$rowPerfil['id']."'>".$rowPerfil['nombre']."</option>";

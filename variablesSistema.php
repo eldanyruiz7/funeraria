@@ -247,7 +247,31 @@
 										&nbsp;
 									</div>
 									<h4 class="header blue clearfix">
-										Otras variables
+										Nómina
+									</h4>
+									<div class="form-group">
+										<label class="col-sm-4 control-label no-padding-right"> Periodo </label>
+
+										<div class="col-sm-8">
+											<select id="periodoNomina" name="periodoNomina" class="col-xs-5">
+												<?php
+													$rowPeriodosNominas = $query->table("periodos_nomina")->select("*")->where("activo", "=", 1, "i")->execute();
+													foreach ($rowPeriodosNominas as $rowPeriodoNomina) {
+														if ($rowPeriodoNomina['id'] == $rowSucursal["periodoNomina"]) {
+															echo "<option selected value=".$rowPeriodoNomina['id'].">".$rowPeriodoNomina['nombre']."</option>";
+															continue;
+														}
+														echo "<option value=".$rowPeriodoNomina['id'].">".$rowPeriodoNomina['nombre']."</option>";
+													}
+												 ?>
+											 </select>
+										</div>
+									</div>
+									<div class="form-group">
+										&nbsp;
+									</div>
+									<h4 class="header blue clearfix">
+										Comisiones
 									</h4>
 									<div class="form-group">
 										<label class="col-sm-4 control-label no-padding-right"> Tasa default comisión ventas (%)(*) </label>
@@ -260,6 +284,9 @@
 										<div class="col-sm-8">
 											<input type="number" value="<?php echo $rowSucursal['tasaCobranza'];?>" id="tasaCobranza" name="tasaCobranza" min="1" max="99" class="col-xs-1" style="text-align:right">
 										</div>
+									</div>
+									<div class="form-group">
+										&nbsp;
 									</div>
 								</form>
 

@@ -67,6 +67,7 @@
 				// 		    </a>
 				// 		</div>';
                 $array = $usuario->obtener_cobranza_vendedor($mysqli, $fInicio, $fFin);
+				print_r($array['detallePagosContratos']);
                 // if ($array['cobrado'] <= 0) {
                 //     continue;
                 // }

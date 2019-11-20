@@ -342,17 +342,16 @@
 				});
 			});
 			jQuery(function($) {
-
 				myTable = $('#dynamic-table').DataTable( {
 
 			        "ajax":
 					{
-						"url":"assets/ajax/listarNominas.JSON.php",
+						"url":"assets/ajax/listarPeriodosNominas.JSON.php",
 						"type": "GET",
 						"data": function(d)
 						{
-							d.fechaInicio =  $("#hiddenFInicio").val();
-							d.fechaFin = $("#hiddenFFin").val();
+							d.fechaInicio =  $("#hiddenFInicio").val()
+							d.fechaFin = $("#hiddenFFin").val()
 						},
 						"complete": function()
 						{
@@ -366,6 +365,9 @@
 						$('input[name=date-range-picker]').daterangepicker({
 							'applyClass' : 'btn-sm btn-success btn-white btn-bold',
 							'cancelClass' : 'btn-sm btn-default btn-white btn-bold',
+							startDate: moment($("#hiddenFInicio").val(), 'YYYY-MM-DD').format('DD-MM-YYYY'),
+							endDate: moment($("#hiddenFFin").val(), 'YYYY-MM-DD').format('DD-MM-YYYY'),
+							"showWeekNumbers": true,
 							//'showDropdowns': true,
 							"locale": {
 						        "format": "DD/MM/YYYY",
