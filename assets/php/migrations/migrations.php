@@ -277,8 +277,7 @@ else
 		// 												"idUsuario" => 1), "si")->execute();
 		// 												echo $query ->mensaje()."</br>";
 
-		//////////////////////////////////////////////// periodos_noomina /////////////////////////////////////////////////////////
-		// $query 	->dropTable("periodos_noomina");
+		//////////////////////////////////////////////// periodos_nomina /////////////////////////////////////////////////////////
 		// 	$query 	->dropTable("periodos_nomina");
 		// 	$query ->createTable("periodos_nomina", TRUE)
 		// 			->intIncrements("id")
@@ -363,6 +362,7 @@ else
 	// 		->int("idUsuario")
 	// 		->int("idSucursal")
 	// 		->int("activo", FALSE, '1')
+	// 		->foreignKey("fk_detalle_nomina", "idNomina", "cat_nominas", "id")
 	// 		->execute();
 	// //
 	// $query ->dropTable("cat_conceptos_nomina");
