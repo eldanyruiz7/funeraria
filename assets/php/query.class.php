@@ -318,9 +318,12 @@ class Query
 		$this ->table = $table;
 		return $this;
 	}
-	public function dropTable($table)
+	public function dropTable($table, $foreignKeyChecks = 1)
 	{
+		$queryKeys = $foreignKeyChecks ? "SET FOREIGN_KEY_CHECKS=1;" : "SET FOREIGN_KEY_CHECKS=0;";
 		$this ->query = "DROP TABLE IF EXISTS $table;";
+		// echo $this->query;
+		self::$mysqli ->query($queryKeys);
 		if($prepare_select = self::$mysqli ->query($this ->query))
 		{
 			return TRUE;
