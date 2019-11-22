@@ -45,6 +45,8 @@ class Query
 	}
 	function __destruct()
 	{
+		if(!empty(self::$mysqli))
+		   return;
 		self::$mysqli->close();
 	}
 	private function loadConfig()

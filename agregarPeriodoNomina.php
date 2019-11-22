@@ -43,6 +43,12 @@
 		<![endif]-->
 		<link rel="stylesheet" href="assets/css/ace-skins.min.css" />
 		<link rel="stylesheet" href="assets/css/ace-rtl.min.css" />
+
+		<link rel="stylesheet" href="assets/css/jquery-ui.min.css" />
+		<link rel="stylesheet" href="assets/css/jquery-ui.theme.min.css" />
+
+		<link rel="stylesheet" href="assets/js/jtable.2.4.0/themes/metro/blue/jtable.min.css" />
+
 		<!--[if lte IE 9]>
 		  <link rel="stylesheet" href="assets/css/ace-ie.min.css" />
 		<![endif]-->
@@ -133,6 +139,9 @@
 											</span>
 										</div>
 									</div>
+									<div class="col-xs-12">
+										<div id="PersonTableContainer"></div>
+									</div>
 								<input type="hidden" id="hiddenFInicio" value="<?php echo date("Y-01-01");?>"/>
 								<input type="hidden" id="hiddenFFin" value="<?php echo date("Y-m-d");?>"/>
 
@@ -201,21 +210,14 @@
 		<!--[if IE]>
 <script src="assets/js/jquery-1.11.3.min.js"></script>
 <![endif]-->
+		<script src="assets/js/jquery-ui.min.js"></script>
+		<script src="assets/js/jtable.2.4.0/jquery.jtable.min.js"></script>
+		<script src="assets/js/jtable.2.4.0/localization/jquery.jtable.es.js"></script>
 		<script type="text/javascript">
 			if('ontouchstart' in document.documentElement) document.write("<script src='assets/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
 		</script>
 		<script src="assets/js/bootstrap.min.js"></script>
 		<!-- page specific plugin scripts -->
-		<script src="assets/js/jquery.dataTables.min.js"></script>
-		<script src="assets/js/jquery.dataTables.bootstrap.min.js"></script>
-		<script src="assets/js/dataTables.buttons.min.js"></script>
-		<script src="assets/js/buttons.flash.min.js"></script>
-		<script src="assets/js/buttons.html5.min.js"></script>
-		<script src="assets/js/buttons.print.min.js"></script>
-		<script src="assets/js/pdfmake.min.js"></script>
-		<script src="assets/js/vfs_fonts.js"></script>
-		<script src="assets/js/buttons.colVis.min.js"></script>
-		<script src="assets/js/dataTables.select.min.js"></script>
 		<script src="assets/js/bootbox.js"></script>
 		<script src="assets/js/moment.min.js"></script>
 		<script src="assets/js/daterangepicker.min.js"></script>
@@ -298,7 +300,7 @@
 			        {
 						console.log(p);
 			        });
- 
+
 				});
 				// $('.dataTables_length').prepend('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
 				$('input[name=date-range-picker]').daterangepicker({
@@ -342,6 +344,38 @@
 			jQuery(function($) {
 
 			});
+		</script>
+		<script type="text/javascript">
+		    $(document).ready(function () {
+		        $('#PersonTableContainer').jtable({
+		            title: 'Table of people',
+		            actions: {
+		                listAction: 'assets/ajax/listarRegistrosNominas.JSON.php',
+						createAction: '/GettingStarted/CreatePerson',
+		                updateAction: '/GettingStarted/UpdatePerson',
+		                deleteAction: '/GettingStarted/DeletePerson'
+		            },
+		            fields: {
+		                id: {
+		                    key: true,
+		                    list: false
+		                },
+		                folio: {
+		                    title: 'Folio',
+		                    width: '40%'
+		                },
+		                fechaCreacion: {
+		                    title: 'Fecha creción',
+		                    width: '20%'
+		                },
+		                precio: {
+		                    title: 'Precio',
+		                    width: '40%'
+		                }
+		            }
+		        });
+				$('#PersonTableContainer').jtable('load');
+		    });
 		</script>
 	</body>
 </html>
