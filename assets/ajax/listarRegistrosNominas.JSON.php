@@ -12,37 +12,68 @@
     }
     else
     {
+		$fInicio = $_POST['fechaInicio'];
+        $fInicio_e = explode('-',$fInicio);
+        $Y_ini = intval($fInicio_e[0]);
+        $m_ini = intval($fInicio_e[1]);
+        $d_ini = intval($fInicio_e[2]);
+        // var_dump($_GET);
+        $fFin = $_POST['fechaFin'];
+        $fFin_e = explode('-',$fFin);
+        $Y_fin = intval($fFin_e[0]);
+        $m_fin = intval($fFin_e[1]);
+        $d_fin = intval($fFin_e[2]);
+        // var_dump($fInicio_e);
+        if(checkdate($m_ini,$d_ini,$Y_ini) == FALSE || checkdate($m_fin,$d_fin,$Y_fin) == FALSE)
+        {
+            $json_data = [
+                "data"   => 0
+            ];
+            echo json_encode($json_data);
+            die;
+        }
+        $fInicio       .= " 00:00:00";
+        $fFin          .= " 23:59:59";
+		$response = array(
+			"status"        => 1
+		);
         require "../php/responderJSON.php";
-        require "../php/contrato.class.php";
         require_once "../php/funcionesVarias.php";
-        $response = array(
-            "status"        => 1
-        );
-
-        $sql = "SELECT
-                    contratos.id                AS idContrato
-                FROM contratos
-                WHERE contratos.enCurso = 1 AND contratos.activo = 1";
-        $res_ = $mysqli->query($sql);
-        $num = $res_->num_rows;
+		require "../php/query.class.php";
+		$query 		= new Query();
+		/**
+		 * Obtener totales por primeras aportaciones,
+		 * por rango de fechas
+		 */
+		$totalNominas = $query ->table("cat_usuarios") ->select("id AS idUsuario, CONCAT(nombres, ' ', apellidop, ' ', apellidom) AS nombres")
+								->where("activo", "=", 1, "i")->and()->where("id", "<>", 1, "i")->execute();
+        // $sql = "SELECT
+        //             contratos.id                AS idContrato
+        //         FROM contratos
+        //         WHERE contratos.enCurso = 1 AND contratos.activo = 1";
+        // $res_ = $mysqli->query($sql);
+        $num = $query->num_rows();
         if ($num == 0)
         {
 			$json_data["Records"] = 0;
-
         }
         else
         {
-            while ($row = $res_->fetch_assoc())
-            {
-                $idContrato = $row['idContrato'];
-                //$fechaCreacion = date_format(date_create($row['fechaCreacion']), 'd-m-Y');
-                $contrato = new contrato($idContrato,$mysqli);
-                $nombreDifunto = $contrato->nombreDifunto($mysqli);
+            foreach ($totalNominas as $nomina)
+			{
+				$totalAportaciones = $query ->table("contratos")->select("IFNULL(SUM(primerAnticipo),0) AS suma")
+											->where("fechaCreacion", "BETWEEN", "'$fInicio' AND '$fFin'", "ss")->and()
+											->where("idVendedor", "=", $nomina['idUsuario'], "i")->and()
+											->where("activo", "=", 1, "i")->execute();
+				// echo $query->lastStatement();
+				// echo "<br>".$fInicio;
+				// echo "<br>".$fFin;
+				// $totalCobranzaVenta
                 $InfoData[] = array(
-                    'id'                =>$contrato->id,
-                    'folio'             => $contrato->folio,
-                    'fechaCreacion'     => $contrato->fechaCreacion(),
-                    'precio'            => "$".number_format($contrato->costoTotal,2,".",","));
+					'idUsuario'         => $nomina['idUsuario'],
+                    'nombres'           => $nomina['nombres'],
+                    'aportaciones'      => $totalAportaciones[0]['suma']);
+                    //'precio'            => "$".number_format($contrato->costoTotal,2,".",","));
             }
         //$data[] = $InfoData;
 			$json_data["Result"] = "OK";

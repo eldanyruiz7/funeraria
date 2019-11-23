@@ -355,7 +355,7 @@ class contrato
 							->leftJoin("clientes AS cli", "con.idTitular", "=", "cli.id")
 							->where("dpc.idContrato", "=", $id, "i")->and()
 							->where("dpc.activo", "=", 1, "i")->execute(TRUE);
-							echo "---------------".$this ->Query->mensaje();
+							echo "---------------".$this ->Query->mensaje(1);
 		return $row;
 	}
     public function nombreDifunto($mysqli)

@@ -292,7 +292,6 @@ class usuario
             $abonado_contrato       = $contrato->totalAbonado($mysqli);
             $costo_total_contrato   = $contrato->costoTotal;
             $comision_vendedor      = $contrato->comision_vendedor();
-			$detallePagosContratos 	= $contrato->arrayPagosRecibidos($fechaInicio, $fechaFinal);
             $inversion              = $contrato->anticipo;
 
             if ($inversion > $comision_vendedor)
@@ -307,7 +306,6 @@ class usuario
         }
         $array['totalCobranza'] = $totalCobranza;
 		$array['totalComisionGanada'] = $comision_ganada;
-        $array['detallePagosContratos'] = $detallePagosContratos;
         return $array;
     }
 }

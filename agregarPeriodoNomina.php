@@ -128,7 +128,7 @@
 												<i class="fa fa-calendar bigger-110"></i>
 											</span>
 											<span class="input-group-btn">
-												<button class="btn btn-white btn-info btn-bold">
+												<button class="btn btn-white btn-info btn-bold" onclick="recargarTabla();">
 													<i class="ace-icon fa fa-calculator bigger-130 blue"></i>
 													Generar!
 												</button>
@@ -142,7 +142,7 @@
 									<div class="col-xs-12">
 										<div id="PersonTableContainer"></div>
 									</div>
-								<input type="hidden" id="hiddenFInicio" value="<?php echo date("Y-01-01");?>"/>
+								<input type="hidden" id="hiddenFInicio" value="<?php echo date("Y-m-01");?>"/>
 								<input type="hidden" id="hiddenFFin" value="<?php echo date("Y-m-d");?>"/>
 
 							</div>
@@ -308,8 +308,6 @@
 					"showWeekNumbers": true,
 					"linkedCalendars": false,
 					'cancelClass' : 'btn-sm btn-default btn-white btn-bold',
-					// startDate: moment($("#hiddenFInicio").val(), 'YYYY-MM-DD').format('DD-MM-YYYY'),
-					// endDate: moment($("#hiddenFFin").val(), 'YYYY-MM-DD').format('DD-MM-YYYY'),
 					"showWeekNumbers": true,
 					"autoApply": false,
 					"minDate": "10/11/2019",
@@ -327,7 +325,9 @@
 						"firstDay": 0,
 						applyLabel: 'Aplicar',
 						cancelLabel: 'Cancelar'
-					}
+					},
+					startDate: moment($("#hiddenFInicio").val(), 'YYYY-MM-DD').format('DD-MM-YYYY'),
+					endDate: moment($("#hiddenFFin").val(), 'YYYY-MM-DD').format('DD-MM-YYYY')
 					// locale: {
 					//
 					// }
@@ -341,40 +341,44 @@
 					$(this).prev().focus();
 				});
 			});
-			jQuery(function($) {
-
-			});
 		</script>
 		<script type="text/javascript">
-		    $(document).ready(function () {
-		        $('#PersonTableContainer').jtable({
-		            title: 'Table of people',
-		            actions: {
-		                listAction: 'assets/ajax/listarRegistrosNominas.JSON.php',
+		// urlListar = 'assets/ajax/listarRegistrosNominas.JSON.php?fechaInicio='+$("#hiddenFInicio").val()+'&fechaFin='+$("#hiddenFFin").val();
+		function recargarTabla()
+		{
+			$('#PersonTableContainer').jtable('load',{ fechaInicio: $("#hiddenFInicio").val(), fechaFin: $("#hiddenFFin").val() });
+			// console.log(urlListar);
+
+		}
+		    $(document).ready(function ()
+			{
+				// console.log(urlListar);
+
+				// urlListar = 'assets/ajax/listarRegistrosNominas.JSON.php?fechaInicio='+$("#hiddenFInicio").val()+'&fechaFin='+$("#hiddenFFin").val();
+				$('#PersonTableContainer').jtable({
+					title: 'Table of people',
+					actions: {
+						listAction: 'assets/ajax/listarRegistrosNominas.JSON.php',
 						createAction: '/GettingStarted/CreatePerson',
-		                updateAction: '/GettingStarted/UpdatePerson',
-		                deleteAction: '/GettingStarted/DeletePerson'
-		            },
-		            fields: {
-		                id: {
-		                    key: true,
-		                    list: false
-		                },
-		                folio: {
-		                    title: 'Folio',
-		                    width: '40%'
-		                },
-		                fechaCreacion: {
-		                    title: 'Fecha creción',
-		                    width: '20%'
-		                },
-		                precio: {
-		                    title: 'Precio',
-		                    width: '40%'
-		                }
-		            }
-		        });
-				$('#PersonTableContainer').jtable('load');
+						updateAction: '/GettingStarted/UpdatePerson',
+						deleteAction: '/GettingStarted/DeletePerson'
+					},
+					fields: {
+						idUsuario: {
+							key: true,
+							list: false
+						},
+						nombres: {
+							title: 'Nombres',
+							width: '60%'
+						},
+						aportaciones: {
+							title: '$ Aportaciones',
+							width: '40%'
+						}
+					}
+				});
+				recargarTabla();
 		    });
 		</script>
 	</body>
