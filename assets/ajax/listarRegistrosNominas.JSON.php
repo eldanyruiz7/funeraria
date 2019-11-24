@@ -65,6 +65,7 @@
 											->where("fechaCreacion", "BETWEEN", "'$fInicio' AND '$fFin'", "ss")->and()
 											->where("idVendedor", "=", $nomina['idUsuario'], "i")->and()
 											->where("activo", "=", 1, "i")->execute();
+				// $resContratos = $query ->table("contratos")->select("id AS idContrato, primerAnticipo")
 				// echo $query->lastStatement();
 				// echo "<br>".$fInicio;
 				// echo "<br>".$fFin;

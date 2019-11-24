@@ -346,15 +346,14 @@
 		// urlListar = 'assets/ajax/listarRegistrosNominas.JSON.php?fechaInicio='+$("#hiddenFInicio").val()+'&fechaFin='+$("#hiddenFFin").val();
 		function recargarTabla()
 		{
+			console.log($("#hiddenFInicio").val());
+			console.log($("#hiddenFFin").val());
 			$('#PersonTableContainer').jtable('load',{ fechaInicio: $("#hiddenFInicio").val(), fechaFin: $("#hiddenFFin").val() });
 			// console.log(urlListar);
 
 		}
 		    $(document).ready(function ()
 			{
-				// console.log(urlListar);
-
-				// urlListar = 'assets/ajax/listarRegistrosNominas.JSON.php?fechaInicio='+$("#hiddenFInicio").val()+'&fechaFin='+$("#hiddenFFin").val();
 				$('#PersonTableContainer').jtable({
 					title: 'Table of people',
 					actions: {
