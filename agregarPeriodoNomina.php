@@ -105,7 +105,7 @@
 					<div class="page-content">
 						<div class="page-header">
 							<h1>
-								<i class="fa fa-shopping-cart" aria-hidden="true"></i> Agregar periodo de nómina
+								<i class="fa fa-columns" aria-hidden="true"></i> Agregar periodo de nómina
 								<small>
 									<i class="ace-icon fa fa-angle-double-right"></i>
 									Agregar un nuevo periodo de n&oacute;mina
@@ -138,6 +138,9 @@
 												</button> -->
 											</span>
 										</div>
+									</div>
+									<div class="col-xs-12">
+										&nbsp;
 									</div>
 									<div class="col-xs-12">
 										<div id="PersonTableContainer"></div>
@@ -310,7 +313,7 @@
 					'cancelClass' : 'btn-sm btn-default btn-white btn-bold',
 					"showWeekNumbers": true,
 					"autoApply": false,
-					"minDate": "10/11/2019",
+					// "minDate": "10/11/2019",
 					//'showDropdowns': true,
 					"locale": {
 						"format": "DD/MM/YYYY",
@@ -355,7 +358,7 @@
 		    $(document).ready(function ()
 			{
 				$('#PersonTableContainer').jtable({
-					title: 'Table of people',
+					title: 'Lista de nóminas',
 					actions: {
 						listAction: 'assets/ajax/listarRegistrosNominas.JSON.php',
 						createAction: '/GettingStarted/CreatePerson',
@@ -373,7 +376,11 @@
 						},
 						aportaciones: {
 							title: '$ Aportaciones',
-							width: '40%'
+							width: '20%'
+						},
+						comisionVentas: {
+							title: '$ Comisión por ventas',
+							width: '20%'
 						}
 					}
 				});

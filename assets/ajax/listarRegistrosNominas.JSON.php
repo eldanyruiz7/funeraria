@@ -13,12 +13,14 @@
     else
     {
 		$fInicio = $_POST['fechaInicio'];
+		// $fInicio = $_GET['fechaInicio'];
         $fInicio_e = explode('-',$fInicio);
         $Y_ini = intval($fInicio_e[0]);
         $m_ini = intval($fInicio_e[1]);
         $d_ini = intval($fInicio_e[2]);
         // var_dump($_GET);
-        $fFin = $_POST['fechaFin'];
+		$fFin = $_POST['fechaFin'];
+        // $fFin = $_GET['fechaFin'];
         $fFin_e = explode('-',$fFin);
         $Y_fin = intval($fFin_e[0]);
         $m_fin = intval($fFin_e[1]);
@@ -37,9 +39,10 @@
 		$response = array(
 			"status"        => 1
 		);
+		require_once "../php/contrato.class.php";
         require "../php/responderJSON.php";
         require_once "../php/funcionesVarias.php";
-		require "../php/query.class.php";
+		require_once "../php/query.class.php";
 		$query 		= new Query();
 		/**
 		 * Obtener totales por primeras aportaciones,
@@ -47,11 +50,7 @@
 		 */
 		$totalNominas = $query ->table("cat_usuarios") ->select("id AS idUsuario, CONCAT(nombres, ' ', apellidop, ' ', apellidom) AS nombres")
 								->where("activo", "=", 1, "i")->and()->where("id", "<>", 1, "i")->execute();
-        // $sql = "SELECT
-        //             contratos.id                AS idContrato
-        //         FROM contratos
-        //         WHERE contratos.enCurso = 1 AND contratos.activo = 1";
-        // $res_ = $mysqli->query($sql);
+
         $num = $query->num_rows();
         if ($num == 0)
         {
@@ -65,18 +64,47 @@
 											->where("fechaCreacion", "BETWEEN", "'$fInicio' AND '$fFin'", "ss")->and()
 											->where("idVendedor", "=", $nomina['idUsuario'], "i")->and()
 											->where("activo", "=", 1, "i")->execute();
-				// $resContratos = $query ->table("contratos")->select("id AS idContrato, primerAnticipo")
-				// echo $query->lastStatement();
-				// echo "<br>".$fInicio;
-				// echo "<br>".$fFin;
-				// $totalCobranzaVenta
+				$rowComisionesVentas=$query	->table("detalle_pagos_contratos AS dpc")
+											->select( "dpc.monto AS monto,
+													   dpc.tasaComisionCobranza AS tasaComisionCobranza,
+													   con.id AS idContrato")
+											->innerJoin("contratos AS con", "dpc.idContrato", "=", "con.id")
+											->innerJoin("folios_cobranza_asignados AS fca", "dpc.idFolio_cobranza", "=", "fca.id")
+											->where("dpc.fechaCreacion", "BETWEEN", "'$fInicio' AND '$fFin'", "ss")->and()
+											->where("fca.idUsuario_asignado", "=", $nomina['idUsuario'], "i")->and()
+											->where("dpc.activo", "=", 1, "i")->execute();
+				// print_r($rowComisionesVentas);
+				$totalComisionVentas = 0;
+				foreach ($rowComisionesVentas as $rowCom_venta)
+				{
+					$contrato 				= new contrato($rowCom_venta['idContrato'], $mysqli);
+					$montoPago 				= $rowCom_venta['monto'];
+					$tasaCom_Cobranza 		= $rowCom_venta['tasaComisionCobranza'];
+					$tasa_100 				= $tasaCom_Cobranza / 100;
+			        $monto_pago_cobrador 	= $montoPago * $tasa_100;
+					$monto_pago_vendedor 	= $montoPago - $monto_pago_cobrador;
+					$totalAbonado 			= $contrato ->totalAbonado($mysqli);
+					$comision_vendedor 		= $contrato->comision_vendedor();
+					// echo "<br>Total abonado".$totalAbonado;
+					// echo "<br>Total comisión vendedor".$comision_vendedor;
+					$resta_comision 		= $comision_vendedor - $totalAbonado;
+					if ($resta_comision > 0)
+					{
+						$monto_pago_vendedor_real = $monto_pago_vendedor < $resta_comision ? $monto_pago_vendedor : $resta_comision;
+					}
+					else
+					{
+						$monto_pago_vendedor_real = 0;
+					}
+					$totalComisionVentas += $monto_pago_vendedor_real;
+				}
+
                 $InfoData[] = array(
 					'idUsuario'         => $nomina['idUsuario'],
                     'nombres'           => $nomina['nombres'],
-                    'aportaciones'      => $totalAportaciones[0]['suma']);
-                    //'precio'            => "$".number_format($contrato->costoTotal,2,".",","));
+                    'aportaciones'      => $totalAportaciones[0]['suma'],
+					'comisionVentas'	=> $totalComisionVentas);
             }
-        //$data[] = $InfoData;
 			$json_data["Result"] = "OK";
             $json_data["Records"] = $InfoData;
         }
