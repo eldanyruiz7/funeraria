@@ -17,9 +17,9 @@ class Query
 	private $timeZone;
 	// Objeto que representa la conexión actual abierta
 	private static $mysqli = NULL;
-
 	private $query = NULL;
 	private $queryFields = NULL;
+	private $queryForeign = NULL;
 	private $select = NULL;
 	private $table = "";
 	private $fields = NULL;
@@ -30,7 +30,6 @@ class Query
 	private $num_rows = 0;
 	private $affected_rows = 0;
 	private $insert_id = 0;
-
 	/**
 	*
 	* Obtiene el tipo de query (Select, Insert, Update)
@@ -41,7 +40,6 @@ class Query
 	{
 	    $this->loadConfig();
 		$this ->conectar();
-
 	}
 	function __destruct()
 	{
@@ -80,13 +78,13 @@ class Query
 		$this ->types = "";
 		$this ->queryFields = "";
 		$this ->queryTablesKeys = "";
+		$this ->queryForeign = "";
 		$this ->table = "";
 	}
 	private function conectar()
 	{
 		if(!empty(self::$mysqli))
 		   return;
-
 		date_default_timezone_set($this ->timeZone);
 		mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 	    self::$mysqli = new mysqli($this->host, $this->user, $this->pass, $this->dataBase);
@@ -97,13 +95,11 @@ class Query
 			exit();
 	    }
 	}
-
 	public function table($tb)
 	{
 		$this ->table = $tb;
 		return $this;
 	}
-
 	public function select($fields)
 	{
 		global $params;
@@ -111,7 +107,6 @@ class Query
 		$this ->query = "SELECT $fields FROM ".$this ->table;
 		return $this;
 	}
-
 	public function insert($arrayValues, $ty)
 	{
 		$fieldList = "";
@@ -156,26 +151,21 @@ class Query
 		$this ->query = "UPDATE ".$this ->table." SET $fieldList";
 		return $this;
 	}
-
 	public function innerJoin($tableJoin, $fieldAjoin, $rule, $fieldBjoin)
 	{
 		$this->query .= " INNER JOIN $tableJoin ON $fieldAjoin $rule $fieldBjoin";
-
 		return $this;
 	}
-
 	public function leftJoin($tableJoin, $fieldAjoin, $rule, $fieldBjoin)
 	{
 		$this->query .= " LEFT JOIN $tableJoin ON $fieldAjoin $rule $fieldBjoin";
 		return $this;
 	}
-
 	public function rightJoin($tableJoin, $fieldAjoin, $rule, $fieldBjoin)
 	{
 		$this->query .= " RIGHT JOIN $tableJoin ON $fieldAjoin $rule $fieldBjoin";
 		return $this;
 	}
-
 	public function where($fieldAwhere, $rule, $fieldBwhere, $type)
 	{
 		global $params;
@@ -185,7 +175,6 @@ class Query
 				$this ->query .= " $fieldAwhere BETWEEN ? AND ?";
 			else
 				$this ->query .= " WHERE $fieldAwhere BETWEEN ? AND ?";
-
 			$chars = array("'");
 			$str = str_ireplace($chars, "", $fieldBwhere);
 			$chars = array(" AND ");
@@ -200,10 +189,8 @@ class Query
 				$this ->query .= " $fieldAwhere $rule ?";
 			else
 				$this ->query .= " WHERE $fieldAwhere $rule ?";
-
 			$params[] = $fieldBwhere;
 		}
-
 		$this ->types .= $type;
 		return $this;
 	}
@@ -232,12 +219,12 @@ class Query
 		$tipo = $this ->obtenerTipoQuery();
 		if ($tipo == "crearTabla")
 		{
-			$this ->query .= "(".$this ->queryFields."".$this ->queryTablesKeys.");";
+			$this ->query .= "(".$this ->queryFields."".$this ->queryTablesKeys."".$this ->queryForeign.");";
+			// echo $this ->query;
 			if($prepare_select = self::$mysqli ->query($this ->query))
 			{
 				$table = $this->table;
 				$this ->restartParam();
-
 				$this ->mensaje = "Tabla <b>".$table."</b> creada con éxito";
 				if ($debug)
 					$this ->mensaje .= "<br>".$this ->query;
@@ -251,7 +238,6 @@ class Query
 					return $this ->mensaje .= "<br>".$this->query;
 				return false;
 			}
-
 		}
 		// echo $this ->query;
 		if($prepare_select = self::$mysqli ->prepare($this ->query))
@@ -316,9 +302,12 @@ class Query
 		$this ->table = $table;
 		return $this;
 	}
-	public function dropTable($table)
+	public function dropTable($table, $foreignKeyChecks = 1)
 	{
+		$queryKeys = $foreignKeyChecks ? "SET FOREIGN_KEY_CHECKS=1;" : "SET FOREIGN_KEY_CHECKS=0;";
 		$this ->query = "DROP TABLE IF EXISTS $table;";
+		// echo $this->query;
+		self::$mysqli ->query($queryKeys);
 		if($prepare_select = self::$mysqli ->query($this ->query))
 		{
 			return TRUE;
@@ -327,114 +316,81 @@ class Query
 			return FALSE;
 		}
 	}
-
 	public function bigIncrements($name)
 	{
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
-
 		$this ->queryFields .= " $name BIGINT UNSIGNED NOT NULL AUTO_INCREMENT";
-
 		//if (strlen($this ->queryTablesKeys))
 			$this ->queryTablesKeys = ", ";
-
 		$this ->queryTablesKeys .= " PRIMARY KEY ($name)";
-
 		return $this;
 	}
 	public function intIncrements($name)
 	{
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
-
 		$this ->queryFields .= "$name INT UNSIGNED NOT NULL AUTO_INCREMENT";
-
 		//if (strlen($this ->queryTablesKeys))
 			$this ->queryTablesKeys = ", ";
-
 		$this ->queryTablesKeys .= "PRIMARY KEY ($name)";
-
 		return $this;
 	}
-
 	public function bigInt($name, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
-
 		if (strlen($this ->queryFields))
 		$this ->queryFields .= ", ";
-
 		$this ->queryFields .= "$name BIGINT UNSIGNED $nullable";
-
 		return $this;
 	}
-
 	public function int($name, $null = FALSE, $defaultVal = FALSE)
 	{
 		$defaultValue = !$defaultVal ? "" : "DEFAULT '$defaultVal'";
 		$nullable = $null ? "NULL" : "NOT NULL";
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
-
 		$this ->queryFields .= "$name INT UNSIGNED $nullable $defaultValue";
-
 		return $this;
 	}
-
 	public function varChar($name, $size = 250, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
-
 		$this ->queryFields .= "$name VARCHAR($size) $nullable";
 		return $this;
 	}
-
 	public function date($name, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
-
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
-
 		$this ->queryFields .= "$name DATE $nullable";
-
 		return $this;
 	}
-
 	public function dateTime($name, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
-
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
-
 		$this ->queryFields .= "$name DATETIME $nullable";
-
 		return $this;
 	}
 	public function dateCurrent($name, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
-
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
-
 		$this ->queryFields .= "$name DATE $nullable DEFAULT CURRENT_TIMESTAMP";
-
 		return $this;
 	}
-
 	public function dateTimeCurrent($name, $null = FALSE)
 	{
 		$nullable = $null ? "NULL" : "NOT NULL";
-
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
-
 		$this ->queryFields .= "$name DATETIME $nullable DEFAULT CURRENT_TIMESTAMP";
-
 		return $this;
 	}
 	public function decimal($name, $digits = "(10,2)", $null = FALSE, $defaultVal = FALSE)
@@ -443,12 +399,14 @@ class Query
 		$nullable = $null ? "NULL" : "NOT NULL";
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
-
 		$this ->queryFields .= "$name DECIMAL $digits $nullable $defaultValue";
-
 		return $this;
 	}
-
+	public function foreignKey($constraint, $field, $tableForeign, $fieldForeign)
+	{
+		$this ->queryForeign .= ", CONSTRAINT $constraint FOREIGN KEY ($field) REFERENCES $tableForeign ($fieldForeign)";
+		return $this;
+	}
 	private function obtenerTipoQuery()
 	{
 		if (stripos($this ->query, 'select') !== false) {
@@ -465,10 +423,8 @@ class Query
 		}
 		else
 			$tipo = "enlazar";
-
 		return $tipo;
 	}
-
 	public function mensaje()
 	{
 		return $this->mensaje;
@@ -497,7 +453,6 @@ class Query
 	{
 		return $this->query;
 	}
-
 	// Soporte para transacciones
 	public function autocommit($bool)
 	{

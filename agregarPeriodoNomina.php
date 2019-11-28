@@ -128,7 +128,7 @@
 												<i class="fa fa-calendar bigger-110"></i>
 											</span>
 											<span class="input-group-btn">
-												<button class="btn btn-white btn-info btn-bold" onclick="recargarTabla();">
+												<button class="btn btn-white btn-info btn-bold" onclick='$("#my-modal-agregar-periodo").modal();'>
 													<i class="ace-icon fa fa-calculator bigger-130 blue"></i>
 													Generar!
 												</button>
@@ -195,6 +195,44 @@
 						</div><!-- /.modal-content -->
 					</div><!-- /.modal-dialog -->
 				</div>
+				<!--/////////////////////modal cancelar ////////////////////////-->
+				<div id="my-modal-agregar-periodo" class="modal fade" tabindex="-1">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h3 class="smaller blue no-margin">
+									<span class="smaller lighter blue no-margin">
+										<i class="fa fa-ban" aria-hidden="true"></i>
+									</span>
+									Agregar un nuevo periodo
+								</h3>
+							</div>
+
+							<div class="modal-body">
+								<form class="form-horizontal" role="form" onSubmit="return false">
+									<div class="form-group">
+										<label class="col-xs-12 text-left">
+											<i class="fa fa-question-circle" aria-hidden="true"></i>
+											¿Deseas generar un nuevo periodo de n&oacute;mina dentro de las fechas seleccionadas?
+										</label>
+									</div>
+								</form>
+							</div>
+
+							<div class="modal-footer">
+								<button class="btn btn-white btn-primary btn-bold btn-round" data-dismiss="modal" onclick="recargarTabla(); "id="btnAgregarPeriodoModal">
+									<i class="ace-icon fa fa-columns"></i>
+									Agregar periodo
+								</button>
+								<button class="btn btn-white btn-default btn-bold no-border btn-round" data-dismiss="modal">
+									<i class="ace-icon fa fa-times"></i>
+									Cancelar
+								</button>
+							</div>
+						</div><!-- /.modal-content -->
+					</div><!-- /.modal-dialog -->
+				</div>
 			</div><!-- /.page-content -->
 			<div class="footer">
 				<?php require_once('pie.php'); ?>
@@ -240,6 +278,10 @@
 					$("#hiddenEliminar").val(idEliminar);
 					$("#my-modal-eliminar").modal();
 				});
+				// $(document).on('click','#btnAgregarPeriodoModal',function()
+				// {
+				// 	$("#my-modal-agregar-periodo").modal();
+				// });
 				$(document).on('click','#btnEliminarModal',function()
 				{
 					$("#my-modal-eliminar").modal('hide');
@@ -360,10 +402,7 @@
 				$('#PersonTableContainer').jtable({
 					title: 'Lista de nóminas',
 					actions: {
-						listAction: 'assets/ajax/listarRegistrosNominas.JSON.php',
-						createAction: '/GettingStarted/CreatePerson',
-						updateAction: '/GettingStarted/UpdatePerson',
-						deleteAction: '/GettingStarted/DeletePerson'
+						listAction: 'assets/ajax/listarRegistrosNominas.JSON.php'
 					},
 					fields: {
 						idUsuario: {
@@ -372,7 +411,7 @@
 						},
 						nombres: {
 							title: 'Nombres',
-							width: '60%'
+							width: '40%'
 						},
 						aportaciones: {
 							title: '$ Aportaciones',
@@ -381,10 +420,13 @@
 						comisionVentas: {
 							title: '$ Comisión por ventas',
 							width: '20%'
+						},
+						comisionCobranza: {
+							title: '$ Comisión por cobranza',
+							width: '20%'
 						}
 					}
 				});
-				recargarTabla();
 		    });
 		</script>
 	</body>
