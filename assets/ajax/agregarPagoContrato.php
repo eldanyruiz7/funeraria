@@ -12,6 +12,8 @@
     else
     {
         require "../php/responderJSON.php";
+		require "../php/query.class.php";
+		$query 		= new Query();
 
         $idContrato                     = $_POST['idContrato'];
         $monto                          = $_POST['monto'];
@@ -54,12 +56,13 @@
             $response['focus'] = 'selectFolio';
             responder($response, $mysqli);
         }
-        $sql = "SELECT id, idUsuario_asignado, folio
-                FROM folios_cobranza_asignados
-                WHERE id = $idFolio
-                AND activo = 1 AND asignado = 0 LIMIT 1";
-        $res_folio = $mysqli->query($sql);
-        if ($res_folio->num_rows == 0)
+		$row_folio = $query	->table("folios_cobranza_asignados AS fca")->select( "fca.id AS id, fca.folio AS folio,
+																				  fca.idUsuario_asignado AS idUsuario_asignado,
+																				  cu.tasaComisionCobranza AS tasaComisionCobranza")
+							->innerJoin("cat_usuarios AS cu", "fca.idUsuario_asignado", "=", "cu.id")
+							->where("fca.id", "=", $idFolio, "i")->and()->where("fca.asignado", "=", 0, "i")->limit()->execute();
+
+        if ($query->num_rows() == 0)
         {
             $response['mensaje'] = "No se puede asignar este folio, posiblemente fue eliminado o ya ha sido asignado con anterioridad";
             $response['status'] = 0;
@@ -67,7 +70,6 @@
             responder($response, $mysqli);
         }
         $mysqli->autocommit(FALSE);
-        $row_folio = $res_folio->fetch_assoc();
         require "../php/contrato.class.php";
         $contrato = new contrato($idContrato,$mysqli);
         if ($contrato->id == 0)
@@ -91,13 +93,14 @@
             }
             $idContrato = $contrato->id;
             $sql = "INSERT INTO detalle_pagos_contratos
-                        (idContrato, monto, usuario_cobro, usuario_registro, formaPago, idFolio_cobranza)
-                    VALUES (?,?,?,?,?,?)";
+                        (idContrato, monto, tasaComisionCobranza, usuario_cobro, usuario_registro, formaPago, idFolio_cobranza)
+                    VALUES (?,?,?,?,?,?, ?)";
             $prepare_pago = $mysqli->prepare($sql);
-            $idRecibo = $row_folio['id'];
-            $idUsuarioCobro = $row_folio['idUsuario_asignado'];
+            $idRecibo = $row_folio[0]['id'];
+			$idUsuarioCobro = $row_folio[0]['idUsuario_asignado'];
+            $tasaComisionCobranza = $row_folio[0]['tasaComisionCobranza'];
             if ($prepare_pago &&
-                $prepare_pago->bind_param("idiiii",$idContrato, $monto, $idUsuarioCobro, $idUsuario, $formaPago, $idRecibo) &&
+                $prepare_pago->bind_param("idiiiii",$idContrato, $monto, $tasaComisionCobranza, $idUsuarioCobro, $idUsuario, $formaPago, $idRecibo) &&
                 $prepare_pago->execute() &&
                 $prepare_pago->affected_rows > 0)
             {
@@ -113,7 +116,7 @@
 					$idUsuario 				= $sesion->get("id");
 					$ipUsuario 				= $sesion->get("ip");
 					$pantalla				= "Listar contratos";
-					$folioFisico			= $row_folio['folio'];
+					$folioFisico			= $row_folio[0]['folio'];
 					$descripcion			= "Se registró un nuevo pago($$monto) al contrato=$idContrato, folio físico=$folioFisico, id del cobrador=$idUsuarioCobro.";
 					$sql					= "CALL agregarEvento($idUsuario, '$ipUsuario', '$pantalla', '$descripcion', $idSucursal);";
 					$mysqli					->query($sql);

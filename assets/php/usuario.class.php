@@ -14,15 +14,10 @@ class usuario
                     cat_usuarios.email,         cat_usuarios.tipo,
                     cat_usuarios.tasaComision,  cat_usuarios.fechaCreacion,
                     cat_usuarios.idSucursal,    cat_usuarios.usuario,
-                    cat_estados.estado,			cat_usuarios.tasaComisionCobranza,
-					tipos_usuarios.nombre,		cat_departamentos.id
+                    cat_estados.estado,			cat_usuarios.tasaComisionCobranza
                 FROM cat_usuarios
                 INNER JOIN cat_estados
                 ON cat_usuarios.estado      = cat_estados.id
-				LEFT JOIN tipos_usuarios
-				ON cat_usuarios.tipo = tipos_usuarios.id
-				LEFT JOIN cat_departamentos
-				ON cat_usuarios.departamento = cat_departamentos.id
                 WHERE cat_usuarios.id       = ?
                 AND cat_usuarios.activo     = 1
                 LIMIT 1";
@@ -33,7 +28,7 @@ class usuario
             $prepare_usr->store_result() &&
             $prepare_usr->bind_result($idUsuario, $nombre, $apellidop, $apellidom, $direccion1, $direccion2, $idEstado,
                                         $nickName, $telefono, $celular, $email, $tipo, $tasaComision, $fechaCreacion, $idSucursal,
-                                        $usuarioRegistro, $nombreEstado, $tasaComisionCobranza, $tipoUsuarioNombre, $idDepartamento) &&
+                                        $usuarioRegistro, $nombreEstado, $tasaComisionCobranza) &&
             $prepare_usr->fetch() &&
             $prepare_usr->num_rows > 0)
         {
@@ -50,14 +45,12 @@ class usuario
             $this ->telefono                = $telefono;
             $this ->celular                 = $celular;
             $this ->email                   = $email;
-			$this ->tipo                    = $tipo;
-            $this ->tipoUsuarioNombre       = $tipoUsuarioNombre;
+            $this ->tipo                    = $tipo;
 			$this ->tasaComision            = $tasaComision;
             $this ->tasaComisionCobranza    = $tasaComisionCobranza;
             $this ->fechaCreacion           = $fechaCreacion;
             $this ->idSucursal              = $idSucursal;
-			$this ->idUsuarioRegistro       = $usuarioRegistro;
-            $this ->idDepartamento       	= $idDepartamento;
+            $this ->idUsuarioRegistro       = $usuarioRegistro;
             $sql = "SELECT nombres, apellidop, apellidom FROM cat_usuarios WHERE id =$usuarioRegistro LIMIT 1";
             $res_registro = $mysqli->query($sql);
             $row_registro = $res_registro->fetch_assoc();
@@ -78,20 +71,18 @@ class usuario
         switch ($this->tipo)
         {
             case 1:
-				$class = 'badge-info';
+                $tipoUsuario = ($html) ? '<span class="badge badge-info">Admin</span>' : 'Admin';
                 break;
             case 2:
-				$class = 'badge-success';
+                $tipoUsuario = ($html) ? '<span class="badge badge-success">Secetario/a</span>' : 'Secretario/a';
                 break;
             case 3:
-				$class = 'badge-yellow';
+                $tipoUsuario = ($html) ? '<span class="badge badge-yellow">Vendedor</span>' : 'Vendedor';
                 break;
             default:
-				$class = 'badge-pink';
-				break;
+                $tipoUsuario = ($html) ? '<span class="badge badge-yellow">Vendedor</span>' : 'Vendedor';
+                break;
         }
-		$tipoUsuario = ($html) ? '<span class="badge '.$class.'">'.$this->tipoUsuarioNombre.'</span>' : $this->tipoUsuarioNombre;
-
         return $tipoUsuario;
     }
     public function permiso($string,$mysqli)
@@ -273,7 +264,6 @@ class usuario
         require_once "../php/contrato.class.php";
         $totalCobranza  = 0;
         $comision_ganada = 0;
-		$detallePagosContratos = array();
         $idUsuario      = $this->id;
         $fechaInicio    = $fechaInicio == FALSE ? date('Y-m-d') : $fechaInicio;
         $fechaFinal     = $fechaFinal == FALSE ? date('Y-m-d') : $fechaFinal;
@@ -292,11 +282,8 @@ class usuario
             $abonado_contrato       = $contrato->totalAbonado($mysqli);
             $costo_total_contrato   = $contrato->costoTotal;
             $comision_vendedor      = $contrato->comision_vendedor();
-			$detallePagosContratos 	= $contrato->arrayPagosRecibidos($fechaInicio, $fechaFinal);
             $inversion              = $contrato->anticipo;
-
-            if ($inversion > $comision_vendedor)
-			{
+            if ($inversion > $comision_vendedor) {
                 $diferencia = $inversion - $comision_vendedor;
                 $totalCobranza += $diferencia;
             }
@@ -306,8 +293,7 @@ class usuario
             $comision_ganada        += $comision_vendedor > $total_ganado_comision_este_contrato ? $total_ganado_comision_este_contrato : $comision_vendedor;
         }
         $array['totalCobranza'] = $totalCobranza;
-		$array['totalComisionGanada'] = $comision_ganada;
-        $array['detallePagosContratos'] = $detallePagosContratos;
+        $array['totalComisionGanada'] = $comision_ganada;
         return $array;
     }
 }

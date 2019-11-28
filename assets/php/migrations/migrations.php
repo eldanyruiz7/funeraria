@@ -277,6 +277,33 @@ else
 		// 												"idUsuario" => 1), "si")->execute();
 		// 												echo $query ->mensaje()."</br>";
 
+/**
+ * MÓDULO DE NÓMINAS
+ */
+
+//////////////////////////////////////////////// tipos_periodos_nominas /////////////////////////////////////////////////////////
+			// $query 	->dropTable("tipos_periodos_nominas", 0);
+			// $query ->createTable("tipos_periodos_nominas", TRUE)
+			// 		->intIncrements("id")
+			// 		->varChar("nombre",50)
+			// 		->int("cuantosDias")
+			// 		->int("idUsuario")
+			// 		->int("activo", FALSE, '1')
+			// 		->execute();
+			// 		echo $query ->mensaje()."</br>";
+			//
+			// $query ->table("tipos_periodos_nominas")->insert(array( "nombre" 	=> "Semanal",
+			// 														"idUsuario" => 1), "si")->execute();
+			// 														echo $query ->mensaje()."</br>";
+			//
+			// $query ->table("tipos_periodos_nominas")->insert(array( "nombre" 	=> "Quincenal",
+			// 														"idUsuario" => 1), "si")->execute();
+			// 														echo $query ->mensaje()."</br>";
+			//
+			// $query ->table("tipos_periodos_nominas")->insert(array( "nombre" 	=> "Mensual",
+			// 														"idUsuario" => 1), "si")->execute();
+			// 														echo $query ->mensaje()."</br>";
+
 		//////////////////////////////////////////////// periodos_nomina /////////////////////////////////////////////////////////
 		// 	$query 	->dropTable("periodos_nomina");
 		// 	$query ->createTable("periodos_nomina", TRUE)
@@ -299,7 +326,59 @@ else
 		// 													"idUsuario" => 1), "si")->execute();
 		// 													echo $query ->mensaje()."</br>";
 
-//////////////////////////////////////////////// tipos_usuarios /////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////// cat_nominas /////////////////////////////////////////////////////////
+			$query ->dropTable("cat_nominas", 0);
+			$query ->createTable("cat_nominas", TRUE)
+					->bigIncrements("id")
+					->bigInt("idPeriodo")
+					->int("idUsuario")
+					->int("activo", FALSE, '1')
+					->foreignKey("fk_id_periodo_nomina", "idPeriodo", "cat_periodos_nominas", "id")
+					->execute();
+					echo $query ->mensaje()."</br>";
+
+
+// //////////////////////////////////////////////// cat_conceptos_nominas /////////////////////////////////////////////////////////
+			// $query ->dropTable("cat_conceptos_nominas", 0);
+			// $query ->createTable("cat_conceptos_nominas", TRUE)
+			// 		->bigIncrements("id")
+			// 		->varChar("nombreConcepto", 50)
+			// 		->int("tipo", FALSE, "1") //1 = Percepcion 2 = Deducción
+			// 		->dateTimeCurrent("fechaCreacion")
+			// 		->int("idUsuario")
+			// 		->int("idSucursal")
+			// 		->int("activo", FALSE, '1')
+			// 		->execute();
+			// 		echo $query ->mensaje()."</br>";
+			//
+			// $query ->table("cat_conceptos_nominas")->insert(array("nombreConcepto" => "Comisión ventas",
+			// 													 "idUsuario" => 1,
+			// 												 	 "idSucursal" => 1), "sii")->execute();
+			// 													 echo $query ->mensaje()."</br>";
+			// $query ->table("cat_conceptos_nominas")->insert(array("nombreConcepto" => "Comisión cobranza",
+		 	// 													 "idUsuario" => 1,
+		 	// 												 	 "idSucursal" => 1), "sii")->execute();
+			// 													 echo $query ->mensaje()."</br>";
+
+/////////////////////////////////////////// detalle_nomina ////////////////////////////////////////////////////
+			$query ->dropTable("detalle_nomina", 0);
+			$query ->createTable("detalle_nomina", TRUE)
+					->bigIncrements("id")
+					->bigInt("idNomina")
+					->bigInt("idConcepto")
+					->varChar("nombreConcepto", 100)
+					->int("cantidad")
+					->decimal("monto")
+					->dateTimeCurrent("fechaCreacion")
+					->int("idUsuario")
+					->int("idSucursal")
+					->int("activo", FALSE, '1')
+					->foreignKey("fk_id_nomina", "idNomina", "cat_nominas", "id")
+					->foreignKey("fk_id_cat_concepto_nomina", "idConcepto", "cat_conceptos_nominas", "id")
+					->execute();
+					echo $query ->mensaje()."</br>";
+// //////////////////////////////////////////////// tipos_usuarios /////////////////////////////////////////////////////////
 	// $query 	->dropTable("tipos_usuarios");
 	// $query ->createTable("tipos_usuarios", TRUE)
 	// 		->intIncrements("id")
@@ -324,24 +403,6 @@ else
 	// $query ->table("tipos_usuarios")->insert(array("nombre" 	=> "Cobrador",
 	// 												"idUsuario" => 1), "si")->execute();
 	// 												echo $query ->mensaje()."</br>";
-
-
-	///////////////////////////////////////////// Nómina ////////////////////////////////////////////////////
-	// $query ->dropTable("cat_periodos_nominas");
-	// $query ->createTable("cat_periodos_nominas", TRUE)
-	// 		->bigIncrements("id")
-	// 		->date("fechaInicio")
-	// 		->date("fechaFin")
-	// 		->dateTimeCurrent("fechaCreacion")
-	// 		->int("idUsuarioCreo")
-	// 		->int("idSucursal")
-	// 		->int("activo", FALSE, '1')
-	// 		->execute();
-	// $query ->table("cat_periodos_nominas")->insert(array("fechaInicio" => "2019-11-14", "fechaFin" => "2019-11-14", "idUsuarioCreo" => 1, "idSucursal" => 1 ), "ssii")->execute();
-	// $query ->table("cat_periodos_nominas")->insert(array("fechaInicio" => "2019-11-15", "fechaFin" => "2019-11-15", "idUsuarioCreo" => 1, "idSucursal" => 1 ), "ssii")->execute();
-	// $query ->table("cat_periodos_nominas")->insert(array("fechaInicio" => "2019-11-16", "fechaFin" => "2019-11-16", "idUsuarioCreo" => 1, "idSucursal" => 1 ), "ssii")->execute();
-	//
-
 	// $query ->dropTable("cat_nominas");
 	// $query ->createTable("cat_nominas", TRUE)
 	// 		->bigIncrements("id")
