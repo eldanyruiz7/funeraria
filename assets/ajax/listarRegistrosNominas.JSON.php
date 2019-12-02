@@ -12,15 +12,15 @@
     }
     else
     {
-		// $fechaInicio = $_POST['fechaInicio'];
-		$fechaInicio = $_GET['fechaInicio'];
+		$fechaInicio = $_POST['fechaInicio'];
+		// $fechaInicio = $_GET['fechaInicio'];
         $fInicio_e = explode('-',$fechaInicio);
         $Y_ini = intval($fInicio_e[0]);
         $m_ini = intval($fInicio_e[1]);
         $d_ini = intval($fInicio_e[2]);
         // var_dump($_GET);
-		// $fechaFin = $_POST['fechaFin'];
-        $fechaFin = $_GET['fechaFin'];
+		$fechaFin = $_POST['fechaFin'];
+        // $fechaFin = $_GET['fechaFin'];
         $fFin_e = explode('-',$fechaFin);
         $Y_fin = intval($fFin_e[0]);
         $m_fin = intval($fFin_e[1]);
@@ -61,7 +61,7 @@
 		 * Obtener el total de nóminas a generar
 		 */
 		$totalNominas = $query ->table("cat_usuarios") ->select("id AS idUsuario, CONCAT(nombres, ' ', apellidop, ' ', apellidom) AS nombres")
-								->where("activo", "=", 1, "i")->and()->where("id", "<>", 1, "i")->execute();
+								->where("activo", "=", 1, "i")->and()->where("id", "<>", 1, "i")->orderBy("nombres")->execute();
 
         $num = $query->num_rows();
         if ($num == 0)
@@ -94,11 +94,16 @@
 											->where("idVendedor", "=", $idUsuario, "i")->execute();
 				$totalAportaciones = 0;
 				$idConcepto = 1;
+				$cantidad = 1;
 				foreach ($rowAportaciones as $rowAportacion)
 				{
 					$nombreConcepto = "- 1° Aport. ".$rowAportacion['nombreCliente']." (".$rowAportacion['folio'].")";
-					$cantidad = 1;
 					$monto = $rowAportacion['anticipo'];
+
+					/**
+					 * Insert detalle_nomina de los pagos por
+					 * primers aportaciones
+					 */
 					$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
 																	"cantidad", "monto", "idUsuario", "idSucursal"), "iisidii")->execute();
 					$totalAportaciones += $rowAportacion['anticipo'];
@@ -110,15 +115,19 @@
 				 * por los pagos de los contratos
 				 */
 				$rowComisionesVentas=$query	->table("detalle_pagos_contratos AS dpc")
-											->select( "dpc.monto AS monto,
+											->select( "dpc.monto AS monto, con.folio AS folio,
 													   dpc.tasaComisionCobranza AS tasaComisionCobranza,
-													   con.id AS idContrato")
+													   con.id AS idContrato,
+													   CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente")
 											->innerJoin("contratos AS con", "dpc.idContrato", "=", "con.id")
+											->leftJoin("clientes AS cli", "con.idTitular", "=", "cli.id")
 											->where("dpc.fechaCreacion", "BETWEEN", "'$fechaInicio' AND '$fechaFin'", "ss")->and()
 											->where("con.idVendedor", "=", $nomina['idUsuario'], "i")->and()
 											->where("dpc.activo", "=", 1, "i")->execute();
 
 				$totalComisionVentas = 0;
+				$cantidad = 1;
+				$idConcepto = 1;
 				foreach ($rowComisionesVentas as $rowCom_venta)
 				{
 					$contrato 				= new contrato($rowCom_venta['idContrato'], $mysqli);
@@ -135,7 +144,16 @@
 					else
 						$monto_pago_vendedor_real = 0;
 
-					$totalComisionVentas += $monto_pago_vendedor_real;
+					$totalComisionVentas += $monto = $monto_pago_vendedor_real;
+
+					$nombreConcepto = "- Contrato. ".$rowCom_venta['nombreCliente']." (".$rowCom_venta['folio'].")";
+
+					/**
+					 * Insert detalle_nomina de los pagos de
+					 * los contratos
+					 */
+					$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
+																	"cantidad", "monto", "idUsuario", "idSucursal"), "iisidii")->execute();
 				}
 
 				/**
@@ -144,21 +162,36 @@
 				 * por la cobranza
 				 */
 				$rowComisionesCobranza=$query->table("detalle_pagos_contratos AS dpc")
-											->select("dpc.monto AS monto,
-													  dpc.tasaComisionCobranza AS tasaComisionCobranza")
+											->select("dpc.monto AS monto, con.folio AS folio,
+													  dpc.tasaComisionCobranza AS tasaComisionCobranza,
+													  CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente")
+											->innerJoin("contratos AS con", "dpc.idContrato", "=", "con.id")
+											->leftJoin("clientes AS cli", "con.idTitular", "=", "cli.id")
 											->where("dpc.usuario_cobro", "=", $nomina['idUsuario'], "i")->and()
 											->where("dpc.activo", "=", 1, "i")->and()
 											->where("dpc.fechaCreacion", "BETWEEN", "'$fechaInicio' AND '$fechaFin'", "ss")->execute();
 				$totalComisionCobranza = 0;
+				$idConcepto = 2;
+				$cantidad = 1;
 				foreach ($rowComisionesCobranza as $rowCom_cobranza)
 				{
 					$montoPago 				= $rowCom_cobranza['monto'];
 					$tasaCom_Cobranza 		= $rowCom_cobranza['tasaComisionCobranza'];
 					$tasa_100 				= $tasaCom_Cobranza / 100;
 			        $monto_pago_cobrador 	= $montoPago * $tasa_100;
-					$totalComisionCobranza	+= $monto_pago_cobrador;
+					$totalComisionCobranza	+= $monto = $monto_pago_cobrador;
+
+					$nombreConcepto = "- Cobranza. ".$rowCom_cobranza['nombreCliente']." (".$rowCom_cobranza['folio'].")";
+
+					/**
+					 * Insert detalle_nomina de los pagos de
+					 * la cobranza diaria
+					 */
+					$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
+																	"cantidad", "monto", "idUsuario", "idSucursal"), "iisidii")->execute();
 				}
                 $InfoData[] = array(
+					'idNomina'				=> $idNomina,
 					'idUsuario'				=> $nomina['idUsuario'],
                     'nombres'				=> $nomina['nombres'],
                     'aportaciones'			=> "$".number_format($totalAportaciones[0]['suma'],2,".",","),
@@ -166,9 +199,15 @@
 					'comisionCobranza'		=> "$".number_format($totalComisionCobranza,2,".",",")
 				);
             }
-			$query ->commit();
-			$json_data["Result"] = "OK";
-            $json_data["Records"] = $InfoData;
+			usleep(2000000);
+			if ($query ->commit())
+			{
+				$json_data["Result"] = "OK";
+	            $json_data["Records"] = $InfoData;
+			}
+			else {
+				$json_data["Result"] = "ERROR";
+			}
         }
         echo json_encode($json_data);
     }
