@@ -401,17 +401,69 @@
 			{
 				$('#PersonTableContainer').jtable({
 					title: 'Lista de nóminas',
-					actions: {
+					actions:
+					{
 						listAction: 'assets/ajax/listarRegistrosNominas.JSON.php'
 					},
-					fields: {
-						idUsuario: {
+					fields:
+					{
+						//CHILD TABLE DEFINITION FOR "PHONE NUMBERS"
+		                Conceptos:
+						{
+		                    title: '',
+		                    width: '10%',
+		                    sorting: false,
+		                    edit: false,
+		                    create: true,
+		                    display: function (studentData) {
+		                        //Create an image that will be used to open child table
+		                        var $img = $('<img src="assets/js/jtable.2.4.0/themes/list_metro.png" title="Mostrar conceptos" />');
+		                        //Open child table when user clicks the image
+		                        $img.click(function () {
+		                            $('#PersonTableContainer').jtable('openChildTable',
+		                                    $img.closest('tr'),
+		                                    {
+		                                        title: studentData.record.nombres + ' - Detalle de conceptos',
+		                                        actions: {
+		                                            listAction: 'assets/ajax/listarConceptosRegistrosNominas.JSON.php?idNomina=' + studentData.record.idNomina
+		                                            // deleteAction: '/Demo/DeletePhone',
+		                                            // updateAction: '/Demo/UpdatePhone',
+		                                            // createAction: '/Demo/CreatePhone'
+		                                        },
+		                                        fields: {
+		                                            idNomina: {
+		                                                key: true,
+		                                                list: false
+		                                            },
+		                                            cantidad: {
+		                                                title: 'Cantidad',
+		                                                width: '30%'
+		                                            },
+		                                            concepto: {
+		                                                title: 'Concepto',
+		                                                width: '40%'
+		                                            },
+													monto: {
+		                                                title: 'Monto',
+		                                                width: '30%'
+		                                            }
+		                                        }
+		                                    }, function (data) { //opened handler
+		                                        data.childTable.jtable('load');
+		                                    });
+		                        });
+		                        //Return image to show on the person row
+		                        return $img;
+		                    }
+		                },
+						idNomina:
+						{
 							key: true,
 							list: false
 						},
 						nombres: {
 							title: 'Nombres',
-							width: '40%'
+							width: '30%'
 						},
 						aportaciones: {
 							title: '$ Aportaciones',
