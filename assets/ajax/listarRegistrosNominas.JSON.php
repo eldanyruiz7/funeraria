@@ -77,6 +77,7 @@
 			$query ->table("cat_periodos_nominas")
 				   ->insert(compact("tipoPeriodo", "fechaInicio", "fechaFin", "idUsuarioCreo", "idSucursal"), "issii")->execute();
 			$idPeriodo = $query->insert_id();
+			$percepcion = 1;
             foreach ($totalNominas as $nomina)
 			{
 				$idUsuario = $nomina['idUsuario'];
@@ -104,8 +105,9 @@
 					 * Insert detalle_nomina de los pagos por
 					 * primers aportaciones
 					 */
-					$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
-																	"cantidad", "monto", "idUsuario", "idSucursal"), "iisidii")->execute();
+					if ($monto > 0)
+						$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
+																		"cantidad", "monto", "percepcion", "idUsuario", "idSucursal"), "iisidiii")->execute();
 					$totalAportaciones += $rowAportacion['anticipo'];
 				}
 
@@ -152,8 +154,9 @@
 					 * Insert detalle_nomina de los pagos de
 					 * los contratos
 					 */
-					$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
-																	"cantidad", "monto", "idUsuario", "idSucursal"), "iisidii")->execute();
+					if ($monto > 0)
+						$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
+																		"cantidad", "monto", "percepcion", "idUsuario", "idSucursal"), "iisidiii")->execute();
 				}
 
 				/**
@@ -165,11 +168,12 @@
 											->select("dpc.monto AS monto, con.folio AS folio,
 													  dpc.tasaComisionCobranza AS tasaComisionCobranza,
 													  CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente")
-											->innerJoin("contratos AS con", "dpc.idContrato", "=", "con.id")
+											->leftJoin("contratos AS con", "dpc.idContrato", "=", "con.id")
 											->leftJoin("clientes AS cli", "con.idTitular", "=", "cli.id")
 											->where("dpc.usuario_cobro", "=", $nomina['idUsuario'], "i")->and()
 											->where("dpc.activo", "=", 1, "i")->and()
 											->where("dpc.fechaCreacion", "BETWEEN", "'$fechaInicio' AND '$fechaFin'", "ss")->execute();
+				// echo "<br>".$query->lastStatement();
 				$totalComisionCobranza = 0;
 				$idConcepto = 2;
 				$cantidad = 1;
@@ -187,8 +191,9 @@
 					 * Insert detalle_nomina de los pagos de
 					 * la cobranza diaria
 					 */
-					$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
-																	"cantidad", "monto", "idUsuario", "idSucursal"), "iisidii")->execute();
+					 if ($monto > 0)
+						$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
+																		"cantidad", "monto", "percepcion", "idUsuario", "idSucursal"), "iisidiii")->execute();
 				}
                 $InfoData[] = array(
 					'idNomina'				=> $idNomina,
