@@ -77,7 +77,7 @@
 			$query ->table("cat_periodos_nominas")
 				   ->insert(compact("tipoPeriodo", "fechaInicio", "fechaFin", "idUsuarioCreo", "idSucursal"), "issii")->execute();
 			$idPeriodo = $query->insert_id();
-			$percepcion = 1;
+			$tipo = 1;
             foreach ($totalNominas as $nomina)
 			{
 				$idUsuario = $nomina['idUsuario'];
@@ -107,7 +107,7 @@
 					 */
 					if ($monto > 0)
 						$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
-																		"cantidad", "monto", "percepcion", "idUsuario", "idSucursal"), "iisidiii")->execute();
+																		"cantidad", "monto", "tipo", "idUsuario", "idSucursal"), "iisidiii")->execute();
 					$totalAportaciones += $rowAportacion['anticipo'];
 				}
 
@@ -156,7 +156,7 @@
 					 */
 					if ($monto > 0)
 						$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
-																		"cantidad", "monto", "percepcion", "idUsuario", "idSucursal"), "iisidiii")->execute();
+																		"cantidad", "monto", "tipo", "idUsuario", "idSucursal"), "iisidiii")->execute();
 				}
 
 				/**
@@ -193,11 +193,12 @@
 					 */
 					 if ($monto > 0)
 						$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
-																		"cantidad", "monto", "percepcion", "idUsuario", "idSucursal"), "iisidiii")->execute();
+																		"cantidad", "monto", "tipo", "idUsuario", "idSucursal"), "iisidiii")->execute();
 				}
                 $InfoData[] = array(
 					'idNomina'				=> $idNomina,
 					'idUsuario'				=> $nomina['idUsuario'],
+					'idSucursal'			=> $idSucursal,
                     'nombres'				=> $nomina['nombres'],
                     'aportaciones'			=> "$".number_format($totalAportaciones[0]['suma'],2,".",","),
 					'comisionVentas'		=> "$".number_format($totalComisionVentas,2,".",","),

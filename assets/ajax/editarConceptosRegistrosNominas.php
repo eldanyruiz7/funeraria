@@ -20,6 +20,15 @@
 			echo json_encode($json_data);
 			die;
 		}
+		var_dump($_POST['idDetalle']);
+		if (!$id = validarFormulario('i',$_POST['idDetalle'],0))
+			error("El formato del campo idDetalle no es el correcto");
+
+		$query ->table("detalle_nomina")->select("*")->where("id", "=", $id, "i")->and()->where("idConcepto", "=", 3, "i")->limit(1)->execute();
+		if ($query->num_rows() == 0)
+		{
+			error("Este concepto no se puede editar");
+		}
 		if (!$nombreConcepto = validarFormulario('s',$_POST['concepto'],0))
 			error("El campo concepto no puede estar en blanco");
 
@@ -29,24 +38,11 @@
 		if (!$tipo = validarFormulario('i',$_POST['tipo'],0))
 			error("El formato del campo tipo de concepto no puede estar en blanco");
 
-		if (!$idNomina = validarFormulario('i',$_POST['idNomina'],0))
-			error("El formato del campo idNomina no es el correcto");
-
-		if (!$idUsuario = validarFormulario('i',$_POST['idUsuario'],0))
-			error("El formato del campo idUsuario no es el correcto");
-
-		if (!$idSucursal = validarFormulario('i',$_POST['idSucursal'],0))
-			error("El formato del campo idSucursal no es el correcto");
-
-		// if (!$id = validarFormulario('i',$_POST['idDetalle'],0))
-		// 	error("El formato del campo idDetalle no es el correcto");
-
 		require_once "../php/query.class.php";
 		$query 		= new Query();
 		$idConcepto = 3;
 		$cantidad = 1;
-		$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "tipo", "nombreConcepto",
-														"cantidad", "monto", "idUsuario", "idSucursal"), "iiisidii")->execute();
+		$query->table("detalle_nomina")->update(compact("tipo", "nombreConcepto", "monto"), "isd")->execute();
 
         if ($query->status())
 		{

@@ -19,9 +19,9 @@
 		require_once "../php/query.class.php";
 		$query 		= new Query();
 		$idNomina = (int)$_GET['idNomina'];
-		$rowsConceptos = $query	->table("detalle_nomina AS dn")->select("dn.cantidad, dn.nombreConcepto AS concepto, dn.monto, dn.tipo AS tipo")
-								->innerJoin("tipos_detalle_nomina AS tdn", "dn.tipo", "=", "tdn.id")
-								->where("dn.activo", "=", 1, "i")->and()->where("dn.idNomina", "=", $idNomina, "i")->orderBy("dn.idConcepto")->execute();
+		$rowsConceptos = $query->table("detalle_nomina AS dn")->select("id, cantidad, nombreConcepto AS concepto, monto, tipo, idUsuario, idSucursal")
+								->where("activo", "=", 1, "i")->and()->where("idNomina", "=", $idNomina, "i")->orderBy("idConcepto")->execute();
+								// echo $query->lastStatement();
 		$num = $query->num_rows();
 		if ($num == 0)
 		{
@@ -32,8 +32,12 @@
 
 			foreach ($rowsConceptos as $concepto)
 			{
+				// var_dump($concepto);
 				$InfoData[] = array(
+					'idDetalle'				=> $concepto['id'],
 					'idNomina'				=> $idNomina,
+					'idUsuario'				=> $concepto['idUsuario'],
+					'idSucursal'			=> $concepto['idSucursal'],
 					'cantidad'				=> $concepto['cantidad'],
 					'concepto'				=> $concepto['concepto'],
 					'monto'					=> "$".number_format($concepto['monto'],2,".",","),
