@@ -13,6 +13,8 @@
     else
     {
 		require_once "../php/funcionesVarias.php";
+		require_once "../php/query.class.php";
+		$query 		= new Query();
 		function error($mensaje)
 		{
 			$json_data["Message"] = $mensaje;
@@ -20,12 +22,13 @@
 			echo json_encode($json_data);
 			die;
 		}
-		var_dump($_POST['idDetalle']);
-		if (!$id = validarFormulario('i',$_POST['idDetalle'],0))
+		if (!$id = validarFormulario('i',$_POST['idNominaDetalle'],0))
 			error("El formato del campo idDetalle no es el correcto");
 
-		$query ->table("detalle_nomina")->select("*")->where("id", "=", $id, "i")->and()->where("idConcepto", "=", 3, "i")->limit(1)->execute();
-		if ($query->num_rows() == 0)
+		$row = $query ->table("detalle_nomina")->select("idConcepto")->where("id", "=", $id, "i")->and()->where("activo", "=", 1, "i")->limit(1)->execute();
+		var_dump($_POST['idNominaDetalle']);
+		var_dump($row[0]['idConcepto']);
+		if ($query->num_rows() == 1 && $row[0]['idConcepto'] != 3)
 		{
 			error("Este concepto no se puede editar");
 		}
@@ -38,11 +41,9 @@
 		if (!$tipo = validarFormulario('i',$_POST['tipo'],0))
 			error("El formato del campo tipo de concepto no puede estar en blanco");
 
-		require_once "../php/query.class.php";
-		$query 		= new Query();
 		$idConcepto = 3;
 		$cantidad = 1;
-		$query->table("detalle_nomina")->update(compact("tipo", "nombreConcepto", "monto"), "isd")->execute();
+		$query->table("detalle_nomina")->update(compact("tipo", "nombreConcepto", "monto"), "isd")->where("id", "=", $id, "i")->limit()->execute();
 
         if ($query->status())
 		{

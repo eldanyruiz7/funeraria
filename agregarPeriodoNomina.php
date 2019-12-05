@@ -415,7 +415,7 @@
 		                    title: '',
 		                    width: '10%',
 		                    sorting: false,
-		                    edit: false,
+		                    edit: true,
 		                    create: true,
 		                    display: function (studentData) {
 		                        //Create an image that will be used to open child table
@@ -434,44 +434,48 @@
 		                                            updateAction: 'assets/ajax/editarConceptosRegistrosNominas.php'
 		                                        },
 		                                        fields: {
-													idDetalle: {
-														list: false,
+													idNominaDetalle: {
+														// key: true,
+														// list: false,
 														input: function (data) {
 													        // if (studentData.record) {
-													            return '<input type="hidden"  name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
-													        // } else {
 													        //     return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
+													        // } else {
+													            return '<input type="hidden" name="idNominaDetalle" min="1" style="width:200px" value="'+studentData.record.idNomina+'" />';
 													        // }
 													    }
 		                                            },
-		                                            idNomina: {
-														list: false,
+													idDetalle: {
+														// key: true,
+														// list: false
 														input: function (data) {
-													        if (studentData.record) {
-													            return '<input type="hidden"  name="idNomina" min="1" style="width:200px" value="'+studentData.record.idNomina+'" />';
-													        } else {
-													            return '<input type="hidden" name="idNomina" min="1" style="width:200px" value="'+studentData.record.idNomina+'" />';
-													        }
+													    //     if (studentData.record) {
+													            return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
+													    //     } else {
+													    //         return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
+													    //     }
 													    }
 		                                            },
 													idUsuario: {
-														list: false,
+														// key: true,
+														// list: false
 														input: function (data) {
-													        if (studentData.record) {
+													    //     if (studentData.record) {
 													            return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
-													        } else {
-													            return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
-													        }
+													    //     } else {
+													    //         return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
+													    //     }
 													    }
 		                                            },
 													idSucursal: {
-														list: false,
+														// key: true,
+														// list: false
 														input: function (data) {
-													        if (studentData.record) {
+													        // if (studentData.record) {
 													            return '<input type="hidden"  name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
-													        } else {
-													            return '<input type="hidden" name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
-													        }
+													        // } else {
+													        //     return '<input type="hidden" name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
+													        // }
 													    }
 		                                            },
 		                                            cantidad: {
@@ -479,6 +483,7 @@
 		                                                width: '10%',
 														input: function (data) {
 													        if (studentData.record) {
+																console.log(studentData.record);
 													            return '<input type="number" disabled name="cantidad" min="1" style="width:200px" value="1" />';
 													        } else {
 													            return '<input type="number" disabled name="cantidad" min="1" style="width:200px" value="1" />';
@@ -487,14 +492,14 @@
 		                                            },
 		                                            concepto: {
 		                                                title: 'Concepto',
-		                                                width: '50%',
-														input: function (data) {
-													        if (studentData.record) {
-													            return '<input type="text" name="concepto" min="1" style="width:200px" value="" />';
-													        } else {
-													            return '<input type="text" name="concepto" min="1" style="width:200px" value="" />';
-													        }
-													    }
+		                                                width: '50%'
+														// input: function (data) {
+													    //     if (studentData.record) {
+													    //         return '<input type="text" name="concepto" min="1" style="width:200px" value="" />';
+													    //     } else {
+													    //         return '<input type="text" name="concepto" min="1" style="width:200px" value="" />';
+													    //     }
+													    // }
 		                                            },
 													monto: {
 		                                                title: 'Monto',

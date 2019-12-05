@@ -29,7 +29,7 @@
 		if (!$tipo = validarFormulario('i',$_POST['tipo'],0))
 			error("El formato del campo tipo de concepto no puede estar en blanco");
 
-		if (!$idNomina = validarFormulario('i',$_POST['idNomina'],0))
+		if (!$idNomina = validarFormulario('i',$_POST['idNominaDetalle'],0))
 			error("El formato del campo idNomina no es el correcto");
 
 		if (!$idUsuario = validarFormulario('i',$_POST['idUsuario'],0))
@@ -55,7 +55,7 @@
 			$json_data["Result"] = "OK";
 			$json_data["Record"] = array(
 				'idDetalle'				=> $row[0]['id'],
-				'idNomina'				=> $row[0]['idNomina'],
+				'idNominaDetalle'		=> $row[0]['idNomina'],
 				'idUsuario'				=> $row[0]['idUsuario'],
 				'idSucursal'			=> $row[0]['idSucursal'],
 				'cantidad'				=> $row[0]['cantidad'],

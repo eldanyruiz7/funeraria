@@ -35,7 +35,7 @@
 				// var_dump($concepto);
 				$InfoData[] = array(
 					'idDetalle'				=> $concepto['id'],
-					'idNomina'				=> $idNomina,
+					'idNominaDetalle'		=> $idNomina,
 					'idUsuario'				=> $concepto['idUsuario'],
 					'idSucursal'			=> $concepto['idSucursal'],
 					'cantidad'				=> $concepto['cantidad'],
