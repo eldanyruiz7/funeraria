@@ -12,6 +12,8 @@
 	{
 		require_once ("assets/php/usuario.class.php");
 		$usuario = new usuario($idUsuario,$mysqli);
+		require_once "assets/php/query.class.php";
+		$query 		= new Query();
 		// $permiso = $usuario->permiso("listarNominas",$mysqli);
 		// if (!$permiso)
 		// {
@@ -413,7 +415,7 @@
 		                    title: '',
 		                    width: '10%',
 		                    sorting: false,
-		                    edit: false,
+		                    edit: true,
 		                    create: true,
 		                    display: function (studentData) {
 		                        //Create an image that will be used to open child table
@@ -425,28 +427,113 @@
 		                                    {
 		                                        title: studentData.record.nombres + ' - Detalle de conceptos',
 		                                        actions: {
-		                                            listAction: 'assets/ajax/listarConceptosRegistrosNominas.JSON.php?idNomina=' + studentData.record.idNomina
+		                                            listAction: 'assets/ajax/listarConceptosRegistrosNominas.JSON.php?idNomina=' + studentData.record.idNomina,
 		                                            // deleteAction: '/Demo/DeletePhone',
 		                                            // updateAction: '/Demo/UpdatePhone',
-		                                            // createAction: '/Demo/CreatePhone'
+													createAction: 'assets/ajax/agregarConceptosRegistrosNominas.php',
+		                                            updateAction: 'assets/ajax/editarConceptosRegistrosNominas.php'
 		                                        },
 		                                        fields: {
-		                                            idNomina: {
-		                                                key: true,
-		                                                list: false
+													idNominaDetalle: {
+														// key: true,
+														// list: false,
+														input: function (data) {
+													        // if (studentData.record) {
+													        //     return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
+													        // } else {
+													            return '<input type="hidden" name="idNominaDetalle" min="1" style="width:200px" value="'+studentData.record.idNomina+'" />';
+													        // }
+													    }
+		                                            },
+													idDetalle: {
+														// key: true,
+														// list: false
+														input: function (data) {
+													    //     if (studentData.record) {
+													            return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
+													    //     } else {
+													    //         return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
+													    //     }
+													    }
+		                                            },
+													idUsuario: {
+														// key: true,
+														// list: false
+														input: function (data) {
+													    //     if (studentData.record) {
+													            return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
+													    //     } else {
+													    //         return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
+													    //     }
+													    }
+		                                            },
+													idSucursal: {
+														// key: true,
+														// list: false
+														input: function (data) {
+													        // if (studentData.record) {
+													            return '<input type="hidden"  name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
+													        // } else {
+													        //     return '<input type="hidden" name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
+													        // }
+													    }
 		                                            },
 		                                            cantidad: {
 		                                                title: 'Cantidad',
-		                                                width: '30%'
+		                                                width: '10%',
+														input: function (data) {
+													        if (studentData.record) {
+																console.log(studentData.record);
+													            return '<input type="number" disabled name="cantidad" min="1" style="width:200px" value="1" />';
+													        } else {
+													            return '<input type="number" disabled name="cantidad" min="1" style="width:200px" value="1" />';
+													        }
+													    }
 		                                            },
 		                                            concepto: {
 		                                                title: 'Concepto',
-		                                                width: '40%'
+		                                                width: '50%'
+														// input: function (data) {
+													    //     if (studentData.record) {
+													    //         return '<input type="text" name="concepto" min="1" style="width:200px" value="" />';
+													    //     } else {
+													    //         return '<input type="text" name="concepto" min="1" style="width:200px" value="" />';
+													    //     }
+													    // }
 		                                            },
 													monto: {
 		                                                title: 'Monto',
-		                                                width: '30%'
-		                                            }
+		                                                width: '20%',
+														input: function (data) {
+													        if (studentData.record) {
+													            return '<input type="number" name="monto" min="1" style="width:200px" value="1" />';
+													        } else {
+													            return '<input type="number" name="monto" min="1" style="width:200px" value="1" />';
+													        }
+													    }
+		                                            },
+													tipo: {
+														title: "tipo",
+														width: "20%",
+														options:
+														{
+															<?php
+																$rowTipoDetalleNomina = $query ->table("tipos_detalle_nomina")->select("*")->where("activo", "=", 1, "i")->execute();
+																$jsonTipos = "";
+																$cont = 0;
+																foreach ($rowTipoDetalleNomina as $tipo)
+																{
+																	if ($cont == 0)
+																		$jsonTipos = "'".$tipo['id']."':'".$tipo['nombre']."'";
+																	else
+																		$jsonTipos .= ",'".$tipo['id']."':'".$tipo['nombre']."'";
+																	$cont++;
+																}
+																echo $jsonTipos;
+															 ?>
+															// '1': 'Percepción', '2': 'Deducción'
+														}
+													}
 		                                        }
 		                                    }, function (data) { //opened handler
 		                                        data.childTable.jtable('load');

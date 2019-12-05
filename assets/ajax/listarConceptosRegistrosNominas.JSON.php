@@ -19,8 +19,9 @@
 		require_once "../php/query.class.php";
 		$query 		= new Query();
 		$idNomina = (int)$_GET['idNomina'];
-		$rowsConceptos = $query	->table("detalle_nomina")->select("cantidad, nombreConcepto AS concepto, monto")
+		$rowsConceptos = $query->table("detalle_nomina AS dn")->select("id, cantidad, nombreConcepto AS concepto, monto, tipo, idUsuario, idSucursal")
 								->where("activo", "=", 1, "i")->and()->where("idNomina", "=", $idNomina, "i")->orderBy("idConcepto")->execute();
+								// echo $query->lastStatement();
 		$num = $query->num_rows();
 		if ($num == 0)
 		{
@@ -31,11 +32,16 @@
 
 			foreach ($rowsConceptos as $concepto)
 			{
+				// var_dump($concepto);
 				$InfoData[] = array(
-					'idNomina'				=> $idNomina,
+					'idDetalle'				=> $concepto['id'],
+					'idNominaDetalle'		=> $idNomina,
+					'idUsuario'				=> $concepto['idUsuario'],
+					'idSucursal'			=> $concepto['idSucursal'],
 					'cantidad'				=> $concepto['cantidad'],
 					'concepto'				=> $concepto['concepto'],
-					'monto'					=> "$".number_format($concepto['monto'],2,".",",")
+					'monto'					=> "$".number_format($concepto['monto'],2,".",","),
+					'tipo'					=> $concepto['tipo']
 				);
 			}
 			$json_data["Records"] = $InfoData;
