@@ -29,13 +29,13 @@
 		if (!$tipo = validarFormulario('i',$_POST['tipo'],0))
 			error("El formato del campo tipo de concepto no puede estar en blanco");
 
-		if (!$idNomina = validarFormulario('i',$_POST['idNominaDetalle'],0))
+		if (!$idNomina = validarFormulario('i',$_GET['idNomina'],0))
 			error("El formato del campo idNomina no es el correcto");
 
-		if (!$idUsuario = validarFormulario('i',$_POST['idUsuario'],0))
+		if (!$idUsuario = validarFormulario('i',$_GET['idUsuario'],0))
 			error("El formato del campo idUsuario no es el correcto");
 
-		if (!$idSucursal = validarFormulario('i',$_POST['idSucursal'],0))
+		if (!$idSucursal = validarFormulario('i',$_GET['idSucursal'],0))
 			error("El formato del campo idSucursal no es el correcto");
 
 		// if (!$id = validarFormulario('i',$_POST['idDetalle'],0))

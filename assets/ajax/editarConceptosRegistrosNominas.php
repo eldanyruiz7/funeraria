@@ -22,12 +22,13 @@
 			echo json_encode($json_data);
 			die;
 		}
-		if (!$id = validarFormulario('i',$_POST['idNominaDetalle'],0))
+		// var_dump($_POST['idDetalle']);
+		if (!$id = validarFormulario('i',$_POST['idDetalle'],0))
 			error("El formato del campo idDetalle no es el correcto");
 
 		$row = $query ->table("detalle_nomina")->select("idConcepto")->where("id", "=", $id, "i")->and()->where("activo", "=", 1, "i")->limit(1)->execute();
-		var_dump($_POST['idNominaDetalle']);
-		var_dump($row[0]['idConcepto']);
+		// var_dump($_POST['idDetalle']);
+		// var_dump($row[0]['idConcepto']);
 		if ($query->num_rows() == 1 && $row[0]['idConcepto'] != 3)
 		{
 			error("Este concepto no se puede editar");
@@ -35,8 +36,10 @@
 		if (!$nombreConcepto = validarFormulario('s',$_POST['concepto'],0))
 			error("El campo concepto no puede estar en blanco");
 
-		if (!$monto = validarFormulario('i',$_POST['monto'],0))
+		$monto = str_replace('$', "", $_POST['monto']);
+		if (!$monto = validarFormulario('i', $monto, 0))
 			error("El campo monto no puede estar en blanco ni menor o igual que cero");
+		// var_dump($monto);
 
 		if (!$tipo = validarFormulario('i',$_POST['tipo'],0))
 			error("El formato del campo tipo de concepto no puede estar en blanco");
@@ -47,8 +50,8 @@
 
         if ($query->status())
 		{
-			$insert_id = $query->insert_id();
-			$row = $query ->table("detalle_nomina")->select("*")->where("id", "=", $insert_id, "i")->limit(1)->execute();
+			// $insert_id = $query->insert_id();
+			$row = $query ->table("detalle_nomina")->select("*")->where("id", "=", $id, "i")->limit(1)->execute();
 			$json_data["Result"] = "OK";
 			$json_data["Record"] = array(
 				'idDetalle'				=> $row[0]['id'],

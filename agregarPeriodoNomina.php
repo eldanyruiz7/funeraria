@@ -426,64 +426,71 @@
 		                                    $img.closest('tr'),
 		                                    {
 		                                        title: studentData.record.nombres + ' - Detalle de conceptos',
+												recordAdded: function (event, data)
+												{
+													alert("recargado");
+											        if (data.record) {
+											            $('#PersonTableContainer').jtable('load');
+											        }
+											    },
 		                                        actions: {
 		                                            listAction: 'assets/ajax/listarConceptosRegistrosNominas.JSON.php?idNomina=' + studentData.record.idNomina,
 		                                            // deleteAction: '/Demo/DeletePhone',
 		                                            // updateAction: '/Demo/UpdatePhone',
-													createAction: 'assets/ajax/agregarConceptosRegistrosNominas.php',
+													createAction: 'assets/ajax/agregarConceptosRegistrosNominas.php?idNomina=' + studentData.record.idNomina + '&idUsuario=' + studentData.record.idUsuario + '&idSucursal=' + studentData.record.idSucursal,
 		                                            updateAction: 'assets/ajax/editarConceptosRegistrosNominas.php'
 		                                        },
 		                                        fields: {
-													idNominaDetalle: {
-														// key: true,
-														// list: false,
-														input: function (data) {
-													        // if (studentData.record) {
-													        //     return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
-													        // } else {
-													            return '<input type="hidden" name="idNominaDetalle" min="1" style="width:200px" value="'+studentData.record.idNomina+'" />';
-													        // }
-													    }
-		                                            },
+													// idNomina: {
+													// 	// key: true,
+													// 	// list: false,
+													// 	input: function (data) {
+													//         // if (studentData.record) {
+													//         //     return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
+													//         // } else {
+													//             return '<input type="hidden" name="idNominaDetalle" min="1" style="width:200px" value="'+studentData.record.idNomina+'" />';
+													//         // }
+													//     }
+		                                            // },
 													idDetalle: {
-														// key: true,
+														key: true
 														// list: false
-														input: function (data) {
-													    //     if (studentData.record) {
-													            return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
-													    //     } else {
+														// input: function (data) {
+													    // //     if (studentData.record) {
 													    //         return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
-													    //     }
-													    }
+													    // //     } else {
+													    // //         return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
+													    // //     }
+													    // }
 		                                            },
-													idUsuario: {
-														// key: true,
-														// list: false
-														input: function (data) {
-													    //     if (studentData.record) {
-													            return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
-													    //     } else {
-													    //         return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
-													    //     }
-													    }
-		                                            },
-													idSucursal: {
-														// key: true,
-														// list: false
-														input: function (data) {
-													        // if (studentData.record) {
-													            return '<input type="hidden"  name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
-													        // } else {
-													        //     return '<input type="hidden" name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
-													        // }
-													    }
-		                                            },
+													// idUsuario: {
+													// 	// key: true,
+													// 	// list: false
+													// 	input: function (data) {
+													//     //     if (studentData.record) {
+													//             return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
+													//     //     } else {
+													//     //         return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
+													//     //     }
+													//     }
+		                                            // },
+													// idSucursal: {
+													// 	// key: true,
+													// 	// list: false
+													// 	input: function (data) {
+													//         // if (studentData.record) {
+													//             return '<input type="hidden"  name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
+													//         // } else {
+													//         //     return '<input type="hidden" name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
+													//         // }
+													//     }
+		                                            // },
 		                                            cantidad: {
 		                                                title: 'Cantidad',
 		                                                width: '10%',
 														input: function (data) {
 													        if (studentData.record) {
-																console.log(studentData.record);
+																console.log(studentData);
 													            return '<input type="number" disabled name="cantidad" min="1" style="width:200px" value="1" />';
 													        } else {
 													            return '<input type="number" disabled name="cantidad" min="1" style="width:200px" value="1" />';
@@ -504,13 +511,14 @@
 													monto: {
 		                                                title: 'Monto',
 		                                                width: '20%',
-														input: function (data) {
-													        if (studentData.record) {
-													            return '<input type="number" name="monto" min="1" style="width:200px" value="1" />';
-													        } else {
-													            return '<input type="number" name="monto" min="1" style="width:200px" value="1" />';
-													        }
-													    }
+														// input: function (data) {
+													    //     if (studentData.record) {
+														// 		console.log(studentData.record);
+														// 		return '<input type="number" name="monto" min="1" style="width:200px" value="'+studentData.record.monto+'"/>';
+													    //     } else {
+														// 		return '<input type="number" name="monto" min="1" style="width:200px" />';
+													    //     }
+													    // }
 		                                            },
 													tipo: {
 														title: "tipo",
