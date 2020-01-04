@@ -428,9 +428,8 @@
 		                                        title: studentData.record.nombres + ' - Detalle de conceptos',
 												recordAdded: function (event, data)
 												{
-													alert("recargado");
 											        if (data.record) {
-											            $('#PersonTableContainer').jtable('load');
+											            //$('#PersonTableContainer').jtable('load');
 											        }
 											    },
 		                                        actions: {
@@ -438,7 +437,8 @@
 		                                            // deleteAction: '/Demo/DeletePhone',
 		                                            // updateAction: '/Demo/UpdatePhone',
 													createAction: 'assets/ajax/agregarConceptosRegistrosNominas.php?idNomina=' + studentData.record.idNomina + '&idUsuario=' + studentData.record.idUsuario + '&idSucursal=' + studentData.record.idSucursal,
-		                                            updateAction: 'assets/ajax/editarConceptosRegistrosNominas.php'
+													updateAction: 'assets/ajax/editarConceptosRegistrosNominas.php',
+		                                            deleteAction: 'assets/ajax/eliminarConceptosRegistrosNominas.php'
 		                                        },
 		                                        fields: {
 													// idNomina: {

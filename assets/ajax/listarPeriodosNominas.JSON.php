@@ -76,11 +76,11 @@
                                 </a>
                             </div>';
                 $InfoData[] = array(
-                    'id'                => str_pad($row['id'], 7, "0", STR_PAD_LEFT),
-					'fechaInicio'     => $fechaInicio,
-					'fechaFin'     => $fechaFin,
-                    'fechaCreacion'     => $fechaCreacion,
-                    'btns'              => $htmlBtns);
+                    'id'				=> str_pad($row['id'], 7, "0", STR_PAD_LEFT),
+					'fechaInicio'		=> $fechaInicio,
+					'fechaFin'			=> $fechaFin,
+                    'fechaCreacion'		=> $fechaCreacion,
+                    'btns'				=> $htmlBtns);
             }
             $json_data = [
                 "data"   => $InfoData
