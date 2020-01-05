@@ -222,12 +222,12 @@
 			{
 				console.log(d);
 				htmlReturn ='<table class="table table-striped table-bordered table-hover" style="width:70%">'+
-							'	<th>ID</th>'+
+							'	<th>Número</th>'+
 							'	<th>Nombre</th>'+
-							'	<th>Tipo</th>'+
-							'	<th>Precio de venta</th>'+
-							'	<th>Cantidad</th>'+
-							'	<th>Sub total</th>'
+							'	<th>Percepciones</th>'+
+							'	<th>Deducciones</th>'+
+							'	<th>Neto</th>'+
+							'	<th></th>'
 
 								+d.htmlDetalle+
 						'	</table>';
@@ -586,7 +586,7 @@
 						infoRow = $.ajax(
 						{
 							method: "POST",
-							url:"assets/ajax/obtenerRowDet_venta.php",
+							url:"assets/ajax/listarRowDet_nomina.php",
 							dataType:'JSON',
 							data: {idCliente:idCliente}
 						})

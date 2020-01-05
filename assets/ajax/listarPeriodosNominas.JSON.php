@@ -68,7 +68,7 @@
 				$fechaCreacion = date_create($row['fechaCreacion']);
                 $fechaCreacion = date_format($fechaCreacion, 'd-m-Y');
                 $htmlBtns = '<div class="action-buttons">';
-                $htmlBtns.= 	'<a class="green pointer" id="'.$row['id'].'" target="_blank" href="assets/pdf/facturaPDF.php?idFactura='.$row['id'].'" data-rel="tooltip" title="Mostrar lista">
+                $htmlBtns.= 	'<a class="blue pointer" id="'.$row['id'].'" target="_blank" href="assets/pdf/periodoNomina.php?id='.$row['id'].'" data-rel="tooltip" title="Imprimir nóminas">
                                     <i class="ace-icon fa fa-file-pdf-o bigger-130"></i>
                                 </a>
                                 <a class="btnEliminar pointer red" idCliente='.$row['id'].' data-rel="tooltip" title="Eliminar">

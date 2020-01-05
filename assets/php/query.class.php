@@ -346,7 +346,7 @@ class Query
 	}
 	public function int($name, $null = FALSE, $defaultVal = FALSE)
 	{
-		$defaultValue = !$defaultVal ? "" : "DEFAULT '$defaultVal'";
+		$defaultValue = $defaultVal === FALSE ? "" : "DEFAULT '$defaultVal'";
 		$nullable = $null ? "NULL" : "NOT NULL";
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
@@ -395,7 +395,7 @@ class Query
 	}
 	public function decimal($name, $digits = "(10,2)", $null = FALSE, $defaultVal = FALSE)
 	{
-		$defaultValue = !$defaultVal ? "" : "DEFAULT '$defaultVal'";
+		$defaultValue = $defaultVal === FALSE ? "" : "DEFAULT '$defaultVal'";
 		$nullable = $null ? "NULL" : "NOT NULL";
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
