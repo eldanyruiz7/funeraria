@@ -99,7 +99,7 @@
 					<div class="page-content">
 						<div class="page-header">
 							<h1>
-								<i class="fa fa-shopping-cart" aria-hidden="true"></i> Listar periodos de nóminas
+								<i class="fa fa-columns" aria-hidden="true"></i> Listar periodos de nóminas
 								<small>
 									<i class="ace-icon fa fa-angle-double-right"></i>
 									Listar periodos de nóminas, por rango de fechas
@@ -450,14 +450,14 @@
 						"extend": "pdf",
 						"text": "<i class='fa fa-file-pdf-o bigger-110 red'></i> <span class='hidden'>Exportar formato PDF</span>",
 						"className": "btn btn-white btn-primary btn-bold",
-						"message": "Reporte de lista de clientes"
+						"message": "Reporte de lista de periodos de nóminas"
 					},
 					 {
 						"extend": "print",
 						"text": "<i class='fa fa-print bigger-110 grey'></i> <span class='hidden'>Imprimir</span>",
 						"className": "btn btn-white btn-primary btn-bold",
 						autoPrint: true,
-						message: 'Reporte de lista de clientes'
+						message: 'Reporte de lista de reporte de nóminas'
 					  }
 					]
 				} );

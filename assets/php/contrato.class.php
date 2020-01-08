@@ -37,7 +37,7 @@ class contrato
                     clientes.domicilio1,			    clientes.domicilio2,
                     clientes.idEstado,                  contratos.descuentoDuplicacionInversion,
                     contratos.descuentoCambioFuneraria, contratos.descuentoAdicional,
-                    contratos.motivoCancelado
+                    contratos.motivoCancelado,			contratos.idNomina
                 FROM contratos
                 INNER JOIN cat_estados
                 ON contratos.idEstado   = cat_estados.id
@@ -67,7 +67,8 @@ class contrato
                                         $nombreUsuario, $apellidopUsuario, $apellidomUsuario, $enCurso, $tasaComision, $idVendedor,
                                         $idFallecido, $folio, $idFactura, $activo, $c_RegimenFiscal, $regimenFiscal, $emailCliente,
                                         $cpSucursal, $idEstadoSucursal, $cpCliente, $domicilio1Cliente, $domicilio2Cliente, $idEstadoCliente,
-                                        $descuentoDuplicacionInversion, $descuentoCambioFuneraria, $descuentoAdicional, $motivoCancelado) &&
+                                        $descuentoDuplicacionInversion, $descuentoCambioFuneraria, $descuentoAdicional,
+										$motivoCancelado, $idNomina) &&
             $prepare_contrato->fetch() &&
             $prepare_contrato->num_rows > 0)
         {
@@ -128,7 +129,9 @@ class contrato
             $this ->descuentoDuplicacionInversion = $descuentoDuplicacionInversion;
             $this ->descuentoCambioFuneraria= $descuentoCambioFuneraria;
             $this ->descuentoAdicional      = $descuentoAdicional;
-            $this ->motivoCancelado         = $motivoCancelado;
+			$this ->motivoCancelado         = $motivoCancelado;
+            $this ->idNomina         		= $idNomina;
+
             $this ->costoTotal              = $precio - $descuentoDuplicacionInversion - $descuentoCambioFuneraria - $descuentoAdicional;
             $sql = "SELECT nombres, apellidop, apellidom FROM cat_usuarios WHERE id =$idVendedor LIMIT 1";
             $res_vende = $mysqli->query($sql);
