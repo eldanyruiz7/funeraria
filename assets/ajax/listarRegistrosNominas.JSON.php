@@ -204,7 +204,7 @@
 						$totalComisionCobranza	+= $monto = $monto_pago_cobrador;
 
 						$nombreConcepto = "- Cobranza. ".$rowCom_cobranza['nombreCliente']." (".$rowCom_cobranza['folio'].")";
-
+						// echo "detalle_pagos_contrato id: ".$rowCom_venta['id_dpc']." idNominaCobranza': ".$rowCom_cobranza['idNominaCobranza'];
 						/**
 						 * Insert detalle_nomina de los pagos de
 						 * la cobranza diaria
@@ -213,10 +213,11 @@
 						 {
 							$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
 																			"cantidad", "monto", "tipo", "idUsuario", "idSucursal"), "iisidiii")->execute();
-							$query->table("detalle_pagos_contratos")->update(compact("idNominaCobranza"), "i") ->where("id", "=", $rowCom_venta['id_dpc'], "i")->limit(1) ->execute();
+							$query->table("detalle_pagos_contratos")->update(compact("idNominaCobranza"), "i") ->where("id", "=", $rowCom_cobranza['id_dpc'], "i")->limit(1) ->execute();
 						}
 					}
 				}
+
                 $InfoData[] = array(
 					'idNomina'				=> $idNomina,
 					'idUsuario'				=> $nomina['idUsuario'],

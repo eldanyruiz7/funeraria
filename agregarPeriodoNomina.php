@@ -130,7 +130,7 @@
 												<i class="fa fa-calendar bigger-110"></i>
 											</span>
 											<span class="input-group-btn">
-												<button class="btn btn-white btn-info btn-bold" onclick='$("#my-modal-agregar-periodo").modal();'>
+												<button id="btnGenerarNomina" class="btn btn-white btn-info btn-bold" onclick='$("#my-modal-agregar-periodo").modal();'>
 													<i class="ace-icon fa fa-calculator bigger-130 blue"></i>
 													Generar!
 												</button>
@@ -390,14 +390,16 @@
 			});
 		</script>
 		<script type="text/javascript">
-		// urlListar = 'assets/ajax/listarRegistrosNominas.JSON.php?fechaInicio='+$("#hiddenFInicio").val()+'&fechaFin='+$("#hiddenFFin").val();
 		function recargarTabla()
 		{
 			console.log($("#hiddenFInicio").val());
 			console.log($("#hiddenFFin").val());
-			$('#PersonTableContainer').jtable('load',{ fechaInicio: $("#hiddenFInicio").val(), fechaFin: $("#hiddenFFin").val() });
-			// console.log(urlListar);
+			$('#PersonTableContainer').jtable('load',{ fechaInicio: $("#hiddenFInicio").val(), fechaFin: $("#hiddenFFin").val() }, function()
+			{
+				$("#btnGenerarNomina").attr("disabled", true);
+				mensaje("success","N&oacute;minas creadas correctamente");
 
+			});
 		}
 		    $(document).ready(function ()
 			{
@@ -434,57 +436,14 @@
 											    },
 		                                        actions: {
 		                                            listAction: 'assets/ajax/listarConceptosRegistrosNominas.JSON.php?idNomina=' + studentData.record.idNomina,
-		                                            // deleteAction: '/Demo/DeletePhone',
-		                                            // updateAction: '/Demo/UpdatePhone',
 													createAction: 'assets/ajax/agregarConceptosRegistrosNominas.php?idNomina=' + studentData.record.idNomina + '&idUsuario=' + studentData.record.idUsuario + '&idSucursal=' + studentData.record.idSucursal,
 													updateAction: 'assets/ajax/editarConceptosRegistrosNominas.php',
 		                                            deleteAction: 'assets/ajax/eliminarConceptosRegistrosNominas.php'
 		                                        },
 		                                        fields: {
-													// idNomina: {
-													// 	// key: true,
-													// 	// list: false,
-													// 	input: function (data) {
-													//         // if (studentData.record) {
-													//         //     return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
-													//         // } else {
-													//             return '<input type="hidden" name="idNominaDetalle" min="1" style="width:200px" value="'+studentData.record.idNomina+'" />';
-													//         // }
-													//     }
-		                                            // },
 													idDetalle: {
 														key: true
-														// list: false
-														// input: function (data) {
-													    // //     if (studentData.record) {
-													    //         return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
-													    // //     } else {
-													    // //         return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
-													    // //     }
-													    // }
 		                                            },
-													// idUsuario: {
-													// 	// key: true,
-													// 	// list: false
-													// 	input: function (data) {
-													//     //     if (studentData.record) {
-													//             return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
-													//     //     } else {
-													//     //         return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
-													//     //     }
-													//     }
-		                                            // },
-													// idSucursal: {
-													// 	// key: true,
-													// 	// list: false
-													// 	input: function (data) {
-													//         // if (studentData.record) {
-													//             return '<input type="hidden"  name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
-													//         // } else {
-													//         //     return '<input type="hidden" name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
-													//         // }
-													//     }
-		                                            // },
 		                                            cantidad: {
 		                                                title: 'Cantidad',
 		                                                width: '10%',
@@ -500,25 +459,10 @@
 		                                            concepto: {
 		                                                title: 'Concepto',
 		                                                width: '50%'
-														// input: function (data) {
-													    //     if (studentData.record) {
-													    //         return '<input type="text" name="concepto" min="1" style="width:200px" value="" />';
-													    //     } else {
-													    //         return '<input type="text" name="concepto" min="1" style="width:200px" value="" />';
-													    //     }
-													    // }
 		                                            },
 													monto: {
 		                                                title: 'Monto',
 		                                                width: '20%',
-														// input: function (data) {
-													    //     if (studentData.record) {
-														// 		console.log(studentData.record);
-														// 		return '<input type="number" name="monto" min="1" style="width:200px" value="'+studentData.record.monto+'"/>';
-													    //     } else {
-														// 		return '<input type="number" name="monto" min="1" style="width:200px" />';
-													    //     }
-													    // }
 		                                            },
 													tipo: {
 														title: "tipo",
