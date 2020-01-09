@@ -158,6 +158,29 @@ class contrato
         $comision = $this->costoTotal * $tasa;
         return $comision;
     }
+	public function total_pagado_vendedor($mysqli)
+	{
+		$totalAnticipo = $this ->anticipo;
+		$sql = "SELECT dpc.monto, dpc.tasaComisionCobranza FROM detalle_pagos_contratos AS dpc
+				INNER JOIN contratos AS con ON dpc.idContrato = con.id
+				AND con.idVendedor =".$this ->idVendedor.
+				" AND dpc.idNominaVenta > 0";
+		$res = $mysqli->query($sql);
+		$totalPagado = 0;
+		$totalCobranza = 0;
+		while ($row = $res->fetch_assoc())
+		{
+			$factorTasa = $row['tasaComisionCobranza'] / 100;
+			$montoCobranza = $row['monto'] * $factorTasa;
+			$totalCobranza += $row['monto'] - $montoCobranza;
+		}
+		$totalPagado = $totalAnticipo + $totalCobranza;
+		if ($totalPagado > $this->comision_vendedor())
+		{
+			$totalPagado = $this->comision_vendedor();
+		}
+		return $totalPagado;
+	}
     public function fechaPrimerAportacion()
     {
         $fecha = date_format(new DateTime($this->fechaPrimerAportacion),"d-m-Y");
