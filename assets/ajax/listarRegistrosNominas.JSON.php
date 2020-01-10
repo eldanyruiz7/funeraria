@@ -146,7 +146,7 @@
 						$monto_pago_vendedor 	= $montoPago - $monto_pago_cobrador;
 						$totalAbonado 			= $contrato ->totalAbonado($mysqli);
 						$comision_vendedor 		= $contrato->comision_vendedor();
-						$total_pagado_vendedor 	= $contrato->total_pagado_vendedor($mysqli);
+						$total_pagado_vendedor 	= $contrato->total_pagado_vendedor($query);
 						$primerAportacion		= $contrato->anticipo;
 						$resta_comision 		= $comision_vendedor - $total_pagado_vendedor;
 						if ($resta_comision > 0)

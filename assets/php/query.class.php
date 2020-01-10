@@ -7,6 +7,8 @@
 *
 **/
 define("FILECFG","cnn.ini");
+define("OBJ","obj");
+define("ARR","arr");
 class Query
 {
 	//  Data base
@@ -95,12 +97,27 @@ class Query
 			exit();
 	    }
 	}
+	private function to_object(array $array, $class = 'stdClass')
+	{
+		$object = new $class;
+		foreach ($array as $key => $value)
+		{
+			if (is_array($value))
+			{
+				// Convert the array to an object
+				$value = $this->to_object($value, $class);
+			}
+			// Add the value to the object
+			$object->{$key} = $value;
+		}
+		return $object;
+	}
 	public function table($tb)
 	{
 		$this ->table = $tb;
 		return $this;
 	}
-	public function select($fields)
+	public function select($fields = '*')
 	{
 		global $params;
 		$params = array();
@@ -214,7 +231,7 @@ class Query
 		$this ->query .= " ORDER BY $fieldOrder $order";
 		return $this;
 	}
-	public function execute($debug = FALSE)
+	public function execute($debug = FALSE, $return = 'arr')
 	{
 		$tipo = $this ->obtenerTipoQuery();
 		if ($tipo == "crearTabla")
@@ -272,7 +289,19 @@ class Query
 					$a_data = array();
 					$res_select = $prepare_select->get_result();
 					$this ->num_rows= $res_select ->num_rows;
-					$a_data = $res_select ->fetch_all(MYSQLI_ASSOC);
+					if ($return == 'arr')
+					{
+						$a_data = $res_select ->fetch_all(MYSQLI_ASSOC);
+					}
+					elseif ($return == 'obj')
+					{
+						// $user = (object)$user;
+						// echo "Num_rows: ".$this->num_rows."-";
+						if($this->num_rows() > 1)
+							$a_data = $this->to_object($res_select ->fetch_all(MYSQLI_ASSOC));
+						else
+							$a_data = $res_select ->fetch_object();
+					}
 					$this ->data = $a_data;
 				}
 				$this ->mensaje = "Sentencia realizada con éxito";

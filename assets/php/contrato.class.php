@@ -69,78 +69,78 @@ class contrato
                                         $cpSucursal, $idEstadoSucursal, $cpCliente, $domicilio1Cliente, $domicilio2Cliente, $idEstadoCliente,
                                         $descuentoDuplicacionInversion, $descuentoCambioFuneraria, $descuentoAdicional,
 										$motivoCancelado, $idNomina) &&
-            $prepare_contrato->fetch() &&
-            $prepare_contrato->num_rows > 0)
-        {
-            $this ->id                      = $idContrato;
-            $this ->fechaCreacion           = $fechaCreacion;
-            $this ->fechaPrimerAportacion   = $fechaPrimerAportacion;
-            $this ->precio                  = $precio;
-            $this ->anticipo                = $anticipo;
-            $this ->aportacion              = $aportacion;
-            $this ->domicilio1              = $domicilio1;
-            $this ->domicilio2              = $domicilio2;
-            $this ->cp                      = $cp;
-            $this ->idEstado                = $idEstado;
-            $this ->domicilio               = $domicilio1.", ".$domicilio2.", ".$nombreEstado.", CP: ".$cp;
-            $this ->referencias             = $referencias;
-            $this ->frecuenciaPago          = $frecuenciaPago;
-            $this ->idCliente               = $idCliente;
-            $this ->idPlan                  = $idPlan;
-            $this ->idSucursal              = $idSucursal;
-            $this ->observaciones           = $observaciones;
-            $this ->primerNombreCliente     = $nombreCliente;
-            $this ->apellidopCliente        = $apellidopCliente;
-            $this ->apellidomCliente        = $apellidomCliente;
-            $this ->nombreCliente           = $nombreCliente." ".$apellidopCliente." ".$apellidomCliente;
-            $this ->rfcCliente              = $rfcCliente;
-            $this ->telCliente              = $telCliente;
-            $this ->celCliente              = $celCliente;
-            $this ->cpCliente               = $cpCliente;
-            $this ->domicilioCliente        = $domicilio1Cliente.", ".$domicilio2Cliente.". CP: ".$cpCliente;
-            $this ->idEstadoCliente         = $idEstadoCliente;
-            $this ->nombrePlan              = $nombrePlan;
-            $this ->nombreSucursal          = $nombreSucursal;
-            $this ->lemaSucursal            = $lemaSucursal;
-            $this ->domicilioSucursal       = $domicilio1Sucursal.", ".$domicilio2Sucursal.", CP: ".$cpSucursal;
-            $this ->cpSucursal              = $cpSucursal;
-            $this ->domicilio1Sucursal      = $domicilio1Sucursal;
-            $this ->domicilio2Sucursal      = $domicilio2Sucursal;
-            $this ->tel1Sucursal            = $tel1Sucursal;
-            $this ->tel2Sucursal            = $tel2Sucursal;
-            $this ->celSucursal             = $celSucursal;
-            $this ->clausulas               = $clausulas;
-            $this ->rfcSucursal             = $rfcSucursal;
-            $this ->curpSucursal            = $curpSucursal;
-            $this ->correoSucursal          = $correoSucursal;
-            $this ->representanteSucursal   = $representanteSucursal;
-            $this ->nombreUsuario           = $nombreUsuario." ".$apellidopUsuario." ".$apellidomUsuario;
-            $this ->enCurso                 = $enCurso;
-            $this ->tasaComision            = $tasaComision;
-            $this ->idVendedor              = $idVendedor;
-            $this ->idDifunto               = $idFallecido;
-            $this ->folio                   = $folio;
-            $this ->idFactura               = $idFactura;
-            $this ->activo                  = $activo;
-            $this ->c_RegimenFiscal         = $c_RegimenFiscal;
-            $this ->regimenFiscal           = $regimenFiscal;
-            $this ->emailCliente            = $emailCliente;
-            $this ->idEstadoSucursal        = $idEstadoSucursal;
-            $this ->descuentoDuplicacionInversion = $descuentoDuplicacionInversion;
-            $this ->descuentoCambioFuneraria= $descuentoCambioFuneraria;
-            $this ->descuentoAdicional      = $descuentoAdicional;
+			$prepare_contrato->fetch() &&
+			$prepare_contrato->num_rows > 0)
+		{
+			$this ->id                      = $idContrato;
+			$this ->fechaCreacion           = $fechaCreacion;
+			$this ->fechaPrimerAportacion   = $fechaPrimerAportacion;
+			$this ->precio                  = $precio;
+			$this ->anticipo                = $anticipo;
+			$this ->aportacion              = $aportacion;
+			$this ->domicilio1              = $domicilio1;
+			$this ->domicilio2              = $domicilio2;
+			$this ->cp                      = $cp;
+			$this ->idEstado                = $idEstado;
+			$this ->domicilio               = $domicilio1.", ".$domicilio2.", ".$nombreEstado.", CP: ".$cp;
+			$this ->referencias             = $referencias;
+			$this ->frecuenciaPago          = $frecuenciaPago;
+			$this ->idCliente               = $idCliente;
+			$this ->idPlan                  = $idPlan;
+			$this ->idSucursal              = $idSucursal;
+			$this ->observaciones           = $observaciones;
+			$this ->primerNombreCliente     = $nombreCliente;
+			$this ->apellidopCliente        = $apellidopCliente;
+			$this ->apellidomCliente        = $apellidomCliente;
+			$this ->nombreCliente           = $nombreCliente." ".$apellidopCliente." ".$apellidomCliente;
+			$this ->rfcCliente              = $rfcCliente;
+			$this ->telCliente              = $telCliente;
+			$this ->celCliente              = $celCliente;
+			$this ->cpCliente               = $cpCliente;
+			$this ->domicilioCliente        = $domicilio1Cliente.", ".$domicilio2Cliente.". CP: ".$cpCliente;
+			$this ->idEstadoCliente         = $idEstadoCliente;
+			$this ->nombrePlan              = $nombrePlan;
+			$this ->nombreSucursal          = $nombreSucursal;
+			$this ->lemaSucursal            = $lemaSucursal;
+			$this ->domicilioSucursal       = $domicilio1Sucursal.", ".$domicilio2Sucursal.", CP: ".$cpSucursal;
+			$this ->cpSucursal              = $cpSucursal;
+			$this ->domicilio1Sucursal      = $domicilio1Sucursal;
+			$this ->domicilio2Sucursal      = $domicilio2Sucursal;
+			$this ->tel1Sucursal            = $tel1Sucursal;
+			$this ->tel2Sucursal            = $tel2Sucursal;
+			$this ->celSucursal             = $celSucursal;
+			$this ->clausulas               = $clausulas;
+			$this ->rfcSucursal             = $rfcSucursal;
+			$this ->curpSucursal            = $curpSucursal;
+			$this ->correoSucursal          = $correoSucursal;
+			$this ->representanteSucursal   = $representanteSucursal;
+			$this ->nombreUsuario           = $nombreUsuario." ".$apellidopUsuario." ".$apellidomUsuario;
+			$this ->enCurso                 = $enCurso;
+			$this ->tasaComision            = $tasaComision;
+			$this ->idVendedor              = $idVendedor;
+			$this ->idDifunto               = $idFallecido;
+			$this ->folio                   = $folio;
+			$this ->idFactura               = $idFactura;
+			$this ->activo                  = $activo;
+			$this ->c_RegimenFiscal         = $c_RegimenFiscal;
+			$this ->regimenFiscal           = $regimenFiscal;
+			$this ->emailCliente            = $emailCliente;
+			$this ->idEstadoSucursal        = $idEstadoSucursal;
+			$this ->descuentoDuplicacionInversion = $descuentoDuplicacionInversion;
+			$this ->descuentoCambioFuneraria= $descuentoCambioFuneraria;
+			$this ->descuentoAdicional      = $descuentoAdicional;
 			$this ->motivoCancelado         = $motivoCancelado;
-            $this ->idNomina         		= $idNomina;
+			$this ->idNomina         		= $idNomina;
 
-            $this ->costoTotal              = $precio - $descuentoDuplicacionInversion - $descuentoCambioFuneraria - $descuentoAdicional;
-            $sql = "SELECT nombres, apellidop, apellidom FROM cat_usuarios WHERE id =$idVendedor LIMIT 1";
-            $res_vende = $mysqli->query($sql);
-            $row_vende = $res_vende->fetch_assoc();
-            $this ->nombresVendedor         = $row_vende['nombres'];
-            $this ->nombreVendedor          = $row_vende['nombres']." ".$row_vende['apellidop']." ".$row_vende['apellidom'];
-            $sql = "SELECT fechaCreacion, monto FROM detalle_pagos_contratos WHERE idContrato =".$this->id." AND activo = 1";
-            $res_pagos = $mysqli->query($sql);
-            $this ->pagosEfectuados         = $res_pagos->num_rows;
+			$this ->costoTotal              = $precio - $descuentoDuplicacionInversion - $descuentoCambioFuneraria - $descuentoAdicional;
+			$sql = "SELECT nombres, apellidop, apellidom FROM cat_usuarios WHERE id =$idVendedor LIMIT 1";
+			$res_vende = $mysqli->query($sql);
+			$row_vende = $res_vende->fetch_assoc();
+			$this ->nombresVendedor         = $row_vende['nombres'];
+			$this ->nombreVendedor          = $row_vende['nombres']." ".$row_vende['apellidop']." ".$row_vende['apellidom'];
+			$sql = "SELECT fechaCreacion, monto FROM detalle_pagos_contratos WHERE idContrato =".$this->id." AND activo = 1";
+			$res_pagos = $mysqli->query($sql);
+			$this ->pagosEfectuados         = $res_pagos->num_rows;
         }
         else
         {
@@ -158,17 +158,16 @@ class contrato
         $comision = $this->costoTotal * $tasa;
         return $comision;
     }
-	public function total_pagado_vendedor($mysqli)
+	public function total_pagado_vendedor($query)
 	{
 		$totalAnticipo = $this ->anticipo;
-		$sql = "SELECT dpc.monto, dpc.tasaComisionCobranza FROM detalle_pagos_contratos AS dpc
-				INNER JOIN contratos AS con ON dpc.idContrato = con.id
-				AND con.idVendedor =".$this ->idVendedor.
-				" AND dpc.idNominaVenta > 0";
-		$res = $mysqli->query($sql);
+		$res =$query->table("detalle_pagos_contratos AS dpc")->select("dpc.monto, dpc.tasaComisionCobranza")
+					->innerJoin("contratos AS con","dpc.idContrato", "=", "con.id")
+					->where("con.idVendedor", "=", $this ->idVendedor, "i")->and()
+					->where("dpc.idNominaVenta", ">", 0, "i")->execute();
 		$totalPagado = 0;
 		$totalCobranza = 0;
-		while ($row = $res->fetch_assoc())
+		foreach ($res as $row)
 		{
 			$factorTasa = $row['tasaComisionCobranza'] / 100;
 			$montoCobranza = $row['monto'] * $factorTasa;
