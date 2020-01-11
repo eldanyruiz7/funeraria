@@ -28,7 +28,7 @@
 				require_once "assets/php/funcionesVarias.php";
 				require "assets/php/contrato.class.php";
 				$idContrato = $_GET['idContrato'];
-				$contrato = new contrato($idContrato,$mysqli);
+				$contrato = new Contrato($idContrato,$query);
 				if ($contrato->id)
 				{
 					$modificar = TRUE;

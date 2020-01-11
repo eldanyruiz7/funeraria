@@ -15,6 +15,8 @@
         require_once "../php/responderJSON.php";
         require_once "../php/contrato.class.php";
         require_once "../php/funcionesVarias.php";
+		require_once ("../php/query.class.php");
+		$query = new Query();
         $response = array(
             "status"        => 1
         );
@@ -37,7 +39,7 @@
             {
                 $idContrato = $row['idContrato'];
                 //$fechaCreacion = date_format(date_create($row['fechaCreacion']), 'd-m-Y');
-                $contrato = new contrato($idContrato,$mysqli);
+                $contrato = new Contrato($idContrato,$query);
                 $nombreDifunto = $contrato->nombreDifunto($mysqli);
                 $htmlBtns = '<div class="action-buttons">';
                 if ($contrato->idFactura != 0)

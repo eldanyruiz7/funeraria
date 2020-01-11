@@ -48,12 +48,12 @@
 			$pdf->AddPage();
 			$pdf->SetMargins(8,20);
 			$pdf->Image('../images/avatars/sucursales/'.$resPeriodo->idSucursal.'/logo.jpg',11,5,-780);
-			$pdf->SetFont('times','',10);
+			$pdf->SetFont('times','',7);
 			$code				= str_pad($idNomina, 10, "0", STR_PAD_LEFT);
-			$pdf->Code128(167,8," ".$code,38,6);
+			$pdf->Code128(167,7.5," ".$code,38,5);
 			$pdf->SetXY(172,12);
 			$pdf->SetFillColor(128, 0, 128);
-			$pdf->Cell(30,7,"No.- ".$code,$margen,1,'C');
+			$pdf->Cell(30,4,"No.- ".$code,$margen,1,'C');
 			$pdf->SetXY(37,4);
 			$pdf->Cell(168,3,utf8_decode(''),$margen,1,'C',true);
 			$pdf->Cell(200,1,utf8_decode(""),$margen,1,'L');
@@ -72,74 +72,114 @@
 			$pdf->SetFillColor(246);
  			$pdf->SetDrawColor(255);
  			$pdf->SetLineWidth(0.6);
-			$pdf->Cell(200,3,utf8_decode(""),$margen,1,'C');
+			$pdf->Cell(200,1,utf8_decode(""),$margen,1,'C');
 
-			$pdf->SetFont('Courier','B',8);
- 			$pdf->Cell(16,4,utf8_decode("NOMINA:"),$margen,0,'L');
- 			$pdf->SetFont('Courier','',7.5);
- 			$pdf->Cell(20,4,utf8_decode($code),1,0,'C',true);
+			$pdf->SetFont('Courier','B',7);
+ 			$pdf->Cell(16,3.5,utf8_decode("NOMINA:"),$margen,0,'L');
+ 			$pdf->SetFont('Courier','',6.5);
+ 			$pdf->Cell(20,3.5,utf8_decode($code),1,0,'C',true);
 
- 			$pdf->SetFont('Courier','B',8);
- 			$pdf->Cell(14,4,utf8_decode("NOMBRE:"),$margen,0,'L');
- 			$pdf->SetFont('Courier','',7.5);
- 			$pdf->Cell(82,4,utf8_decode($Usuario->nombres),1,0,'C',true);
- 			$pdf->SetFont('Courier','B',8);
- 			$pdf->Cell(15,4,utf8_decode('PERIODO:'),$margen,0,'L');
- 			$pdf->SetFont('Courier','',7.5);
- 			$pdf->Cell(50,4,utf8_decode(date_format(date_create($resPeriodo->fechaInicio), 'd/m/Y')." - ".date_format(date_create($resPeriodo->fechaFin), 'd/m/Y')),1,1,'C',true);
- 			$pdf->SetFont('Courier','B',8);
- 			$pdf->Cell(24,4,utf8_decode('FH. CREACIÓN:'),$margen,0,'L');
- 			$pdf->SetFont('Courier','',7.5);
- 			$pdf->Cell(38,4,utf8_decode(date_format(date_create($resPeriodo->fechaCreacion),'d/m/Y H:i:s')),1,0,'C',true);
-			$pdf->SetFont('Courier','B',8);
- 			$pdf->Cell(24,4,utf8_decode("DEPARTAMENTO:"),$margen,0,'L');
- 			$pdf->SetFont('Courier','',7.5);
- 			$pdf->Cell(30,4,utf8_decode($resPeriodo->departamento),1,0,'C',true);
-			$pdf->SetFont('Courier','B',8);
- 			$pdf->Cell(15,4,utf8_decode("PUESTO:"),$margen,0,'L');
- 			$pdf->SetFont('Courier','',7.5);
- 			$pdf->Cell(66,4,utf8_decode($resPeriodo->puestoUsuario),1,1,'C',true);
+ 			$pdf->SetFont('Courier','B',7);
+ 			$pdf->Cell(14,3.5,utf8_decode("NOMBRE:"),$margen,0,'L');
+ 			$pdf->SetFont('Courier','',6.5);
+ 			$pdf->Cell(82,3.5,utf8_decode($Usuario->nombres),1,0,'C',true);
+ 			$pdf->SetFont('Courier','B',7);
+ 			$pdf->Cell(15,3.5,utf8_decode('PERIODO:'),$margen,0,'L');
+ 			$pdf->SetFont('Courier','',6.5);
+ 			$pdf->Cell(50,3.5,utf8_decode(date_format(date_create($resPeriodo->fechaInicio), 'd/m/Y')." - ".date_format(date_create($resPeriodo->fechaFin), 'd/m/Y')),1,1,'C',true);
+ 			$pdf->SetFont('Courier','B',7);
+ 			$pdf->Cell(24,3.5,utf8_decode('FH. CREACIÓN:'),$margen,0,'L');
+ 			$pdf->SetFont('Courier','',6.5);
+ 			$pdf->Cell(38,3.5,utf8_decode(date_format(date_create($resPeriodo->fechaCreacion),'d/m/Y H:i:s')),1,0,'C',true);
+			$pdf->SetFont('Courier','B',7);
+ 			$pdf->Cell(24,3.5,utf8_decode("DEPARTAMENTO:"),$margen,0,'L');
+ 			$pdf->SetFont('Courier','',6.5);
+ 			$pdf->Cell(30,3.5,utf8_decode($resPeriodo->departamento),1,0,'C',true);
+			$pdf->SetFont('Courier','B',7);
+ 			$pdf->Cell(15,3.5,utf8_decode("PUESTO:"),$margen,0,'L');
+ 			$pdf->SetFont('Courier','',6.5);
+ 			$pdf->Cell(66,3.5,utf8_decode($resPeriodo->puestoUsuario),1,1,'C',true);
 
-			$pdf->Cell(100,1,"",0,1,'L',0);
+			$pdf->Cell(100,3,"",0,1,'L',0);
 			$pdf->SetFillColor(99, 99, 99);
 			$pdf->SetTextColor(255);
-			$pdf->SetFont('Courier','B',8);
-			$pdf->Cell(70,4,utf8_decode('CONCEPTO'),1,0,'C',TRUE);
-			$pdf->Cell(29,4,utf8_decode('$ IMPORTE'),1,0,'C',TRUE);
-			$pdf->Cell(70,4,utf8_decode('CONCEPTO'),1,0,'C',TRUE);
-			$pdf->Cell(29,4,utf8_decode('$ IMPORTE'),1,1,'C',TRUE);
+			$pdf->SetFont('Courier','B',7);
+			$pdf->Cell(70,3.5,utf8_decode('CONCEPTO'),1,0,'C',TRUE);
+			$pdf->Cell(29,3.5,utf8_decode('$ IMPORTE'),1,0,'C',TRUE);
+			$pdf->Cell(70,3.5,utf8_decode('CONCEPTO'),1,0,'C',TRUE);
+			$pdf->Cell(29,3.5,utf8_decode('$ IMPORTE'),1,1,'C',TRUE);
 			//$pdf->SetFillColor(255);
-			$pdf->SetFont('times','',7);
+			$pdf->SetFont('times','',6.8);
 			$pdf->SetTextColor(0);
-			$pdf->SetFillColor(230);
+			$pdf->SetFillColor(240);
 			$pdf->SetDrawColor(0);
 
 			/**
 			 * Detalle de nómina
 			 */
-			$Nominas = $query->table("detalle_nomina AS dn")->select("dn.nombreConcepto AS concepto, dn.monto, dn.tipo")
+			$Nominas = $query->table("detalle_nomina AS dn")->select("dn.nombreConcepto AS nombreConcepto, dn.monto, dn.tipo, dn.idConcepto")
 							->where("dn.idNomina","=", $idNomina, "i")->and()
 							->where("dn.idUsuario","=", $Usuario->id, "i")->and()
 							->where("dn.activo", "=", 1, "i")->orderBy("dn.tipo", "ASC")->execute(FALSE, OBJ);
-			// var_dump($Nomina);die;
-			$stripper 	= 0;
-			$saltoLinea = 0;
-			$contLinea 	= 1;
-			$contStr 	= 0;
+
+			/**
+			 * Juntar en un solo concepto la cobranza
+			 */
+			$percepciones_cobranza = 0;
 			foreach ($Nominas as $nomina)
 			{
-				$stripper 	= $contStr%4 == 0 ? 1 : 0;
-				$saltoLinea = $contLinea%2 == 0 ? 1 : 0;
-				$pdf->Cell(10,3.5,'',$margen,0,'C',$stripper);
-				$pdf->Cell(60,3.5,utf8_decode($nomina->concepto),$margen,0,'L',$stripper);
-				$pdf->Cell(29,3.5,utf8_decode($nomina->tipo == 1 ? $nomina->monto : '-'.$nomina->monto),$margen,TRUE,'R', $stripper);
+				if ($nomina->idConcepto == 2) //Cobranza
+				{
+					$percepciones_cobranza += $nomina->monto;
+				}
+			}
+
+			/**
+			* Primer línea caja nómina
+			*/
+			$pdf->Cell(200,2.4,'',$margen,1,'C',0);
+
+			/**
+			 * Imprimir concepto de cobranza, si existe
+			 */
+			if ($percepciones_cobranza > 0)
+			{
+				$pdf->Cell(10,3.4,'',$margen,0,'C',0);
+				$pdf->Cell(60,3.4,utf8_decode("Comisión por cobranza"),$margen,0,'L',0);
+				$pdf->Cell(29,3.4,utf8_decode(number_format($percepciones_cobranza,2,".",",")),$margen,0,'R', 0);
+			}
+
+			$stripper 	= $percepciones_cobranza ? 0 : 1;
+			$saltoLinea = $percepciones_cobranza ? 1 : 0;
+			$contLinea 	= $percepciones_cobranza ? 2 : 1;
+			$percepciones_ventas = 0;
+			$deducciones = 0;
+			foreach ($Nominas as $nomina)
+			{
+				if ($nomina->idConcepto == 2) //Cobranza
+				{
+					continue;
+				}
+				if ($contLinea%2)
+					$saltoLinea = 0;
+				else
+				{
+					$saltoLinea = 1;
+					$stripper 	= $stripper ? 0 : 1;
+				}
+				$pdf->Cell(10,3.4,'',$margen,0,'C',$stripper);
+				$pdf->Cell(60,3.4,utf8_decode($nomina->nombreConcepto),$margen,0,'L',$stripper);
+				$pdf->Cell(29,3.4,utf8_decode($nomina->tipo == 1 ? $nomina->monto : '-'.$nomina->monto),$margen,$saltoLinea,'R', $stripper);
+				
+				if ($nomina->tipo)
+					$percepciones_ventas += $nomina->monto;
+				else
+					$deducciones += $nomina->monto;
+				// $percepciones_ventas += $nomina->tipo ? $nomina->monto : 0;
 				$contLinea++;
-				$contStr+=2;
 			}
 			$pdf->Output();
 die;
-
-
                         $pdf->Cell(100,1.8,"",0,1,'L',0);
                         $pdf->SetFillColor(99, 99, 99);
                         $pdf->SetTextColor(255);

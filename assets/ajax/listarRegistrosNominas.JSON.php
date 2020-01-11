@@ -92,14 +92,23 @@
 																				CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente")
 											->leftJoin("clientes AS cli", "con.idTitular", "=", "cli.id")
 											->where("fechaCreacion", "BETWEEN", "'$fechaInicio' AND '$fechaFin'", "ss")->and()
+											->where("con.idNomina", "=", 0, "i")->and()
 											->where("idVendedor", "=", $idUsuario, "i")->execute();
 				$totalAportaciones = 0;
 				$idConcepto = 1;
 				$cantidad = 1;
 				foreach ($rowAportaciones as $rowAportacion)
 				{
-					$nombreConcepto = "- 1° Aport. ".$rowAportacion['nombreCliente']." (".$rowAportacion['folio'].")";
-					$monto = $rowAportacion['anticipo'];
+					$contrato 				= new contrato($rowAportacion['id'], $mysqli);
+					$comision_vendedor 		= $contrato->comision_vendedor();
+					$total_pagado_vendedor 	= $contrato->total_pagado_vendedor($query);
+					$resta_comision 		= $comision_vendedor - $total_pagado_vendedor;
+					// if ($contrato->id == 12) {
+					// 	var_dump($rowAportacion);
+					// }
+					// echo $contrato->id." resta comision: ". $resta_comision."Tot pagado a vendedor: ".$total_pagado_vendedor."comision_vendedor():".$contrato->comision_vendedor()."<br>";
+					$nombreConcepto 		= "- 1° Aport. ".$rowAportacion['nombreCliente']." (".$rowAportacion['folio'].")";
+					$monto 					= $rowAportacion['anticipo'] > $resta_comision ? $resta_comision :  $rowAportacion['anticipo'];
 
 					/**
 					 * Insert detalle_nomina de los pagos por
@@ -138,7 +147,7 @@
 				{
 					if (!$rowCom_venta['idNominaVenta'])
 					{
-						$contrato 				= new contrato($rowCom_venta['idContrato'], $mysqli);
+						$contrato 				= new contrato($rowCom_venta['idContrato'], $query);
 						$montoPago 				= $rowCom_venta['monto'];
 						$tasaCom_Cobranza 		= $rowCom_venta['tasaComisionCobranza'];
 						$tasa_100 				= $tasaCom_Cobranza / 100;
@@ -154,7 +163,11 @@
 						else
 							$monto_pago_vendedor_real = 0;
 
-						// echo "total_pagado_vendedor: ".$total_pagado_vendedor." resta_comision: ".$resta_comision." monto_pago_cobrador: ".$monto_pago_cobrador." monto_pago_vendedor_real: ".$monto_pago_vendedor_real." omision vendedor: ".$comision_vendedor." totalAbonado: ".$totalAbonado." primerAportacion: ".$primerAportacion." idContrato: ". $contrato ->id."<br>";
+						echo "idContrato: ".$contrato->id."idNomina".$contrato->idNomina." Anticipo".$contrato->anticipo."<br>".
+						" total_pagado_vendedor: ".$total_pagado_vendedor." resta_comision: ".$resta_comision."<br>".
+						" monto_pago_cobrador: ".$monto_pago_cobrador." monto_pago_vendedor_real: ".$monto_pago_vendedor_real."<br>".
+						" omision vendedor: ".$comision_vendedor." totalAbonado: ".$totalAbonado." primerAportacion: ".$primerAportacion."<br>".
+						" idContrato: ". $contrato ->id."<br>-----------------------------------------<br>";
 
 						$totalComisionVentas += $monto = $monto_pago_vendedor_real;
 
