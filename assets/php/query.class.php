@@ -8,6 +8,7 @@
 **/
 define("FILECFG","cnn.ini");
 define("OBJ","obj");
+define("RETURN_OBJECT","obj_always");
 define("ARR","arr");
 class Query
 {
@@ -301,6 +302,10 @@ class Query
 							$a_data = $this->to_object($res_select ->fetch_all(MYSQLI_ASSOC));
 						else
 							$a_data = $res_select ->fetch_object();
+					}
+					elseif ($return == 'obj_always')
+					{
+						$a_data = $this->to_object($res_select ->fetch_all(MYSQLI_ASSOC));
 					}
 					$this ->data = $a_data;
 				}

@@ -12,6 +12,8 @@
     {
         require ("../php/usuario.class.php");
         require "../php/responderJSON.php";
+		require_once ("../php/query.class.php");
+		$query = new Query();
         $response = array(
             "status"        => 1
         );
@@ -66,7 +68,7 @@
 				// 				<i class="ace-icon fa fa-ban bigger-130"></i>
 				// 		    </a>
 				// 		</div>';
-                $array = $usuario->obtener_cobranza_vendedor($mysqli, $fInicio, $fFin);
+                $array = $usuario->obtener_cobranza_vendedor($query, $fInicio, $fFin);
 				// print_r($array['detallePagosContratos']);
                 // if ($array['cobrado'] <= 0) {
                 //     continue;

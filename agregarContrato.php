@@ -293,15 +293,15 @@
 											<select id="vendedor" name="vendedor" class="col-xs-5">
 												<?php
 													$res_vendedor = $query 	->table("cat_usuarios")->select("id, nombres, apellidop, apellidom")->where("activo", "=", 1, "i")
-																			->and()->where("tipo", "<>", 0, "i")->orderBy("nombres")->execute();
+																			->and()->where("tipo", "<>", 0, "i")->orderBy("nombres")->execute(FALSE, OBJ);
 													foreach ($res_vendedor as $row_vendedor)
 													{
-														if ($modificar && $row_vendedor['id'] == $contrato->idVendedor)
+														if ($modificar && $row_vendedor->id == $contrato->idVendedor)
 														{
-															echo "<option selected value=".$row_vendedor['id'].">".$row_vendedor['nombres']." ".$row_vendedor['apellidop']." ".$row_vendedor['apellidom']."</option>";
+															echo "<option selected value=".$row_vendedor->id.">".$row_vendedor->nombres." ".$row_vendedor->apellidop." ".$row_vendedor->apellidom."</option>";
 															continue;
 														}
-														echo "<option value=".$row_vendedor['id'].">".$row_vendedor['nombres']." ".$row_vendedor['apellidop']." ".$row_vendedor['apellidom']."</option>";
+														echo "<option value=".$row_vendedor->id.">".$row_vendedor->nombres." ".$row_vendedor->apellidop." ".$row_vendedor->apellidom."</option>";
 													}
 												 ?>
 											 </select>

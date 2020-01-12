@@ -13,6 +13,8 @@
     {
         require "../php/contrato.class.php";
         require "../php/responderJSON.php";
+		require_once ("../php/query.class.php");
+		$query = new Query();
 
         $idContrato                     = $_POST['idContrato'];
         $idDifunto                      = $_POST['idDifunto'];
@@ -38,7 +40,7 @@
         $observaciones = validarFormulario('s',$observaciones,FALSE);
         $selectCajonUrna = validarFormulario('s',$selectCajonUrna,FALSE);
 
-        $contrato = new contrato($idContrato,$mysqli);
+        $contrato = new Contrato($idContrato,$query);
         if ($contrato->id == 0)
         {
             $response['mensaje'] = "No se puede asignar el difunto a este contrato porque el contrato no existe o ha sido eliminado. Vuelve a intentarlo con otro contrato distinto";

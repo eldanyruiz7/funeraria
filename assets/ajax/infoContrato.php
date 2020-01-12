@@ -13,6 +13,8 @@
         require "../php/contrato.class.php";
         require_once "../php/funcionesVarias.php";
         require "../php/responderJSON.php";
+		require_once ("../php/query.class.php");
+		$query = new Query();
 
         $idContrato = $_POST['idContrato'];
         $response = array(
@@ -24,7 +26,7 @@
             $response['status'] = 0;
             responder($response, $mysqli);
         }
-        $contrato = new contrato($idContrato,$mysqli);
+        $contrato = new Contrato($idContrato,$query);
         if ($contrato->id == 0)
         {
             $response['mensaje'] = "No existe informaci&oacute;n para este contrato. Posiblemente ya ha sido eliminado.";
