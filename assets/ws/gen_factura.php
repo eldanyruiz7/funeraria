@@ -23,7 +23,8 @@ if( logueado($idSesion,$idUsuario,$mysqli) == false || $idSesion == false)
 else
 {
     // require '../startbootstrap/vendor/fpdf/qrcode/qrcode.class.php';
-
+	require_once ("../php/query.class.php");
+	$query = new Query();
     $pp = 0;
     function progreso($x, $status, $error)
     {
@@ -190,7 +191,7 @@ else
     }
     else
     {
-        $contrato           = new contrato($idContrato,$mysqli);
+        $contrato           = new Contrato($idContrato,$query);
     }
     if ($tipoFactura == 'venta')
     {

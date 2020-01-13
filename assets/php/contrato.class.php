@@ -49,70 +49,7 @@ class Contrato
 		->innerJoin("cat_usuarios AS usr_v",	"usr_v.id",					"=", "contratos.idVendedor")
 		->where("contratos.id", "=", $idC, "i")->and()
 		->where("contratos.activo", "=", 1, "i")->limit()->execute(FALSE, OBJ);
-        // $sql = "SELECT
-        //             contratos.id,                       contratos.fechaCreacion,
-        //             contratos.fechaPrimerAportacion,    contratos.precio,
-        //             contratos.primerAnticipo,           contratos.precioAportacion,
-        //             contratos.direccion1,               contratos.direccion2,
-        //             contratos.cp,                       contratos.idEstado,
-        //             contratos.referencias,              contratos.frecuenciaPago,
-        //             contratos.idTitular,                contratos.idPlan,
-        //             contratos.idSucursal,               contratos.observaciones,
-        //             cat_estados.estado,                 clientes.nombres,
-        //             clientes.apellidop,                 clientes.apellidom,
-        //             clientes.rfc,                       clientes.tel,
-        //             clientes.cel,                       cat_planes.nombre,
-        //             cat_sucursales.nombre,              cat_sucursales.lema,
-        //             cat_sucursales.direccion1,          cat_sucursales.direccion2,
-        //             cat_sucursales.telefono1,           cat_sucursales.telefono2,
-        //             cat_sucursales.celular,             cat_sucursales.clausulasContrato,
-        //             cat_sucursales.rfc,                 cat_sucursales.curp,
-        //             cat_sucursales.correo,              cat_sucursales.representante,
-        //             cat_usuarios.nombres,               cat_usuarios.apellidop,
-        //             cat_usuarios.apellidom,             contratos.enCurso,
-        //             contratos.tasaComision,             contratos.idVendedor,
-        //             contratos.idFallecido,              contratos.folio,
-        //             contratos.idFactura,                contratos.activo,
-        //             cat_regimenes_fiscales.c_RegimenFiscal, cat_regimenes_fiscales.nombre,
-        //             clientes.email,                     cat_sucursales.cp,
-        //             cat_sucursales.estado,              clientes.cp,
-        //             clientes.domicilio1,			    clientes.domicilio2,
-        //             clientes.idEstado,                  contratos.descuentoDuplicacionInversion,
-        //             contratos.descuentoCambioFuneraria, contratos.descuentoAdicional,
-        //             contratos.motivoCancelado,			contratos.idNomina
-        //         FROM contratos
-        //         INNER JOIN cat_estados
-        //         ON
-        //         INNER JOIN
-        //         ON
-        //         INNER JOIN
-        //         ON
-        //         INNER JOIN
-        //         ON
-        //         INNER JOIN
-        //         ON
-        //         INNER JOIN
-        //         ON
-        //         WHERE       = ?
-        //         AND     = 1 LIMIT 1";
-        // $prepare_contrato = $mysqli->prepare($sql);
-        // if ($prepare_contrato &&
-        //     $prepare_contrato->bind_param("i",$idC) &&
-        //     $prepare_contrato->execute() &&
-        //     $prepare_contrato->store_result() &&
-        //     $prepare_contrato->bind_result($idContrato, $fechaCreacion, $fechaPrimerAportacion, $precio, $anticipo,
-        //                                 $aportacion, $domicilio1, $domicilio2, $cp, $idEstado, $referencias, $frecuenciaPago,
-        //                                 $idCliente, $idPlan, $idSucursal, $observaciones, $nombreEstado, $nombreCliente,
-        //                                 $apellidopCliente, $apellidomCliente, $rfcCliente, $telCliente, $celCliente, $nombrePlan, $nombreSucursal, $lemaSucursal,
-        //                                 $domicilio1Sucursal, $domicilio2Sucursal, $tel1Sucursal, $tel2Sucursal, $celSucursal,
-        //                                 $clausulas, $rfcSucursal, $curpSucursal, $correoSucursal, $representanteSucursal,
-        //                                 $nombreUsuario, $apellidopUsuario, $apellidomUsuario, $enCurso, $tasaComision, $idVendedor,
-        //                                 $idFallecido, $folio, $idFactura, $activo, $c_RegimenFiscal, $regimenFiscal, $emailCliente,
-        //                                 $cpSucursal, $idEstadoSucursal, $cpCliente, $domicilio1Cliente, $domicilio2Cliente, $idEstadoCliente,
-        //                                 $descuentoDuplicacionInversion, $descuentoCambioFuneraria, $descuentoAdicional,
-		// 								$motivoCancelado, $idNomina) &&
-		// 	$prepare_contrato->fetch() &&
-			// $prepare_contrato->num_rows > 0)
+
 		if($query ->num_rows())
 		{
 			$this ->id                      = $Contrato->id;
@@ -147,7 +84,7 @@ class Contrato
 			$this ->lemaSucursal            = $Contrato->lemaSucursal;
 			$this ->domicilioSucursal       = $Contrato->direccion1Sucursal.", ".$Contrato->direccion2Sucursal.", CP: ".$Contrato->cpSucursal;
 			$this ->cpSucursal              = $Contrato->cpSucursal;
-			$this ->direccion1Sucursal      = $Contrato->direccion2Sucursal;
+			$this ->direccion1Sucursal      = $Contrato->direccion1Sucursal;
 			$this ->direccion2Sucursal      = $Contrato->direccion2Sucursal;
 			$this ->tel1Sucursal            = $Contrato->tel1Sucursal;
 			$this ->tel2Sucursal            = $Contrato->tel2Sucursal;
@@ -176,15 +113,10 @@ class Contrato
 			$this ->idNomina         		= $Contrato->idNomina;
 
 			$this ->costoTotal              = $Contrato->precio - $Contrato->descuentoDuplicacionInversion - $Contrato->descuentoCambioFuneraria - $Contrato->descuentoAdicional;
-			// $sql = "SELECT nombres, apellidop, apellidom FROM cat_usuarios WHERE id =$idVendedor LIMIT 1";
-			// $res_vende = $mysqli->query($sql);
-			// $row_vende = $res_vende->fetch_assoc();
 			$this ->nombresVendedor         = $Contrato->nombreVendedor;
 			$this ->nombreVendedor          = $Contrato->nombreVendedor." ".$Contrato->apellidopVendedor." ".$Contrato->apellidomVendedor;
-			$query->table("detalle_pagos_contratos")->select()->where("idContrato", "=", $this->id, "i")->and()
-				  ->where("activo", "=", 1, "i")->execute();
-			// $sql = "SELECT fechaCreacion, monto FROM detalle_pagos_contratos WHERE idContrato =".$this->id." AND activo = 1";
-			// $res_pagos = $mysqli->query($sql);
+
+			$query->table("detalle_pagos_contratos")->select()->where("idContrato", "=", $this->id, "i")->and()->where("activo", "=", 1, "i")->execute();
 			$this ->pagosEfectuados         = $query->num_rows();
         }
         else
