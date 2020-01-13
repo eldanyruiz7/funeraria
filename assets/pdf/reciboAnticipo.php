@@ -254,8 +254,9 @@ else
     //             $prepare_recibo->num_rows > 0)
     //         {
                 require "../php/contrato.class.php";
-
-                $contrato           = new contrato($idContrato, $mysqli);
+				require_once ("../php/query.class.php");
+				$query = new Query();
+                $contrato           = new Contrato($idContrato, $query);
                 $totPagosCalculados = $contrato->pagosCalculados();
                 $mesTexto           = mes_a_texto($contrato->fechaCreacion); //Fecha de pago
                 $fecha_dia          = date('d',strtotime($contrato->fechaCreacion));
@@ -301,7 +302,7 @@ else
                 $pdf->Ln();
                 $pdf->Cell(66,10);
                 $pdf->SetFont('Times','I',14);
-                $pdf->Cell(40,10,utf8_decode($contrato->domicilio2Sucursal),0,0,'R');
+                $pdf->Cell(40,10,utf8_decode($contrato->direccion2Sucursal),0,0,'R');
                 $pdf->Cell(10,10);
                 $fechaD     = $fecha_sql;
                 $fecha_r    = date('Y-m-d',strtotime($fechaD));

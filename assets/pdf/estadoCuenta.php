@@ -28,7 +28,9 @@
         else
         {
             require_once "../php/contrato.class.php";
-            $contrato = new contrato($idContrato, $mysqli);
+			require_once ("../php/query.class.php");
+			$query = new Query();
+            $contrato = new Contrato($idContrato, $query);
             if ($contrato->id == 0)
             {
                 echo "No se encontró el contrato con el ID indicado.";

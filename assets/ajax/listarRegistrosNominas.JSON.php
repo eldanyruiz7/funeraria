@@ -99,7 +99,7 @@
 				$cantidad = 1;
 				foreach ($rowAportaciones as $rowAportacion)
 				{
-					$contrato 				= new contrato($rowAportacion['id'], $mysqli);
+					$contrato 				= new Contrato($rowAportacion['id'], $query);
 					$comision_vendedor 		= $contrato->comision_vendedor();
 					$total_pagado_vendedor 	= $contrato->total_pagado_vendedor($query);
 					$resta_comision 		= $comision_vendedor - $total_pagado_vendedor;
@@ -147,7 +147,7 @@
 				{
 					if (!$rowCom_venta['idNominaVenta'])
 					{
-						$contrato 				= new contrato($rowCom_venta['idContrato'], $query);
+						$contrato 				= new Contrato($rowCom_venta['idContrato'], $query);
 						$montoPago 				= $rowCom_venta['monto'];
 						$tasaCom_Cobranza 		= $rowCom_venta['tasaComisionCobranza'];
 						$tasa_100 				= $tasaCom_Cobranza / 100;
@@ -163,11 +163,11 @@
 						else
 							$monto_pago_vendedor_real = 0;
 
-						echo "idContrato: ".$contrato->id."idNomina".$contrato->idNomina." Anticipo".$contrato->anticipo."<br>".
-						" total_pagado_vendedor: ".$total_pagado_vendedor." resta_comision: ".$resta_comision."<br>".
-						" monto_pago_cobrador: ".$monto_pago_cobrador." monto_pago_vendedor_real: ".$monto_pago_vendedor_real."<br>".
-						" omision vendedor: ".$comision_vendedor." totalAbonado: ".$totalAbonado." primerAportacion: ".$primerAportacion."<br>".
-						" idContrato: ". $contrato ->id."<br>-----------------------------------------<br>";
+						// echo "idContrato: ".$contrato->id."idNomina".$contrato->idNomina." Anticipo".$contrato->anticipo."<br>".
+						// " total_pagado_vendedor: ".$total_pagado_vendedor." resta_comision: ".$resta_comision."<br>".
+						// " monto_pago_cobrador: ".$monto_pago_cobrador." monto_pago_vendedor_real: ".$monto_pago_vendedor_real."<br>".
+						// " omision vendedor: ".$comision_vendedor." totalAbonado: ".$totalAbonado." primerAportacion: ".$primerAportacion."<br>".
+						// " idContrato: ". $contrato ->id."<br>-----------------------------------------<br>";
 
 						$totalComisionVentas += $monto = $monto_pago_vendedor_real;
 

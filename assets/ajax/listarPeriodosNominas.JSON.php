@@ -68,11 +68,11 @@
 				$fechaCreacion = date_create($row['fechaCreacion']);
                 $fechaCreacion = date_format($fechaCreacion, 'd-m-Y');
                 $htmlBtns = '<div class="action-buttons">';
-                $htmlBtns.= 	'<a class="blue pointer" id="'.$row['id'].'" target="_blank" href="assets/pdf/periodoNomina.php?id='.$row['id'].'" data-rel="tooltip" title="Imprimir nóminas">
-                                    <i class="ace-icon fa fa-file-pdf-o bigger-130"></i>
+                $htmlBtns.= 	'<a class="purple pointer" id="'.$row['id'].'" target="_blank" href="agregarPeriodoNomina.php?id='.$row['id'].'" data-rel="tooltip" title="Editar">
+                                    <i class="ace-icon fa fa-edit bigger-130"></i>
                                 </a>
                                 <a class="btnEliminar pointer red" idCliente='.$row['id'].' data-rel="tooltip" title="Eliminar">
-                                    <i class="ace-icon fa fa-ban bigger-130"></i>
+                                    <i class="ace-icon fa fa-trash-o bigger-130"></i>
                                 </a>
                             </div>';
                 $InfoData[] = array(

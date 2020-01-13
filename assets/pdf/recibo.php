@@ -273,8 +273,10 @@ else
                 $prepare_recibo->fetch() &&
                 $prepare_recibo->num_rows > 0)
             {
-                require "../php/contrato.class.php";
-                $contrato           = new contrato($idContrato, $mysqli);
+                require_once "../php/contrato.class.php";
+				require_once ("../php/query.class.php");
+				$query = new Query();
+                $contrato           = new Contrato($idContrato, $query);
                 $totPagosCalculados = $contrato->pagosCalculados();
                 $mesTexto           = mes_a_texto($fechaCreacion); //Fecha de pago
                 $fecha_dia          = date('d',strtotime($fechaCreacion));

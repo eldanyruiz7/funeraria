@@ -73,7 +73,7 @@
 												<td class='text-right'>$".number_format($totalDeducc,2,".",",")."</td>
 												<td class='text-right'>$".number_format($totalPercep - $totalDeducc,2,".",",")."</td>
 												<td>
-													<a class='blue pointer' target='_blank' href='assets/pdf/nomina.php?id=".$nomina['idNomina']."' data-rel='tooltip' title='Imprimir nómina'>
+													<a class='orange pointer' target='_blank' href='assets/pdf/comprobanteNomina.php?idNomina=".$nomina['idNomina']."' data-rel='tooltip' title='Imprimir nómina'>
 														<i class='ace-icon fa fa-file-pdf-o bigger-130'></i>
 													</a>
 												</td>
