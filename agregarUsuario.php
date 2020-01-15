@@ -615,6 +615,35 @@
 														</tr>
 														<tr>
 															<td>
+																<i class="fa fa-columns" aria-hidden="true"></i> N&oacute;minas
+															</td>
+															<td class="text-center">
+																<label>
+																	<input <?php echo $modificar && $usuario_m->permiso("listarNominas",$mysqli) ? 'checked' : '';?> tipo="l" id="listarNominas" name="listarNominas" class="ace ace-switch ace-switch-6" type="checkbox">
+																	<span class="lbl"></span>
+																</label>
+															</td>
+															<td class="text-center">
+																<label>
+																	<input <?php echo $modificar && $usuario_m->permiso("agregarNomina",$mysqli) ? 'checked' : '';?> tipo="a" id="agregarNomina" name="agregarNomina" class="ace ace-switch ace-switch-6" type="checkbox">
+																	<span class="lbl"></span>
+																</label>
+															</td>
+															<td class="text-center">
+																<label>
+																	<input <?php echo $modificar && $usuario_m->permiso("modificarNomina",$mysqli) ? 'checked' : '';?> tipo="m" id="modificarNomina" name="modificarNomina" class="ace ace-switch ace-switch-6" type="checkbox">
+																	<span class="lbl"></span>
+																</label>
+															</td>
+															<td class="text-center">
+																<label>
+																	<input <?php echo $modificar && $usuario_m->permiso("eliminarNomina",$mysqli) ? 'checked' : '';?> tipo="e" id="eliminarNomina" name="eliminarNomina" class="ace ace-switch ace-switch-6" type="checkbox">
+																	<span class="lbl"></span>
+																</label>
+															</td>
+														</tr>
+														<tr>
+															<td>
 																<i class="fa fa-cogs" aria-hidden="true"></i> Variables del sistema
 															</td>
 															<td class="text-center">

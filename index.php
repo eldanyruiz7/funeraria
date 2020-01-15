@@ -120,7 +120,7 @@
 								<!-- div.table-responsive -->
 
 								<!-- div.dataTables_borderWrap -->
-								<div>
+								<div display="none" id="tabladiv">
 									<table id="dynamic-table" class="table table-striped table-bordered table-hover" style='width:100%'>
 										<thead>
 											<tr>
@@ -923,6 +923,7 @@
 						"complete": function()
 						{
 							myTable.columns.adjust().draw();
+							$("#tabladiv").show();
 						}
 					},
 					"aLengthMenu":[

@@ -212,14 +212,30 @@ class Query
 		$this ->types .= $type;
 		return $this;
 	}
-	public function and()
+	public function and(...$argsJoin)
 	{
+		$args = func_num_args();
 		$this ->query .= " AND";
+		if($args == 3)
+		{
+			foreach ($argsJoin as $arg_join)
+			{
+				$this ->query.= " $arg_join";
+			}
+		}
 		return $this;
 	}
-	public function or()
+	public function or(...$argsJoin)
 	{
+		$args = func_num_args();
 		$this ->query .= " OR";
+		if($args == 3)
+		{
+			foreach ($argsJoin as $arg_join)
+			{
+				$this ->query.= " $arg_join";
+			}
+		}
 		return $this;
 	}
 	public function limit($limit = 1)
@@ -227,9 +243,33 @@ class Query
 		$this ->query .= " LIMIT $limit";
 		return $this;
 	}
-	public function orderBy($fieldOrder, $order = 'ASC')
+	public function orderBy(...$argsFieldOrder)
 	{
-		$this ->query .= " ORDER BY $fieldOrder $order";
+		$args = func_num_args();
+		if ($args == 1)
+		{
+			$this ->query .= " ORDER BY $argsFieldOrder[0] ASC";
+		}
+		elseif ($args > 1)
+		{
+			$this ->query .= " ORDER BY";
+			$x = 0;
+			foreach ($argsFieldOrder as $arg_order)
+			{
+				$x++;
+				$this ->query .= " $arg_order";
+				if ($x%2 == 0 && $x < $args)
+				{
+					$this ->query .=",";
+				}
+
+			}
+		}
+		return $this;
+	}
+	public function groupBy($fieldsGroupBy)
+	{
+		$this ->query .= " GROUP BY $fieldsGroupBy";
 		return $this;
 	}
 	public function execute($debug = FALSE, $return = 'arr')
