@@ -223,6 +223,18 @@ class usuario
             case 'eliminarUsuario':
                 $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND eliminarUsuario = 1 LIMIT 1";
                 break;
+			case 'listarNominas':
+                $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND listarNominas = 1 LIMIT 1";
+                break;
+            case 'agregarNomina':
+                $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND agregarNomina = 1 LIMIT 1";
+                break;
+            case 'modificarNomina':
+                $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND modificarNomina = 1 LIMIT 1";
+                break;
+            case 'eliminarNomina':
+                $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND eliminarNomina = 1 LIMIT 1";
+                break;
 			case 'listarVariablesSistema':
                 $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND listarVariablesSistema = 1 LIMIT 1";
                 break;

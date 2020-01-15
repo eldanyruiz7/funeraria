@@ -22,7 +22,13 @@
 			echo json_encode($json_data);
 			die;
 		}
-		// var_dump($_POST['idDetalle']);
+		require_once ("../php/usuario.class.php");
+        $usuario = new usuario($idUsuario,$mysqli);
+		$permiso = $usuario->permiso("modificarNomina",$mysqli);
+        if (!$permiso)
+        {
+			error("Usuario con permisos insuficientes para realizar esta acción");
+        }
 		if (!$id = validarFormulario('i',$_POST['idDetalle'],0))
 			error("El formato del campo idDetalle no es el correcto");
 

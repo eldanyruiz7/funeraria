@@ -12,6 +12,17 @@
     }
     else
     {
+		require_once ("../php/usuario.class.php");
+        $usuario = new usuario($idUsuario,$mysqli);
+		$permiso = $usuario->permiso("editarNomina",$mysqli);
+        if (!$permiso)
+        {
+			// error("Usuario con permisos insuficientes para realizar esta acción");
+			$json_data["Result"] = "ERROR";
+			$json_data["Message"] = 'Usuario con permisos insuficientes para realizar esta acción';
+			echo json_encode($json_data);
+			die;
+        }
 		require_once "../php/contrato.class.php";
         require_once "../php/responderJSON.php";
         require_once "../php/funcionesVarias.php";

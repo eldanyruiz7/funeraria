@@ -14,11 +14,11 @@
 		$usuario = new usuario($idUsuario,$mysqli);
 		require_once "assets/php/query.class.php";
 		$query 		= new Query();
-		// $permiso = $usuario->permiso("listarNominas",$mysqli);
-		// if (!$permiso)
-		// {
-		// 	header("Location: index.php");
-		// }
+		$permiso = $usuario->permiso("listarNominas",$mysqli);
+		if (!$permiso)
+		{
+			header("Location: index.php");
+		}
 		$editar = FALSE;
 		if ($_GET)
 		{
@@ -303,7 +303,6 @@
 		<?php else: ?>
 			function cargarTabla()
 			{
-				console.log('Editar!');
 				$('#PersonTableContainer').jtable('load',{ idPeriodo: <?php echo $Periodo->id;?> });
 			}
 		<?php endif; ?>
@@ -321,14 +320,13 @@
 					},
 					fields:
 					{
-						//CHILD TABLE DEFINITION FOR "PHONE NUMBERS"
 		                Conceptos:
 						{
-		                    title: '',
-		                    width: '10%',
-		                    sorting: false,
-		                    edit: true,
-		                    create: true,
+							title: '',
+							width: '10%',
+							sorting: false,
+							edit: true,
+							create: true,
 		                    display: function (studentData) {
 		                        //Create an image that will be used to open child table
 		                        var $img = $('<img src="assets/js/jtable.2.4.0/themes/list_metro.png" title="Mostrar conceptos" />');
@@ -413,19 +411,7 @@
 						nombres: {
 							title: 'Nombres',
 							width: '100%'
-						},
-						// aportaciones: {
-						// 	title: '$ Aportaciones',
-						// 	width: '20%'
-						// },
-						// comisionVentas: {
-						// 	title: '$ Comisión por ventas',
-						// 	width: '20%'
-						// },
-						// comisionCobranza: {
-						// 	title: '$ Comisión por cobranza',
-						// 	width: '20%'
-						// }
+						}
 					}
 				});
 				<?php if ($editar): ?>

@@ -164,6 +164,10 @@
         $agregarUsuario         = 0;
         $modificarUsuario       = 0;
         $eliminarUsuario        = 0;
+		$listarNominas          = 0;
+        $agregarNomina          = 0;
+        $modificarNomina        = 0;
+        $eliminarNomina         = 0;
 
 		$listarVariablesSistema = 0;
         $modificarVariablesSistema= 0;
@@ -324,6 +328,22 @@
                 }
             }
         }
+		if (isset($_POST['listarNominas']))
+        {
+            $listarNominas = 1;
+            if (isset($_POST['agregarNomina']))
+            {
+                $agregarNomina = 1;
+                if (isset($_POST['modificarNomina']))
+                {
+                    $modificarNomina = 1;
+                    if (isset($_POST['eliminarNomina']))
+                    {
+                        $eliminarNomina = 1;
+                    }
+                }
+            }
+        }
 
 		if (isset($_POST['listarVariablesSistema']))
         {
@@ -370,7 +390,8 @@
 															"listarCompras", "agregarCompra", "modificarCompra", "eliminarCompra",
 															"listarPlanes", "agregarPlan", "modificarPlan", "eliminarPlan",
 															"listarUsuarios", "agregarUsuario", "modificarUsuario", "eliminarUsuario",
-															"listarVariablesSistema", "modificarVariablesSistema"), "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
+															"listarNominas", "agregarNomina", "modificarNomina", "eliminarNomina",
+															"listarVariablesSistema", "modificarVariablesSistema"), "iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii")
 															->execute();
             if($query->affected_rows() == 0)
             {

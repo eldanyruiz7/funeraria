@@ -14,6 +14,15 @@
 	}
 	else
 	{
+		require_once ("../php/usuario.class.php");
+        $usuario = new usuario($idUsuario,$mysqli);
+		$permiso = $usuario->permiso("listarNominas",$mysqli);
+        if (!$permiso)
+        {
+			echo "Usuario con permisos insuficientes para realizar esta acción.";
+			die;
+        }
+
 		if (isset($_GET['idNomina']))
 			$idNomina 			= $_GET['idNomina'];
 		else
@@ -32,11 +41,13 @@
 										->select( " cn.idUsuario, cn.activo, cpn.idSucursal, cpn.fechaInicio, cpn.fechaFin, cpn.fechaCreacion,
 													cd.nombre AS departamento, tusr.nombre AS puestoUsuario,
 													CONCAT(usr.nombres, ' ', usr.apellidop, ' ', usr.apellidom) AS usuarioCreo")
-										->innerJoin('cat_periodos_nominas AS cpn', "cn.idPeriodo", "=", 'cpn.id')
-										->innerJoin('cat_usuarios AS usr', 'cpn.idUsuarioCreo', '=', 'usr.id')
-										->innerJoin("cat_departamentos AS cd", "usr.departamento", "=", "cd.id")
+										->leftJoin('cat_periodos_nominas AS cpn', "cn.idPeriodo", "=", 'cpn.id')
+										->leftJoin('cat_usuarios AS usr', 'cpn.idUsuarioCreo', '=', 'usr.id')
+										->leftJoin("cat_departamentos AS cd", "usr.departamento", "=", "cd.id")
 										->leftJoin("tipos_usuarios AS tusr", "usr.tipo", "=", "tusr.id")
 										->where("cn.id", "=", $idNomina, "i")->and()->where("cn.activo", "=", 1, "i")->limit()->execute(FALSE, OBJ);
+			echo $query->lastStatement();
+			die;
 			if ($query->num_rows() == 0)
 			{
 				echo "No existe el periodo o la n&oacute;mina seleccionada.";

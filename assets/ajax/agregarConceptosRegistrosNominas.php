@@ -20,6 +20,13 @@
 			echo json_encode($json_data);
 			die;
 		}
+		require_once ("../php/usuario.class.php");
+        $usuario = new usuario($idUsuario,$mysqli);
+		$permiso = $usuario->permiso("modificarNomina",$mysqli);
+        if (!$permiso)
+        {
+			error("Usuario con permisos insuficientes para realizar esta acción");
+        }
 		if (!$nombreConcepto = validarFormulario('s',$_POST['concepto'],0))
 			error("El campo concepto no puede estar en blanco");
 

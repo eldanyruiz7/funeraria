@@ -15,7 +15,7 @@
         require ("../php/usuario.class.php");
         $usuario = new usuario($idUsuario,$mysqli);
 		$permiso = TRUE;
-        // $permiso = $usuario->permiso("eliminarUsuario",$mysqli);
+        $permiso = $usuario->permiso("eliminarNomina",$mysqli);
         if (!$permiso)
         {
             $response['mensaje'] 		= "No se pudo eliminar este registro. Usuario con permisos insuficientes para realizar esta acción";
