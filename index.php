@@ -120,7 +120,7 @@
 								<!-- div.table-responsive -->
 
 								<!-- div.dataTables_borderWrap -->
-								<div display="none" id="tabladiv">
+								<div id="tabladiv">
 									<table id="dynamic-table" class="table table-striped table-bordered table-hover" style='width:100%'>
 										<thead>
 											<tr>
@@ -927,8 +927,8 @@
 						}
 					},
 					"aLengthMenu":[
-						[10, 25, 50, -1],
-						[10, 25, 50, "Todos"]
+						[10, 20, 30, 50],
+						[10, 20, 30, 50]
 					],
 					"processing": 	true,
 					"initComplete": function(settings, json)
