@@ -238,9 +238,21 @@ class Query
 		}
 		return $this;
 	}
-	public function limit($limit = 1)
+	public function limit(...$argsLimit)
 	{
-		$this ->query .= " LIMIT $limit";
+		$args = func_num_args();
+		if ($args == 0)
+		{
+			$this ->query .= " LIMIT 1";
+		}
+		elseif ($args == 1)
+		{
+			$this ->query .= " LIMIT $argsLimit[0]";
+		}
+		elseif ($args == 2)
+		{
+			$this ->query .= " LIMIT $argsLimit[0] OFFSET $argsLimit[1]";
+		}
 		return $this;
 	}
 	public function orderBy(...$argsFieldOrder)

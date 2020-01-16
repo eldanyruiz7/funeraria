@@ -20,7 +20,7 @@
         $response = array(
             "status"        => 1
         );
-		
+
 		/**
 		 * Réplica función contrato.class
 		 */
@@ -86,7 +86,7 @@
 									->where("c.enCurso", "=", 1 , "i")->and()
 									->where("c.activo", "=", 1, "i")
 									->groupBy("c.id")
-									->execute(FALSE, OBJ);
+									->execute(FALSE, RETURN_OBJECT);
 
         if ($query->num_rows() == 0)
         {
