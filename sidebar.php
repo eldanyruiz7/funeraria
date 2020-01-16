@@ -435,11 +435,13 @@ $usuario_side = new usuario($sesion->get("id"),$mysqli);
             <?php } ?>
             </ul>
         </li>
+<?php } ?>
 
+<?php if($usuario_side->permiso("listarNominas",$mysqli)){?>
 		<li class="">
             <a href="#" class="dropdown-toggle">
                 <i class="menu-icon fa fa-columns" aria-hidden="true"></i>
-                <span class="menu-text"> N&oacute;mina </span>
+                <span class="menu-text"> N&oacute;minas </span>
 
                 <b class="arrow fa fa-angle-down"></b>
             </a>
@@ -455,7 +457,7 @@ $usuario_side = new usuario($sesion->get("id"),$mysqli);
 
                     <b class="arrow"></b>
                 </li>
-            <?php //if($usuario_side->permiso("agregarUsuario",$mysqli)){?>
+            <?php if($usuario_side->permiso("agregarNomina",$mysqli)){?>
                 <li class="">
                     <a href="agregarPeriodoNomina.php">
                         <i class="menu-icon fa fa-caret-right"></i>
@@ -464,7 +466,7 @@ $usuario_side = new usuario($sesion->get("id"),$mysqli);
 
                     <b class="arrow"></b>
                 </li>
-            <?php //} ?>
+            <?php } ?>
             </ul>
         </li>
 

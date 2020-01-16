@@ -68,19 +68,19 @@
 				$fechaCreacion = date_create($row['fechaCreacion']);
                 $fechaCreacion = date_format($fechaCreacion, 'd-m-Y');
                 $htmlBtns = '<div class="action-buttons">';
-                $htmlBtns.= 	'<a class="green pointer" id="'.$row['id'].'" target="_blank" href="assets/pdf/facturaPDF.php?idFactura='.$row['id'].'" data-rel="tooltip" title="Mostrar lista">
-                                    <i class="ace-icon fa fa-file-pdf-o bigger-130"></i>
+                $htmlBtns.= 	'<a class="purple pointer" id="'.$row['id'].'" target="_blank" href="agregarPeriodoNomina.php?id='.$row['id'].'" data-rel="tooltip" title="Editar">
+                                    <i class="ace-icon fa fa-edit bigger-130"></i>
                                 </a>
                                 <a class="btnEliminar pointer red" idCliente='.$row['id'].' data-rel="tooltip" title="Eliminar">
-                                    <i class="ace-icon fa fa-ban bigger-130"></i>
+                                    <i class="ace-icon fa fa-trash-o bigger-130"></i>
                                 </a>
                             </div>';
                 $InfoData[] = array(
-                    'id'                => str_pad($row['id'], 7, "0", STR_PAD_LEFT),
-					'fechaInicio'     => $fechaInicio,
-					'fechaFin'     => $fechaFin,
-                    'fechaCreacion'     => $fechaCreacion,
-                    'btns'              => $htmlBtns);
+                    'id'				=> str_pad($row['id'], 7, "0", STR_PAD_LEFT),
+					'fechaInicio'		=> $fechaInicio,
+					'fechaFin'			=> $fechaFin,
+                    'fechaCreacion'		=> $fechaCreacion,
+                    'btns'				=> $htmlBtns);
             }
             $json_data = [
                 "data"   => $InfoData

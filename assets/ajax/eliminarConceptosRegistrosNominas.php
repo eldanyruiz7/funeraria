@@ -37,42 +37,18 @@
 		// var_dump($row[0]['idConcepto']);
 		if ($query->num_rows() == 1 && $row[0]['idConcepto'] != 3)
 		{
-			error("Este concepto no se puede editar");
+			error("Este concepto no se puede eliminar");
 		}
-		if (!$nombreConcepto = validarFormulario('s',$_POST['concepto'],0))
-			error("El campo concepto no puede estar en blanco");
-
-		$monto = str_replace('$', "", $_POST['monto']);
-		if (!$monto = validarFormulario('i', $monto, 0))
-			error("El campo monto no puede estar en blanco ni menor o igual que cero");
-		// var_dump($monto);
-
-		if (!$tipo = validarFormulario('i',$_POST['tipo'],0))
-			error("El formato del campo tipo de concepto no puede estar en blanco");
-
-		$idConcepto = 3;
-		$cantidad = 1;
-		$query->table("detalle_nomina")->update(compact("tipo", "nombreConcepto", "monto"), "isd")->where("id", "=", $id, "i")->limit()->execute();
+		$activo = 0;
+		$query->table("detalle_nomina")->update(compact("activo"), "i")->where("id", "=", $id, "i")->limit(1)->execute();
 
         if ($query->status())
 		{
-			// $insert_id = $query->insert_id();
-			$row = $query ->table("detalle_nomina")->select("*")->where("id", "=", $id, "i")->limit(1)->execute();
 			$json_data["Result"] = "OK";
-			$json_data["Record"] = array(
-				'idDetalle'				=> $row[0]['id'],
-				'idNomina'				=> $row[0]['idNomina'],
-				'idUsuario'				=> $row[0]['idUsuario'],
-				'idSucursal'			=> $row[0]['idSucursal'],
-				'cantidad'				=> $row[0]['cantidad'],
-				'concepto'				=> $row[0]['nombreConcepto'],
-				'monto'					=> "$".number_format($row[0]['monto'],2,".",","),
-				'tipo'					=> $row[0]['tipo']
-			);
         }
 		else
 		{
-			error("Ocurrió un error al intentar guardar el registro, vuelve a intentarlo nuevamente");
+			error("Ocurrió un error al intentar eliminar el registro, vuelve a intentarlo nuevamente");
 		}
 
         echo json_encode($json_data);

@@ -20,6 +20,8 @@
 		$facturar 			= FALSE;
 		require_once ("assets/php/venta.class.php");
 		require_once ("assets/php/contrato.class.php");
+		require_once ("assets/php/query.class.php");
+		$query = new Query();
 		$tipoFactura 		= FALSE;
 		if (isset($_GET['idVenta']))
 		{
@@ -33,7 +35,7 @@
 		}
 		elseif (isset($_GET['idContrato']))
 		{
-			$contrato 			= new contrato($_GET['idContrato'],$mysqli);
+			$contrato 			= new Contrato($_GET['idContrato'],$query);
 			if ($contrato->id != 0 && $contrato->activo)
 			{
 				$facturar 	= TRUE;

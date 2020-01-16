@@ -14,18 +14,28 @@
 		$usuario = new usuario($idUsuario,$mysqli);
 		require_once "assets/php/query.class.php";
 		$query 		= new Query();
-		// $permiso = $usuario->permiso("listarNominas",$mysqli);
-		// if (!$permiso)
-		// {
-		// 	header("Location: index.php");
-		// }
+		$permiso = $usuario->permiso("listarNominas",$mysqli);
+		if (!$permiso)
+		{
+			header("Location: index.php");
+		}
+		$editar = FALSE;
+		if ($_GET)
+		{
+			$idPeriodo = $_GET['id'];
+			$Periodo = $query->table("cat_periodos_nominas")->select()->where("id", "=", $idPeriodo, "i")->and()->where("activo", "=", 1 , "i")->execute(FALSE, OBJ);
+			if ($query->num_rows())
+			{
+				$editar = TRUE;
+			}
+		}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 	<head>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 		<meta charset="utf-8" />
-		<title>Agregar periodo de nómina</title>
+		<title><?php echo $editar ? 'Editar' : 'Agregar';?> periodo de nómina</title>
 
 		<meta name="description" content="Static &amp; Dynamic Tables" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
@@ -99,7 +109,7 @@
 								<i class="ace-icon fa fa-home home-icon"></i>
 								<a href="index.php">Inicio</a>
 							</li>
-							<li class="active">Agregar periodo de nómina</li>
+							<li class="active"><?php echo $editar ? 'Editar' : 'Agregar';?> periodo de nómina</li>
 						</ul><!-- /.breadcrumb -->
 
 					</div>
@@ -107,16 +117,19 @@
 					<div class="page-content">
 						<div class="page-header">
 							<h1>
-								<i class="fa fa-columns" aria-hidden="true"></i> Agregar periodo de nómina
+								<i class="fa fa-columns" aria-hidden="true"></i> <?php echo $editar ? 'Editar' : 'Agregar';?> periodo de nómina
 								<small>
 									<i class="ace-icon fa fa-angle-double-right"></i>
-									Agregar un nuevo periodo de n&oacute;mina
+									<?php echo $editar ? 'Editar el periodo de n&oacute;mina # <b>'.str_pad($Periodo->id, 7, "0", STR_PAD_LEFT).'</b>' : 'Agregar un nuevo periodo de n&oacute;mina';?>
+
 								</small>
 							</h1>
 						</div><!-- /.page-header -->
 						<div class="row">
 							<div class="col-xs-12">
-								<h3 class="header smaller lighter blue">
+								<?php if (!$editar): ?>
+
+									<h3 class="header smaller lighter blue">
 										Periodo:
 										<small>Selecciona un periodo y presiona en Generar</small>
 									</h3>
@@ -130,23 +143,21 @@
 												<i class="fa fa-calendar bigger-110"></i>
 											</span>
 											<span class="input-group-btn">
-												<button class="btn btn-white btn-info btn-bold" onclick='$("#my-modal-agregar-periodo").modal();'>
+												<button id="btnGenerarNomina" class="btn btn-white btn-info btn-bold" onclick='$("#my-modal-agregar-periodo").modal();'>
 													<i class="ace-icon fa fa-calculator bigger-130 blue"></i>
 													Generar!
 												</button>
-												<!-- <button type="button" class="btn btn-purple btn-sm">
-													<span class="ace-icon fa fa-search icon-on-right bigger-110"></span>
-													Search
-												</button> -->
 											</span>
 										</div>
 									</div>
-									<div class="col-xs-12">
-										&nbsp;
-									</div>
-									<div class="col-xs-12">
-										<div id="PersonTableContainer"></div>
-									</div>
+								<?php endif; ?>
+
+								<div class="col-xs-12">
+									&nbsp;
+								</div>
+								<div class="col-xs-12">
+									<div id="PersonTableContainer"></div>
+								</div>
 								<input type="hidden" id="hiddenFInicio" value="<?php echo date("Y-m-01");?>"/>
 								<input type="hidden" id="hiddenFFin" value="<?php echo date("Y-m-d");?>"/>
 
@@ -156,85 +167,47 @@
 					</div><!-- /.col -->
 				</div><!-- /.row -->
 				<!--/////////////////////modal cancelar ////////////////////////-->
-				<div id="my-modal-eliminar" class="modal fade" tabindex="-1">
-					<div class="modal-dialog">
-						<div class="modal-content">
-							<div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-								<h3 class="smaller red no-margin">
-									<span class="smaller lighter red no-margin">
-										<i class="fa fa-ban" aria-hidden="true"></i>
-									</span>
-									Eliminar este periodo del sistema
-								</h3>
-							</div>
+				<?php if (!$editar): ?>
 
-							<div class="modal-body">
-								<form class="form-horizontal" role="form" onSubmit="return false">
-									<div class="form-group">
-										<label class="col-xs-12 text-left">
-											<i class="fa fa-question-circle" aria-hidden="true"></i>
-											¿Deseas cancelar este periodo del sistema?
-											<br/> Esta acción no puede deshacerse.
-											<br/> El sistema eliminará las nóminas que estén dentro de este periodo, tras lo cuál será recomendable
-											revisar que los cambios se hayan efectuado correctamente de forma manual
-										</label>
-									</div>
-								</form>
-								<input type="hidden" id="hiddenEliminar" />
-							</div>
+					<div id="my-modal-agregar-periodo" class="modal fade" tabindex="-1">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+									<h3 class="smaller blue no-margin">
+										<span class="smaller lighter blue no-margin">
+											<i class="fa fa-ban" aria-hidden="true"></i>
+										</span>
+										Agregar un nuevo periodo
+									</h3>
+								</div>
 
-							<div class="modal-footer">
-								<button class="btn btn-white btn-danger btn-bold btn-round" id="btnEliminarModal">
-									<i class="ace-icon fa fa-ban"></i>
-									Cancelar periodo
-								</button>
-								<button class="btn btn-white btn-default btn-bold no-border btn-round" data-dismiss="modal">
-									<i class="ace-icon fa fa-times"></i>
-									Cancelar
-								</button>
-							</div>
-						</div><!-- /.modal-content -->
-					</div><!-- /.modal-dialog -->
-				</div>
-				<!--/////////////////////modal cancelar ////////////////////////-->
-				<div id="my-modal-agregar-periodo" class="modal fade" tabindex="-1">
-					<div class="modal-dialog">
-						<div class="modal-content">
-							<div class="modal-header">
-								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-								<h3 class="smaller blue no-margin">
-									<span class="smaller lighter blue no-margin">
-										<i class="fa fa-ban" aria-hidden="true"></i>
-									</span>
-									Agregar un nuevo periodo
-								</h3>
-							</div>
+								<div class="modal-body">
+									<form class="form-horizontal" role="form" onSubmit="return false">
+										<div class="form-group">
+											<label class="col-xs-12 text-left">
+												<i class="fa fa-question-circle" aria-hidden="true"></i>
+												¿Deseas generar un nuevo periodo de n&oacute;mina dentro de las fechas seleccionadas?
+											</label>
+										</div>
+									</form>
+								</div>
 
-							<div class="modal-body">
-								<form class="form-horizontal" role="form" onSubmit="return false">
-									<div class="form-group">
-										<label class="col-xs-12 text-left">
-											<i class="fa fa-question-circle" aria-hidden="true"></i>
-											¿Deseas generar un nuevo periodo de n&oacute;mina dentro de las fechas seleccionadas?
-										</label>
-									</div>
-								</form>
-							</div>
+								<div class="modal-footer">
+									<button class="btn btn-white btn-primary btn-bold btn-round" data-dismiss="modal" onclick="recargarTabla(); "id="btnAgregarPeriodoModal">
+										<i class="ace-icon fa fa-columns"></i>
+										Agregar periodo
+									</button>
+									<button class="btn btn-white btn-default btn-bold no-border btn-round" data-dismiss="modal">
+										<i class="ace-icon fa fa-times"></i>
+										Cancelar
+									</button>
+								</div>
+							</div><!-- /.modal-content -->
+						</div><!-- /.modal-dialog -->
+					</div>
+				<?php endif; ?>
 
-							<div class="modal-footer">
-								<button class="btn btn-white btn-primary btn-bold btn-round" data-dismiss="modal" onclick="recargarTabla(); "id="btnAgregarPeriodoModal">
-									<i class="ace-icon fa fa-columns"></i>
-									Agregar periodo
-								</button>
-								<button class="btn btn-white btn-default btn-bold no-border btn-round" data-dismiss="modal">
-									<i class="ace-icon fa fa-times"></i>
-									Cancelar
-								</button>
-							</div>
-						</div><!-- /.modal-content -->
-					</div><!-- /.modal-dialog -->
-				</div>
 			</div><!-- /.page-content -->
 			<div class="footer">
 				<?php require_once('pie.php'); ?>
@@ -274,81 +247,6 @@
 			$(document).ready(function()
 			{
 				abrirMenu();
-				$(document).on('click','.btnEliminar',function()
-				{
-					idEliminar = $(this).attr('idCliente');
-					$("#hiddenEliminar").val(idEliminar);
-					$("#my-modal-eliminar").modal();
-				});
-				// $(document).on('click','#btnAgregarPeriodoModal',function()
-				// {
-				// 	$("#my-modal-agregar-periodo").modal();
-				// });
-				$(document).on('click','#btnEliminarModal',function()
-				{
-					$("#my-modal-eliminar").modal('hide');
-					dialog = bootbox.dialog(
-					{
-					    title: 'Cancelar',
-					    message: '<p><i class="fa fa-spin fa-spinner"></i> Procesando...</p>',
-						closeButton: true,
-						buttons:
-						{
-							"aceptar" :
-							{
-								"label" : '<i class="fa fa-check-circle" aria-hidden="true"></i> Aceptar',
-								"className" : "btn-white btn-info btn-bold btn-round oculto",
-								callback: function(result)
-								{
-									myTable.ajax.reload( null, false );
-									setTimeout(function()
-									{
-										$("body").css("padding-right",0);
-								    }, 500);
-								}
-							}
-						}
-
-					});
-					idPac_ = $("#hiddenEliminar").val();
-					$.ajax(
-			        {
-			            method: "POST",
-			            url:"assets/ajax/eliminarVenta.php",
-			            data: {idCliente:idPac_}
-			        })
-			        .done(function(p)
-			        {
-						console.log(p);
-						if (p.status == 1)
-						{
-							dialog.init(function()
-							{
-							 	dialog.find('.bootbox-body').html('<i class="fa fa-check" aria-hidden="true"></i> Este periodo ha sido eliminado correctamente');
-								dialog.find('.oculto').removeClass('oculto');
-								// dialog.find('button')
-								// body > div.bootbox.modal.fade.in > div > div > div.modal-footer > button:nth-child(3)
-							});
-							mensaje("success",p.mensaje);
-						}
-						else
-						{
-							dialog.init(function()
-							{
-							 	dialog.find('.bootbox-body').html('<i class="fa fa-times" aria-hidden="true"></i> No se pudo eliminar este registro');
-								dialog.find('.oculto').removeClass('oculto');
-								// dialog.find('button')
-								// body > div.bootbox.modal.fade.in > div > div > div.modal-footer > button:nth-child(3)
-							});
-							mensaje("error",p.mensaje);
-						}
-			        })
-			        .always(function(p)
-			        {
-						console.log(p);
-			        });
-
-				});
 				// $('.dataTables_length').prepend('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
 				$('input[name=date-range-picker]').daterangepicker({
 					'applyClass' : 'btn-sm btn-success btn-white btn-bold',
@@ -390,33 +288,45 @@
 			});
 		</script>
 		<script type="text/javascript">
-		// urlListar = 'assets/ajax/listarRegistrosNominas.JSON.php?fechaInicio='+$("#hiddenFInicio").val()+'&fechaFin='+$("#hiddenFFin").val();
-		function recargarTabla()
-		{
-			console.log($("#hiddenFInicio").val());
-			console.log($("#hiddenFFin").val());
-			$('#PersonTableContainer').jtable('load',{ fechaInicio: $("#hiddenFInicio").val(), fechaFin: $("#hiddenFFin").val() });
-			// console.log(urlListar);
+		<?php if (!$editar): ?>
+			function recargarTabla()
+			{
+				console.log($("#hiddenFInicio").val());
+				console.log($("#hiddenFFin").val());
+				$('#PersonTableContainer').jtable('load',{ fechaInicio: $("#hiddenFInicio").val(), fechaFin: $("#hiddenFFin").val() }, function()
+				{
+					$("#btnGenerarNomina").attr("disabled", true);
+					mensaje("success","N&oacute;minas creadas correctamente");
 
-		}
+				});
+			}
+		<?php else: ?>
+			function cargarTabla()
+			{
+				$('#PersonTableContainer').jtable('load',{ idPeriodo: <?php echo $Periodo->id;?> });
+			}
+		<?php endif; ?>
 		    $(document).ready(function ()
 			{
 				$('#PersonTableContainer').jtable({
 					title: 'Lista de nóminas',
 					actions:
 					{
-						listAction: 'assets/ajax/listarRegistrosNominas.JSON.php'
+						<?php if (!$editar): ?>
+							listAction: 'assets/ajax/listarRegistrosNominas.JSON.php'
+						<?php else: ?>
+							listAction: 'assets/ajax/listarRegistrosNominasEditar.JSON.php'
+						<?php endif; ?>
 					},
 					fields:
 					{
-						//CHILD TABLE DEFINITION FOR "PHONE NUMBERS"
 		                Conceptos:
 						{
-		                    title: '',
-		                    width: '10%',
-		                    sorting: false,
-		                    edit: true,
-		                    create: true,
+							title: '',
+							width: '10%',
+							sorting: false,
+							edit: true,
+							create: true,
 		                    display: function (studentData) {
 		                        //Create an image that will be used to open child table
 		                        var $img = $('<img src="assets/js/jtable.2.4.0/themes/list_metro.png" title="Mostrar conceptos" />');
@@ -426,64 +336,28 @@
 		                                    $img.closest('tr'),
 		                                    {
 		                                        title: studentData.record.nombres + ' - Detalle de conceptos',
+												recordAdded: function (event, data)
+												{
+											        if (data.record) {
+											            //$('#PersonTableContainer').jtable('load');
+											        }
+											    },
 		                                        actions: {
 		                                            listAction: 'assets/ajax/listarConceptosRegistrosNominas.JSON.php?idNomina=' + studentData.record.idNomina,
-		                                            // deleteAction: '/Demo/DeletePhone',
-		                                            // updateAction: '/Demo/UpdatePhone',
-													createAction: 'assets/ajax/agregarConceptosRegistrosNominas.php',
-		                                            updateAction: 'assets/ajax/editarConceptosRegistrosNominas.php'
+													createAction: 'assets/ajax/agregarConceptosRegistrosNominas.php?idNomina=' + studentData.record.idNomina + '&idUsuario=' + studentData.record.idUsuario + '&idSucursal=' + studentData.record.idSucursal,
+													updateAction: 'assets/ajax/editarConceptosRegistrosNominas.php',
+		                                            deleteAction: 'assets/ajax/eliminarConceptosRegistrosNominas.php'
 		                                        },
 		                                        fields: {
-													idNominaDetalle: {
-														// key: true,
-														// list: false,
-														input: function (data) {
-													        // if (studentData.record) {
-													        //     return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
-													        // } else {
-													            return '<input type="hidden" name="idNominaDetalle" min="1" style="width:200px" value="'+studentData.record.idNomina+'" />';
-													        // }
-													    }
-		                                            },
 													idDetalle: {
-														// key: true,
-														// list: false
-														input: function (data) {
-													    //     if (studentData.record) {
-													            return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
-													    //     } else {
-													    //         return '<input type="hidden" name="idDetalle" min="1" style="width:200px" value="'+studentData.record.idDetalle+'" />';
-													    //     }
-													    }
-		                                            },
-													idUsuario: {
-														// key: true,
-														// list: false
-														input: function (data) {
-													    //     if (studentData.record) {
-													            return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
-													    //     } else {
-													    //         return '<input type="hidden" name="idUsuario" min="1" style="width:200px" value="'+studentData.record.idUsuario+'" />';
-													    //     }
-													    }
-		                                            },
-													idSucursal: {
-														// key: true,
-														// list: false
-														input: function (data) {
-													        // if (studentData.record) {
-													            return '<input type="hidden"  name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
-													        // } else {
-													        //     return '<input type="hidden" name="idSucursal" min="1" style="width:200px" value="'+studentData.record.idSucursal+'" />';
-													        // }
-													    }
+														key: true
 		                                            },
 		                                            cantidad: {
 		                                                title: 'Cantidad',
 		                                                width: '10%',
 														input: function (data) {
 													        if (studentData.record) {
-																console.log(studentData.record);
+																console.log(studentData);
 													            return '<input type="number" disabled name="cantidad" min="1" style="width:200px" value="1" />';
 													        } else {
 													            return '<input type="number" disabled name="cantidad" min="1" style="width:200px" value="1" />';
@@ -493,24 +367,10 @@
 		                                            concepto: {
 		                                                title: 'Concepto',
 		                                                width: '50%'
-														// input: function (data) {
-													    //     if (studentData.record) {
-													    //         return '<input type="text" name="concepto" min="1" style="width:200px" value="" />';
-													    //     } else {
-													    //         return '<input type="text" name="concepto" min="1" style="width:200px" value="" />';
-													    //     }
-													    // }
 		                                            },
 													monto: {
 		                                                title: 'Monto',
 		                                                width: '20%',
-														input: function (data) {
-													        if (studentData.record) {
-													            return '<input type="number" name="monto" min="1" style="width:200px" value="1" />';
-													        } else {
-													            return '<input type="number" name="monto" min="1" style="width:200px" value="1" />';
-													        }
-													    }
 		                                            },
 													tipo: {
 														title: "tipo",
@@ -550,22 +410,13 @@
 						},
 						nombres: {
 							title: 'Nombres',
-							width: '30%'
-						},
-						aportaciones: {
-							title: '$ Aportaciones',
-							width: '20%'
-						},
-						comisionVentas: {
-							title: '$ Comisión por ventas',
-							width: '20%'
-						},
-						comisionCobranza: {
-							title: '$ Comisión por cobranza',
-							width: '20%'
+							width: '100%'
 						}
 					}
 				});
+				<?php if ($editar): ?>
+					cargarTabla();
+				<?php endif; ?>
 		    });
 		</script>
 	</body>

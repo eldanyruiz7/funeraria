@@ -99,7 +99,7 @@
 					<div class="page-content">
 						<div class="page-header">
 							<h1>
-								<i class="fa fa-shopping-cart" aria-hidden="true"></i> Listar periodos de nóminas
+								<i class="fa fa-columns" aria-hidden="true"></i> Listar periodos de nóminas
 								<small>
 									<i class="ace-icon fa fa-angle-double-right"></i>
 									Listar periodos de nóminas, por rango de fechas
@@ -140,7 +140,7 @@
 								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 								<h3 class="smaller red no-margin">
 									<span class="smaller lighter red no-margin">
-										<i class="fa fa-ban" aria-hidden="true"></i>
+										<i class="fa fa-trash-o" aria-hidden="true"></i>
 									</span>
 									Eliminar este periodo del sistema
 								</h3>
@@ -151,7 +151,7 @@
 									<div class="form-group">
 										<label class="col-xs-12 text-left">
 											<i class="fa fa-question-circle" aria-hidden="true"></i>
-											¿Deseas cancelar este periodo del sistema?
+											¿Deseas eliminar este periodo del sistema?
 											<br/> Esta acción no puede deshacerse.
 											<br/> El sistema eliminará las nóminas que estén dentro de este periodo, tras lo cuál será recomendable
 											revisar que los cambios se hayan efectuado correctamente de forma manual
@@ -164,11 +164,11 @@
 							<div class="modal-footer">
 								<button class="btn btn-white btn-danger btn-bold btn-round" id="btnEliminarModal">
 									<i class="ace-icon fa fa-ban"></i>
-									Cancelar periodo
+									Eliminar periodo
 								</button>
 								<button class="btn btn-white btn-default btn-bold no-border btn-round" data-dismiss="modal">
 									<i class="ace-icon fa fa-times"></i>
-									Cancelar
+									Regresar
 								</button>
 							</div>
 						</div><!-- /.modal-content -->
@@ -222,44 +222,44 @@
 			{
 				console.log(d);
 				htmlReturn ='<table class="table table-striped table-bordered table-hover" style="width:70%">'+
-							'	<th>ID</th>'+
+							'	<th>Número</th>'+
 							'	<th>Nombre</th>'+
-							'	<th>Tipo</th>'+
-							'	<th>Precio de venta</th>'+
-							'	<th>Cantidad</th>'+
-							'	<th>Sub total</th>'
+							'	<th>Percepciones</th>'+
+							'	<th>Deducciones</th>'+
+							'	<th>Neto</th>'+
+							'	<th></th>'
 
 								+d.htmlDetalle+
 						'	</table>';
-				html_hist = d.htmlDetalle_hist;
-				if (html_hist.length > 0)
-				{
-					htmlReturn +='<div class="col-sm-8 widget-container-col ui-sortable" id="widget-container-col-12">'+
-						'<div class="widget-box collapsed transparent ui-sortable-handle" id="widget-box-12">'+
-							'<div class="widget-header text-center">'+
-								'<h4 class="widget-title lighter pointer">Mostrar historal de cambios</h4>'+
-								'<div class="widget-toolbar no-border">'+
-									'<a class="blue" href="#" data-action="collapse">'+
-										'<i class="ace-icon fa fa-search-plus" data-icon-show="fa-search-plus" data-icon-hide="fa-search-minus""></i>'+
-									'</a>'+
-								'</div>'+
-							'</div>'+
-							'<div class="widget-body"> '+
-								'<table class="table table-striped table-bordered table-hover" style="width:100%">'+
-								'	<th>ID Producto</th>'+
-								'	<th>Nombre</th>'+
-								'	<th>Tipo</th>'+
-								'	<th>Precio de venta</th>'+
-								'	<th>Cantidad</th>'+
-								'	<th>Sub total</th>'+
-								'	<th>Fecha</th>'+
-								'	<th>Usuario</th>'
-								+html_hist+
-							'	</table>'+
-							'</div>'+
-						'</div>'+
-					'</div>';
-				}
+				// html_hist = d.htmlDetalle_hist;
+				// if (html_hist.length > 0)
+				// {
+				// 	htmlReturn +='<div class="col-sm-8 widget-container-col ui-sortable" id="widget-container-col-12">'+
+				// 		'<div class="widget-box collapsed transparent ui-sortable-handle" id="widget-box-12">'+
+				// 			'<div class="widget-header text-center">'+
+				// 				'<h4 class="widget-title lighter pointer">Mostrar historal de cambios</h4>'+
+				// 				'<div class="widget-toolbar no-border">'+
+				// 					'<a class="blue" href="#" data-action="collapse">'+
+				// 						'<i class="ace-icon fa fa-search-plus" data-icon-show="fa-search-plus" data-icon-hide="fa-search-minus""></i>'+
+				// 					'</a>'+
+				// 				'</div>'+
+				// 			'</div>'+
+				// 			'<div class="widget-body"> '+
+				// 				'<table class="table table-striped table-bordered table-hover" style="width:100%">'+
+				// 				'	<th>ID Producto</th>'+
+				// 				'	<th>Nombre</th>'+
+				// 				'	<th>Tipo</th>'+
+				// 				'	<th>Precio de venta</th>'+
+				// 				'	<th>Cantidad</th>'+
+				// 				'	<th>Sub total</th>'+
+				// 				'	<th>Fecha</th>'+
+				// 				'	<th>Usuario</th>'
+				// 				+html_hist+
+				// 			'	</table>'+
+				// 			'</div>'+
+				// 		'</div>'+
+				// 	'</div>';
+				// }
 				return htmlReturn;
 			}
 			$(document).ready(function()
@@ -276,7 +276,7 @@
 					$("#my-modal-eliminar").modal('hide');
 					dialog = bootbox.dialog(
 					{
-					    title: 'Cancelar',
+					    title: 'Eliminando',
 					    message: '<p><i class="fa fa-spin fa-spinner"></i> Procesando...</p>',
 						closeButton: true,
 						buttons:
@@ -301,7 +301,7 @@
 					$.ajax(
 			        {
 			            method: "POST",
-			            url:"assets/ajax/eliminarVenta.php",
+			            url:"assets/ajax/eliminarPeriodoNomina.php",
 			            data: {idCliente:idPac_}
 			        })
 			        .done(function(p)
@@ -450,14 +450,14 @@
 						"extend": "pdf",
 						"text": "<i class='fa fa-file-pdf-o bigger-110 red'></i> <span class='hidden'>Exportar formato PDF</span>",
 						"className": "btn btn-white btn-primary btn-bold",
-						"message": "Reporte de lista de clientes"
+						"message": "Reporte de lista de periodos de nóminas"
 					},
 					 {
 						"extend": "print",
 						"text": "<i class='fa fa-print bigger-110 grey'></i> <span class='hidden'>Imprimir</span>",
 						"className": "btn btn-white btn-primary btn-bold",
 						autoPrint: true,
-						message: 'Reporte de lista de clientes'
+						message: 'Reporte de lista de reporte de nóminas'
 					  }
 					]
 				} );
@@ -586,7 +586,7 @@
 						infoRow = $.ajax(
 						{
 							method: "POST",
-							url:"assets/ajax/obtenerRowDet_venta.php",
+							url:"assets/ajax/listarRowDet_nomina.php",
 							dataType:'JSON',
 							data: {idCliente:idCliente}
 						})

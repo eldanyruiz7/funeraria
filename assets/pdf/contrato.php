@@ -27,8 +27,10 @@
         }
         else
         {
+			require_once ("../php/query.class.php");
+			$query = new Query();
             require "../php/contrato.class.php";
-            $contrato = new contrato($idContrato,$mysqli);
+            $contrato = new Contrato($idContrato,$query);
             if (!$contrato->id)
             {
                 echo "Error al consultar en la base de datos. No existe el contrato con el ID especificado";

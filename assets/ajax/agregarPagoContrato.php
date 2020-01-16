@@ -71,7 +71,7 @@
         }
         $mysqli->autocommit(FALSE);
         require "../php/contrato.class.php";
-        $contrato = new contrato($idContrato,$mysqli);
+        $contrato = new Contrato($idContrato,$query);
         if ($contrato->id == 0)
         {
             $response['mensaje'] = "No se puede añadir pago a este contrato porque no existe o ya ha sido eliminado. Vuelve a intentarlo con otro contrato distinto";

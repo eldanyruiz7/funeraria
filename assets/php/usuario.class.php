@@ -14,10 +14,16 @@ class usuario
                     cat_usuarios.email,         cat_usuarios.tipo,
                     cat_usuarios.tasaComision,  cat_usuarios.fechaCreacion,
                     cat_usuarios.idSucursal,    cat_usuarios.usuario,
-                    cat_estados.estado,			cat_usuarios.tasaComisionCobranza
+                    cat_estados.estado,			cat_usuarios.tasaComisionCobranza,
+					tu.nombre,					cd.nombre,
+					cat_usuarios.departamento
                 FROM cat_usuarios
                 INNER JOIN cat_estados
                 ON cat_usuarios.estado      = cat_estados.id
+				LEFT JOIN tipos_usuarios AS tu
+				ON tu.id = cat_usuarios.tipo
+				LEFT JOIN cat_departamentos AS cd
+				ON cd.id = cat_usuarios.departamento
                 WHERE cat_usuarios.id       = ?
                 AND cat_usuarios.activo     = 1
                 LIMIT 1";
@@ -28,7 +34,7 @@ class usuario
             $prepare_usr->store_result() &&
             $prepare_usr->bind_result($idUsuario, $nombre, $apellidop, $apellidom, $direccion1, $direccion2, $idEstado,
                                         $nickName, $telefono, $celular, $email, $tipo, $tasaComision, $fechaCreacion, $idSucursal,
-                                        $usuarioRegistro, $nombreEstado, $tasaComisionCobranza) &&
+                                        $usuarioRegistro, $nombreEstado, $tasaComisionCobranza, $tipoNombre, $nombreDepartamento, $idDepartamento) &&
             $prepare_usr->fetch() &&
             $prepare_usr->num_rows > 0)
         {
@@ -51,6 +57,9 @@ class usuario
             $this ->fechaCreacion           = $fechaCreacion;
             $this ->idSucursal              = $idSucursal;
             $this ->idUsuarioRegistro       = $usuarioRegistro;
+			$this ->tipoNombre				= $tipoNombre;
+			$this ->nombreDepartamento		= $nombreDepartamento;
+			$this ->idDepartamento			= $idDepartamento;
             $sql = "SELECT nombres, apellidop, apellidom FROM cat_usuarios WHERE id =$usuarioRegistro LIMIT 1";
             $res_registro = $mysqli->query($sql);
             $row_registro = $res_registro->fetch_assoc();
@@ -68,23 +77,26 @@ class usuario
     }
     public function tipoUsuario($html = FALSE)
     {
-        switch ($this->tipo)
-        {
-            case 1:
-                $tipoUsuario = ($html) ? '<span class="badge badge-info">Admin</span>' : 'Admin';
-                break;
-            case 2:
-                $tipoUsuario = ($html) ? '<span class="badge badge-success">Secetario/a</span>' : 'Secretario/a';
-                break;
-            case 3:
-                $tipoUsuario = ($html) ? '<span class="badge badge-yellow">Vendedor</span>' : 'Vendedor';
-                break;
+		switch ($this->tipo)
+		{
+			case 1:
+				$badge = 'badge-info';
+				break;
+			case 2:
+				$badge = 'badge-success';
+				break;
+			case 3:
+				$badge = 'badge-yellow';
+				break;
+			case 4:
+				$badge = 'badge-purple';
+				break;
             default:
-                $tipoUsuario = ($html) ? '<span class="badge badge-yellow">Vendedor</span>' : 'Vendedor';
-                break;
-        }
-        return $tipoUsuario;
-    }
+				$badge = 'badge-info';
+				break;
+		}
+		return ($html) ? "<span class='badge $badge'>$this->tipoNombre</span>" : $this->tipoNombre;
+	}
     public function permiso($string,$mysqli)
     {
         if ($this->id == 1)
@@ -211,6 +223,18 @@ class usuario
             case 'eliminarUsuario':
                 $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND eliminarUsuario = 1 LIMIT 1";
                 break;
+			case 'listarNominas':
+                $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND listarNominas = 1 LIMIT 1";
+                break;
+            case 'agregarNomina':
+                $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND agregarNomina = 1 LIMIT 1";
+                break;
+            case 'modificarNomina':
+                $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND modificarNomina = 1 LIMIT 1";
+                break;
+            case 'eliminarNomina':
+                $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND eliminarNomina = 1 LIMIT 1";
+                break;
 			case 'listarVariablesSistema':
                 $sql = "SELECT id FROM cat_permisos WHERE idUsuario = ? AND activo = 1 AND listarVariablesSistema = 1 LIMIT 1";
                 break;
@@ -259,7 +283,7 @@ class usuario
         $array['comision'] = $row['monto'] * $comision;
         return $array;
     }
-    public function obtener_cobranza_vendedor($mysqli, $fechaInicio = FALSE, $fechaFinal = FALSE)
+    public function obtener_cobranza_vendedor($query, $fechaInicio = FALSE, $fechaFinal = FALSE)
     {
         require_once "../php/contrato.class.php";
         $totalCobranza  = 0;
@@ -278,7 +302,7 @@ class usuario
         while ($row = $res->fetch_assoc())
         {
             $idContrato             = $row['id'];
-            $contrato               = new contrato($idContrato, $mysqli);
+            $contrato               = new Contrato($idContrato, $query);
             $abonado_contrato       = $contrato->totalAbonado($mysqli);
             $costo_total_contrato   = $contrato->costoTotal;
             $comision_vendedor      = $contrato->comision_vendedor();

@@ -1,143 +1,123 @@
 <?php
 require_once "funcionesVarias.php";
 require_once "query.class.php";
-class contrato
+class Contrato
 {
-    function __construct($idC, $mysqli)
+    function __construct($idC, $query)
     {
 		$this->Query = new Query();
         $idC = validarFormulario("i",$idC);
-        $sql = "SELECT
-                    contratos.id,                       contratos.fechaCreacion,
-                    contratos.fechaPrimerAportacion,    contratos.precio,
-                    contratos.primerAnticipo,           contratos.precioAportacion,
-                    contratos.direccion1,               contratos.direccion2,
-                    contratos.cp,                       contratos.idEstado,
-                    contratos.referencias,              contratos.frecuenciaPago,
-                    contratos.idTitular,                contratos.idPlan,
-                    contratos.idSucursal,               contratos.observaciones,
-                    cat_estados.estado,                 clientes.nombres,
-                    clientes.apellidop,                 clientes.apellidom,
-                    clientes.rfc,                       clientes.tel,
-                    clientes.cel,                       cat_planes.nombre,
-                    cat_sucursales.nombre,              cat_sucursales.lema,
-                    cat_sucursales.direccion1,          cat_sucursales.direccion2,
-                    cat_sucursales.telefono1,           cat_sucursales.telefono2,
-                    cat_sucursales.celular,             cat_sucursales.clausulasContrato,
-                    cat_sucursales.rfc,                 cat_sucursales.curp,
-                    cat_sucursales.correo,              cat_sucursales.representante,
-                    cat_usuarios.nombres,               cat_usuarios.apellidop,
-                    cat_usuarios.apellidom,             contratos.enCurso,
-                    contratos.tasaComision,             contratos.idVendedor,
-                    contratos.idFallecido,              contratos.folio,
-                    contratos.idFactura,                contratos.activo,
-                    cat_regimenes_fiscales.c_RegimenFiscal, cat_regimenes_fiscales.nombre,
-                    clientes.email,                     cat_sucursales.cp,
-                    cat_sucursales.estado,              clientes.cp,
-                    clientes.domicilio1,			    clientes.domicilio2,
-                    clientes.idEstado,                  contratos.descuentoDuplicacionInversion,
-                    contratos.descuentoCambioFuneraria, contratos.descuentoAdicional,
-                    contratos.motivoCancelado
-                FROM contratos
-                INNER JOIN cat_estados
-                ON contratos.idEstado   = cat_estados.id
-                INNER JOIN clientes
-                ON contratos.idTitular  = clientes.id
-                INNER JOIN cat_planes
-                ON contratos.idPlan = cat_planes.id
-                INNER JOIN cat_sucursales
-                ON contratos.idSucursal = cat_sucursales.id
-                INNER JOIN cat_usuarios
-                ON contratos.usuario    = cat_usuarios.id
-                INNER JOIN cat_regimenes_fiscales
-                ON cat_sucursales.idRegimenFiscal = cat_regimenes_fiscales.id
-                WHERE contratos.id      = ?
-                AND contratos.activo    = 1 LIMIT 1";
-        $prepare_contrato = $mysqli->prepare($sql);
-        if ($prepare_contrato &&
-            $prepare_contrato->bind_param("i",$idC) &&
-            $prepare_contrato->execute() &&
-            $prepare_contrato->store_result() &&
-            $prepare_contrato->bind_result($idContrato, $fechaCreacion, $fechaPrimerAportacion, $precio, $anticipo,
-                                        $aportacion, $domicilio1, $domicilio2, $cp, $idEstado, $referencias, $frecuenciaPago,
-                                        $idCliente, $idPlan, $idSucursal, $observaciones, $nombreEstado, $nombreCliente,
-                                        $apellidopCliente, $apellidomCliente, $rfcCliente, $telCliente, $celCliente, $nombrePlan, $nombreSucursal, $lemaSucursal,
-                                        $domicilio1Sucursal, $domicilio2Sucursal, $tel1Sucursal, $tel2Sucursal, $celSucursal,
-                                        $clausulas, $rfcSucursal, $curpSucursal, $correoSucursal, $representanteSucursal,
-                                        $nombreUsuario, $apellidopUsuario, $apellidomUsuario, $enCurso, $tasaComision, $idVendedor,
-                                        $idFallecido, $folio, $idFactura, $activo, $c_RegimenFiscal, $regimenFiscal, $emailCliente,
-                                        $cpSucursal, $idEstadoSucursal, $cpCliente, $domicilio1Cliente, $domicilio2Cliente, $idEstadoCliente,
-                                        $descuentoDuplicacionInversion, $descuentoCambioFuneraria, $descuentoAdicional, $motivoCancelado) &&
-            $prepare_contrato->fetch() &&
-            $prepare_contrato->num_rows > 0)
-        {
-            $this ->id                      = $idContrato;
-            $this ->fechaCreacion           = $fechaCreacion;
-            $this ->fechaPrimerAportacion   = $fechaPrimerAportacion;
-            $this ->precio                  = $precio;
-            $this ->anticipo                = $anticipo;
-            $this ->aportacion              = $aportacion;
-            $this ->domicilio1              = $domicilio1;
-            $this ->domicilio2              = $domicilio2;
-            $this ->cp                      = $cp;
-            $this ->idEstado                = $idEstado;
-            $this ->domicilio               = $domicilio1.", ".$domicilio2.", ".$nombreEstado.", CP: ".$cp;
-            $this ->referencias             = $referencias;
-            $this ->frecuenciaPago          = $frecuenciaPago;
-            $this ->idCliente               = $idCliente;
-            $this ->idPlan                  = $idPlan;
-            $this ->idSucursal              = $idSucursal;
-            $this ->observaciones           = $observaciones;
-            $this ->primerNombreCliente     = $nombreCliente;
-            $this ->apellidopCliente        = $apellidopCliente;
-            $this ->apellidomCliente        = $apellidomCliente;
-            $this ->nombreCliente           = $nombreCliente." ".$apellidopCliente." ".$apellidomCliente;
-            $this ->rfcCliente              = $rfcCliente;
-            $this ->telCliente              = $telCliente;
-            $this ->celCliente              = $celCliente;
-            $this ->cpCliente               = $cpCliente;
-            $this ->domicilioCliente        = $domicilio1Cliente.", ".$domicilio2Cliente.". CP: ".$cpCliente;
-            $this ->idEstadoCliente         = $idEstadoCliente;
-            $this ->nombrePlan              = $nombrePlan;
-            $this ->nombreSucursal          = $nombreSucursal;
-            $this ->lemaSucursal            = $lemaSucursal;
-            $this ->domicilioSucursal       = $domicilio1Sucursal.", ".$domicilio2Sucursal.", CP: ".$cpSucursal;
-            $this ->cpSucursal              = $cpSucursal;
-            $this ->domicilio1Sucursal      = $domicilio1Sucursal;
-            $this ->domicilio2Sucursal      = $domicilio2Sucursal;
-            $this ->tel1Sucursal            = $tel1Sucursal;
-            $this ->tel2Sucursal            = $tel2Sucursal;
-            $this ->celSucursal             = $celSucursal;
-            $this ->clausulas               = $clausulas;
-            $this ->rfcSucursal             = $rfcSucursal;
-            $this ->curpSucursal            = $curpSucursal;
-            $this ->correoSucursal          = $correoSucursal;
-            $this ->representanteSucursal   = $representanteSucursal;
-            $this ->nombreUsuario           = $nombreUsuario." ".$apellidopUsuario." ".$apellidomUsuario;
-            $this ->enCurso                 = $enCurso;
-            $this ->tasaComision            = $tasaComision;
-            $this ->idVendedor              = $idVendedor;
-            $this ->idDifunto               = $idFallecido;
-            $this ->folio                   = $folio;
-            $this ->idFactura               = $idFactura;
-            $this ->activo                  = $activo;
-            $this ->c_RegimenFiscal         = $c_RegimenFiscal;
-            $this ->regimenFiscal           = $regimenFiscal;
-            $this ->emailCliente            = $emailCliente;
-            $this ->idEstadoSucursal        = $idEstadoSucursal;
-            $this ->descuentoDuplicacionInversion = $descuentoDuplicacionInversion;
-            $this ->descuentoCambioFuneraria= $descuentoCambioFuneraria;
-            $this ->descuentoAdicional      = $descuentoAdicional;
-            $this ->motivoCancelado         = $motivoCancelado;
-            $this ->costoTotal              = $precio - $descuentoDuplicacionInversion - $descuentoCambioFuneraria - $descuentoAdicional;
-            $sql = "SELECT nombres, apellidop, apellidom FROM cat_usuarios WHERE id =$idVendedor LIMIT 1";
-            $res_vende = $mysqli->query($sql);
-            $row_vende = $res_vende->fetch_assoc();
-            $this ->nombresVendedor         = $row_vende['nombres'];
-            $this ->nombreVendedor          = $row_vende['nombres']." ".$row_vende['apellidop']." ".$row_vende['apellidom'];
-            $sql = "SELECT fechaCreacion, monto FROM detalle_pagos_contratos WHERE idContrato =".$this->id." AND activo = 1";
-            $res_pagos = $mysqli->query($sql);
-            $this ->pagosEfectuados         = $res_pagos->num_rows;
+		$Contrato = $query->table("contratos")->select("
+			contratos.id						AS id,						contratos.fechaCreacion 				AS fechaCreacion,
+			contratos.fechaPrimerAportacion		AS fechaPrimerAportacion,	contratos.precio						AS precio,
+			contratos.primerAnticipo			AS primerAnticipo,			contratos.precioAportacion				AS precioAportacion,
+			contratos.direccion1				AS direccion1,				contratos.direccion2					AS direccion2,
+			contratos.cp						AS cp,						contratos.idEstado						AS idEstado,
+			contratos.referencias				AS referencias,				contratos.frecuenciaPago				AS frecuenciaPago,
+			contratos.idTitular					AS idTitular,				contratos.idPlan						AS idPlan,
+			contratos.idSucursal				AS idSucursal,				contratos.observaciones					AS observaciones,
+			contratos.tasaComision				AS tasaComision,			contratos.idVendedor					AS idVendedor,
+			contratos.idFallecido				AS idFallecido,				contratos.folio							AS folio,
+			contratos.idFactura					AS idFactura,				contratos.activo						AS activo,
+			contratos.descuentoCambioFuneraria	AS descuentoCambioFuneraria,contratos.descuentoAdicional			AS descuentoAdicional,
+			contratos.motivoCancelado			AS motivoCancelado,			contratos.idNomina						AS idNomina,
+			contratos.enCurso					AS enCurso,					contratos.descuentoDuplicacionInversion	AS descuentoDuplicacionInversion,
+			cat_estados.estado					AS estado,					clientes.nombres						AS nombreCliente,
+			clientes.apellidop					AS apellidopCliente,		clientes.apellidom						AS apellidomCliente,
+			clientes.rfc						AS rfcCliente,				clientes.tel							AS telCliente,
+			clientes.cel						AS celCliente,				cat_planes.nombre						AS nombrePlan,
+			clientes.domicilio1					AS domicilio1Cliente,		clientes.domicilio2						AS domicilio2Cliente,
+			clientes.idEstado					AS idEstadoCliente,			clientes.email							AS emailCliente,
+			cat_sucursales.nombre				AS nombreSucursal, 			cat_sucursales.lema						AS lemaSucursal,
+			cat_sucursales.direccion1			AS direccion1Sucursal,		cat_sucursales.direccion2				AS direccion2Sucursal,
+			cat_sucursales.telefono1			AS tel1Sucursal,			cat_sucursales.telefono2				AS tel2Sucursal,
+			cat_sucursales.celular				AS celSucursal,				cat_sucursales.clausulasContrato		AS clausulas,
+			cat_sucursales.rfc					AS rfcSucursal,				cat_sucursales.curp						AS curpSucursal,
+			cat_sucursales.correo				AS correoSucursal,			cat_sucursales.representante			AS representanteSucursal,
+			cat_usuarios.nombres				AS nombreUsuario,			cat_usuarios.apellidop					AS apellidopUsuario,
+			cat_usuarios.apellidom				AS apellidomUsuario,		cat_regimenes_fiscales.c_RegimenFiscal	AS idRegimenFiscalSucursal,
+			cat_regimenes_fiscales.nombre		AS regimenFiscalSucursal,	cat_sucursales.cp						AS cpSucursal,
+			cat_sucursales.estado				AS idEstadoSucursal,		clientes.cp								AS cpCliente,
+			usr_v.nombres						AS nombreVendedor,			usr_v.apellidop							AS apellidopVendedor,
+			usr_v.apellidom						AS apellidomVendedor" )
+		->innerJoin("cat_estados", 				"contratos.idEstado", 		"=", "cat_estados.id")
+		->innerJoin("clientes", 				"contratos.idTitular", 		"=", "clientes.id")
+		->innerJoin("cat_planes", 				"contratos.idPlan", 		"=", "cat_planes.id")
+		->innerJoin("cat_sucursales", 			"contratos.idSucursal", 	"=", "cat_sucursales.id")
+		->innerJoin("cat_usuarios", 			"contratos.usuario", 		"=", "cat_usuarios.id")
+		->innerJoin("cat_regimenes_fiscales", 	"cat_sucursales.idRegimenFiscal","=","cat_regimenes_fiscales.id")
+		->innerJoin("cat_usuarios AS usr_v",	"usr_v.id",					"=", "contratos.idVendedor")
+		->where("contratos.id", "=", $idC, "i")->and()
+		->where("contratos.activo", "=", 1, "i")->limit()->execute(FALSE, OBJ);
+
+		if($query ->num_rows())
+		{
+			$this ->id                      = $Contrato->id;
+			$this ->fechaCreacion           = $Contrato->fechaCreacion;
+			$this ->fechaPrimerAportacion   = $Contrato->fechaPrimerAportacion;
+			$this ->precio                  = $Contrato->precio;
+			$this ->anticipo                = $Contrato->primerAnticipo;
+			$this ->aportacion              = $Contrato->precioAportacion;
+			$this ->domicilio1              = $Contrato->direccion1;
+			$this ->domicilio2              = $Contrato->direccion2;
+			$this ->cp                      = $Contrato->cp;
+			$this ->idEstado                = $Contrato->idEstado;
+			$this ->domicilio               = $Contrato->direccion1.", ".$Contrato->direccion2.", ".$Contrato->estado.", CP: ".$Contrato->cp;
+			$this ->referencias             = $Contrato->referencias;
+			$this ->frecuenciaPago          = $Contrato->frecuenciaPago;
+			$this ->idCliente               = $Contrato->idTitular;
+			$this ->idPlan                  = $Contrato->idPlan;
+			$this ->idSucursal              = $Contrato->idSucursal;
+			$this ->observaciones           = $Contrato->observaciones;
+			$this ->primerNombreCliente     = $Contrato->nombreCliente;
+			$this ->apellidopCliente        = $Contrato->apellidopCliente;
+			$this ->apellidomCliente        = $Contrato->apellidomCliente;
+			$this ->nombreCliente           = $Contrato->nombreCliente." ".$Contrato->apellidopCliente." ".$Contrato->apellidomCliente;
+			$this ->rfcCliente              = $Contrato->rfcCliente;
+			$this ->telCliente              = $Contrato->telCliente;
+			$this ->celCliente              = $Contrato->celCliente;
+			$this ->cpCliente               = $Contrato->cpCliente;
+			$this ->domicilioCliente        = $Contrato->domicilio1Cliente.", ".$Contrato->domicilio2Cliente.". CP: ".$Contrato->cpCliente;
+			$this ->idEstadoCliente         = $Contrato->idEstadoCliente;
+			$this ->nombrePlan              = $Contrato->nombrePlan;
+			$this ->nombreSucursal          = $Contrato->nombreSucursal;
+			$this ->lemaSucursal            = $Contrato->lemaSucursal;
+			$this ->domicilioSucursal       = $Contrato->direccion1Sucursal.", ".$Contrato->direccion2Sucursal.", CP: ".$Contrato->cpSucursal;
+			$this ->cpSucursal              = $Contrato->cpSucursal;
+			$this ->direccion1Sucursal      = $Contrato->direccion1Sucursal;
+			$this ->direccion2Sucursal      = $Contrato->direccion2Sucursal;
+			$this ->tel1Sucursal            = $Contrato->tel1Sucursal;
+			$this ->tel2Sucursal            = $Contrato->tel2Sucursal;
+			$this ->celSucursal             = $Contrato->celSucursal;
+			$this ->clausulas               = $Contrato->clausulas;
+			$this ->rfcSucursal             = $Contrato->rfcSucursal;
+			$this ->curpSucursal            = $Contrato->curpSucursal;
+			$this ->correoSucursal          = $Contrato->correoSucursal;
+			$this ->representanteSucursal   = $Contrato->representanteSucursal;
+			$this ->nombreUsuario           = $Contrato->nombreUsuario." ".$Contrato->apellidopUsuario." ".$Contrato->apellidomUsuario;
+			$this ->enCurso                 = $Contrato->enCurso;
+			$this ->tasaComision            = $Contrato->tasaComision;
+			$this ->idVendedor              = $Contrato->idVendedor;
+			$this ->idDifunto               = $Contrato->idFallecido;
+			$this ->folio                   = $Contrato->folio;
+			$this ->idFactura               = $Contrato->idFactura;
+			$this ->activo                  = $Contrato->activo;
+			$this ->c_RegimenFiscal         = $Contrato->idRegimenFiscalSucursal;
+			$this ->regimenFiscal           = $Contrato->regimenFiscalSucursal;
+			$this ->emailCliente            = $Contrato->emailCliente;
+			$this ->idEstadoSucursal        = $Contrato->idEstadoSucursal;
+			$this ->descuentoDuplicacionInversion = $Contrato->descuentoDuplicacionInversion;
+			$this ->descuentoCambioFuneraria= $Contrato->descuentoCambioFuneraria;
+			$this ->descuentoAdicional      = $Contrato->descuentoAdicional;
+			$this ->motivoCancelado         = $Contrato->motivoCancelado;
+			$this ->idNomina         		= $Contrato->idNomina;
+
+			$this ->costoTotal              = $Contrato->precio - $Contrato->descuentoDuplicacionInversion - $Contrato->descuentoCambioFuneraria - $Contrato->descuentoAdicional;
+			$this ->nombresVendedor         = $Contrato->nombreVendedor;
+			$this ->nombreVendedor          = $Contrato->nombreVendedor." ".$Contrato->apellidopVendedor." ".$Contrato->apellidomVendedor;
+
+			$query->table("detalle_pagos_contratos")->select()->where("idContrato", "=", $this->id, "i")->and()->where("activo", "=", 1, "i")->execute();
+			$this ->pagosEfectuados         = $query->num_rows();
         }
         else
         {
@@ -155,6 +135,28 @@ class contrato
         $comision = $this->costoTotal * $tasa;
         return $comision;
     }
+	public function total_pagado_vendedor($query)
+	{
+		$totalAnticipo = $this->idNomina ? $this ->anticipo : 0;
+		$res =$query->table("detalle_pagos_contratos AS dpc")->select("dpc.monto, dpc.tasaComisionCobranza")
+					->innerJoin("contratos AS con","dpc.idContrato", "=", "con.id")
+					->where("con.idVendedor", "=", $this ->idVendedor, "i")->and()
+					->where("dpc.idNominaVenta", ">", 0, "i")->execute();
+		$totalPagado = 0;
+		$totalCobranza = 0;
+		foreach ($res as $row)
+		{
+			$factorTasa = $row['tasaComisionCobranza'] / 100;
+			$montoCobranza = $row['monto'] * $factorTasa;
+			$totalCobranza += $row['monto'] - $montoCobranza;
+		}
+		$totalPagado = $totalAnticipo + $totalCobranza;
+		if ($totalPagado > $this->comision_vendedor())
+		{
+			$totalPagado = $this->comision_vendedor();
+		}
+		return $totalPagado;
+	}
     public function fechaPrimerAportacion()
     {
         $fecha = date_format(new DateTime($this->fechaPrimerAportacion),"d-m-Y");

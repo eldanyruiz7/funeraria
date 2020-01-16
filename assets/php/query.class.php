@@ -7,6 +7,9 @@
 *
 **/
 define("FILECFG","cnn.ini");
+define("OBJ","obj");
+define("RETURN_OBJECT","obj_always");
+define("ARR","arr");
 class Query
 {
 	//  Data base
@@ -95,12 +98,27 @@ class Query
 			exit();
 	    }
 	}
+	private function to_object(array $array, $class = 'stdClass')
+	{
+		$object = new $class;
+		foreach ($array as $key => $value)
+		{
+			if (is_array($value))
+			{
+				// Convert the array to an object
+				$value = $this->to_object($value, $class);
+			}
+			// Add the value to the object
+			$object->{$key} = $value;
+		}
+		return $object;
+	}
 	public function table($tb)
 	{
 		$this ->table = $tb;
 		return $this;
 	}
-	public function select($fields)
+	public function select($fields = '*')
 	{
 		global $params;
 		$params = array();
@@ -194,27 +212,79 @@ class Query
 		$this ->types .= $type;
 		return $this;
 	}
-	public function and()
+	public function and(...$argsJoin)
 	{
+		$args = func_num_args();
 		$this ->query .= " AND";
+		if($args == 3)
+		{
+			foreach ($argsJoin as $arg_join)
+			{
+				$this ->query.= " $arg_join";
+			}
+		}
 		return $this;
 	}
-	public function or()
+	public function or(...$argsJoin)
 	{
+		$args = func_num_args();
 		$this ->query .= " OR";
+		if($args == 3)
+		{
+			foreach ($argsJoin as $arg_join)
+			{
+				$this ->query.= " $arg_join";
+			}
+		}
 		return $this;
 	}
-	public function limit($limit = 1)
+	public function limit(...$argsLimit)
 	{
-		$this ->query .= " LIMIT $limit";
+		$args = func_num_args();
+		if ($args == 0)
+		{
+			$this ->query .= " LIMIT 1";
+		}
+		elseif ($args == 1)
+		{
+			$this ->query .= " LIMIT $argsLimit[0]";
+		}
+		elseif ($args == 2)
+		{
+			$this ->query .= " LIMIT $argsLimit[0] OFFSET $argsLimit[1]";
+		}
 		return $this;
 	}
-	public function orderBy($fieldOrder, $order = 'ASC')
+	public function orderBy(...$argsFieldOrder)
 	{
-		$this ->query .= " ORDER BY $fieldOrder $order";
+		$args = func_num_args();
+		if ($args == 1)
+		{
+			$this ->query .= " ORDER BY $argsFieldOrder[0] ASC";
+		}
+		elseif ($args > 1)
+		{
+			$this ->query .= " ORDER BY";
+			$x = 0;
+			foreach ($argsFieldOrder as $arg_order)
+			{
+				$x++;
+				$this ->query .= " $arg_order";
+				if ($x%2 == 0 && $x < $args)
+				{
+					$this ->query .=",";
+				}
+
+			}
+		}
 		return $this;
 	}
-	public function execute($debug = FALSE)
+	public function groupBy($fieldsGroupBy)
+	{
+		$this ->query .= " GROUP BY $fieldsGroupBy";
+		return $this;
+	}
+	public function execute($debug = FALSE, $return = 'arr')
 	{
 		$tipo = $this ->obtenerTipoQuery();
 		if ($tipo == "crearTabla")
@@ -272,7 +342,23 @@ class Query
 					$a_data = array();
 					$res_select = $prepare_select->get_result();
 					$this ->num_rows= $res_select ->num_rows;
-					$a_data = $res_select ->fetch_all(MYSQLI_ASSOC);
+					if ($return == 'arr')
+					{
+						$a_data = $res_select ->fetch_all(MYSQLI_ASSOC);
+					}
+					elseif ($return == 'obj')
+					{
+						// $user = (object)$user;
+						// echo "Num_rows: ".$this->num_rows."-";
+						if($this->num_rows() > 1)
+							$a_data = $this->to_object($res_select ->fetch_all(MYSQLI_ASSOC));
+						else
+							$a_data = $res_select ->fetch_object();
+					}
+					elseif ($return == 'obj_always')
+					{
+						$a_data = $this->to_object($res_select ->fetch_all(MYSQLI_ASSOC));
+					}
 					$this ->data = $a_data;
 				}
 				$this ->mensaje = "Sentencia realizada con éxito";
@@ -346,7 +432,7 @@ class Query
 	}
 	public function int($name, $null = FALSE, $defaultVal = FALSE)
 	{
-		$defaultValue = !$defaultVal ? "" : "DEFAULT '$defaultVal'";
+		$defaultValue = $defaultVal === FALSE ? "" : "DEFAULT '$defaultVal'";
 		$nullable = $null ? "NULL" : "NOT NULL";
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";
@@ -395,7 +481,7 @@ class Query
 	}
 	public function decimal($name, $digits = "(10,2)", $null = FALSE, $defaultVal = FALSE)
 	{
-		$defaultValue = !$defaultVal ? "" : "DEFAULT '$defaultVal'";
+		$defaultValue = $defaultVal === FALSE ? "" : "DEFAULT '$defaultVal'";
 		$nullable = $null ? "NULL" : "NOT NULL";
 		if (strlen($this ->queryFields))
 			$this ->queryFields .= ", ";

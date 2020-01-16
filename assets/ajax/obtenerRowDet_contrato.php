@@ -10,15 +10,16 @@
     }
     else
     {
-        require "../php/contrato.class.php";
-
+        require_once "../php/contrato.class.php";
         require_once "../php/funcionesVarias.php";
-        require "../php/responderJSON.php";
+        require_once "../php/responderJSON.php";
+		require_once ("../php/query.class.php");
+		$query = new Query();
         $response = array(
             "status"        => 1
         );
         $idContrato = $_POST['idCliente'];
-        $contrato = new contrato($idContrato,$mysqli);
+        $contrato = new Contrato($idContrato,$query);
         if ($contrato->id == 0)
         {
             $response['mensaje'] = "Error. No se pudo consultar la información. No existe el id del contrato o posiblemente ya ha sido eliminado. Inténtalo nuevamente";

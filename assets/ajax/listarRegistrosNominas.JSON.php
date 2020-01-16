@@ -82,33 +82,46 @@
 			{
 				$idUsuario = $nomina['idUsuario'];
 				$query ->table("cat_nominas")->insert(compact("idPeriodo", "idUsuario"), "ii")->execute();
-				$idNomina = $query->insert_id();
+				$idNominaCobranza = $idNominaVenta = $idNomina = $query->insert_id();
 				/**
 				 * Obtener el total
 				 * de las comisiones
 				 * por los pagos de las primeras aportaciones
 				 */
-				$rowAportaciones = $query 	->table("contratos AS con")->select("con.primerAnticipo AS anticipo, con.folio AS folio,
+				$rowAportaciones = $query 	->table("contratos AS con")->select("con.id, con.primerAnticipo AS anticipo, con.folio AS folio, con.idNomina,
 																				CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente")
 											->leftJoin("clientes AS cli", "con.idTitular", "=", "cli.id")
 											->where("fechaCreacion", "BETWEEN", "'$fechaInicio' AND '$fechaFin'", "ss")->and()
+											->where("con.idNomina", "=", 0, "i")->and()
 											->where("idVendedor", "=", $idUsuario, "i")->execute();
 				$totalAportaciones = 0;
 				$idConcepto = 1;
 				$cantidad = 1;
 				foreach ($rowAportaciones as $rowAportacion)
 				{
-					$nombreConcepto = "- 1° Aport. ".$rowAportacion['nombreCliente']." (".$rowAportacion['folio'].")";
-					$monto = $rowAportacion['anticipo'];
+					$contrato 				= new Contrato($rowAportacion['id'], $query);
+					$comision_vendedor 		= $contrato->comision_vendedor();
+					$total_pagado_vendedor 	= $contrato->total_pagado_vendedor($query);
+					$resta_comision 		= $comision_vendedor - $total_pagado_vendedor;
+					// if ($contrato->id == 12) {
+					// 	var_dump($rowAportacion);
+					// }
+					// echo $contrato->id." resta comision: ". $resta_comision."Tot pagado a vendedor: ".$total_pagado_vendedor."comision_vendedor():".$contrato->comision_vendedor()."<br>";
+					$nombreConcepto 		= "- 1° Aport. ".$rowAportacion['nombreCliente']." (".$rowAportacion['folio'].")";
+					$monto 					= $rowAportacion['anticipo'] > $resta_comision ? $resta_comision :  $rowAportacion['anticipo'];
 
 					/**
 					 * Insert detalle_nomina de los pagos por
 					 * primers aportaciones
 					 */
-					if ($monto > 0)
+					if ($monto > 0 && !$rowAportacion['idNomina'])
+					{
 						$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
 																		"cantidad", "monto", "tipo", "idUsuario", "idSucursal"), "iisidiii")->execute();
-					$totalAportaciones += $rowAportacion['anticipo'];
+						$query ->table("contratos")->update(compact("idNomina"),"i") ->where("id", "=", $rowAportacion['id'], "i")->limit(1) ->execute();
+						// echo $query->lastStatement();
+						$totalAportaciones += $monto;
+					}
 				}
 
 				/**
@@ -117,7 +130,7 @@
 				 * por los pagos de los contratos
 				 */
 				$rowComisionesVentas=$query	->table("detalle_pagos_contratos AS dpc")
-											->select( "dpc.monto AS monto, con.folio AS folio,
+											->select( "dpc.monto AS monto, dpc.idNominaVenta, dpc.id AS id_dpc, con.folio AS folio,
 													   dpc.tasaComisionCobranza AS tasaComisionCobranza,
 													   con.id AS idContrato,
 													   CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente")
@@ -132,31 +145,45 @@
 				$idConcepto = 1;
 				foreach ($rowComisionesVentas as $rowCom_venta)
 				{
-					$contrato 				= new contrato($rowCom_venta['idContrato'], $mysqli);
-					$montoPago 				= $rowCom_venta['monto'];
-					$tasaCom_Cobranza 		= $rowCom_venta['tasaComisionCobranza'];
-					$tasa_100 				= $tasaCom_Cobranza / 100;
-			        $monto_pago_cobrador 	= $montoPago * $tasa_100;
-					$monto_pago_vendedor 	= $montoPago - $monto_pago_cobrador;
-					$totalAbonado 			= $contrato ->totalAbonado($mysqli);
-					$comision_vendedor 		= $contrato->comision_vendedor();
-					$resta_comision 		= $comision_vendedor - $totalAbonado;
-					if ($resta_comision > 0)
-						$monto_pago_vendedor_real = $monto_pago_vendedor < $resta_comision ? $monto_pago_vendedor : $resta_comision;
-					else
-						$monto_pago_vendedor_real = 0;
+					if (!$rowCom_venta['idNominaVenta'])
+					{
+						$contrato 				= new Contrato($rowCom_venta['idContrato'], $query);
+						$montoPago 				= $rowCom_venta['monto'];
+						$tasaCom_Cobranza 		= $rowCom_venta['tasaComisionCobranza'];
+						$tasa_100 				= $tasaCom_Cobranza / 100;
+				        $monto_pago_cobrador 	= $montoPago * $tasa_100;
+						$monto_pago_vendedor 	= $montoPago - $monto_pago_cobrador;
+						$totalAbonado 			= $contrato ->totalAbonado($mysqli);
+						$comision_vendedor 		= $contrato->comision_vendedor();
+						$total_pagado_vendedor 	= $contrato->total_pagado_vendedor($query);
+						$primerAportacion		= $contrato->anticipo;
+						$resta_comision 		= $comision_vendedor - $total_pagado_vendedor;
+						if ($resta_comision > 0)
+							$monto_pago_vendedor_real = $monto_pago_vendedor < $resta_comision ? $monto_pago_vendedor : $resta_comision;
+						else
+							$monto_pago_vendedor_real = 0;
 
-					$totalComisionVentas += $monto = $monto_pago_vendedor_real;
+						// echo "idContrato: ".$contrato->id."idNomina".$contrato->idNomina." Anticipo".$contrato->anticipo."<br>".
+						// " total_pagado_vendedor: ".$total_pagado_vendedor." resta_comision: ".$resta_comision."<br>".
+						// " monto_pago_cobrador: ".$monto_pago_cobrador." monto_pago_vendedor_real: ".$monto_pago_vendedor_real."<br>".
+						// " omision vendedor: ".$comision_vendedor." totalAbonado: ".$totalAbonado." primerAportacion: ".$primerAportacion."<br>".
+						// " idContrato: ". $contrato ->id."<br>-----------------------------------------<br>";
 
-					$nombreConcepto = "- Contrato. ".$rowCom_venta['nombreCliente']." (".$rowCom_venta['folio'].")";
+						$totalComisionVentas += $monto = $monto_pago_vendedor_real;
 
-					/**
-					 * Insert detalle_nomina de los pagos de
-					 * los contratos
-					 */
-					if ($monto > 0)
-						$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
-																		"cantidad", "monto", "tipo", "idUsuario", "idSucursal"), "iisidiii")->execute();
+						$nombreConcepto = "- Contrato. ".$rowCom_venta['nombreCliente']." (".$rowCom_venta['folio'].")";
+
+						/**
+						 * Insert detalle_nomina de los pagos de
+						 * los contratos
+						 */
+						if ($monto > 0)
+						{
+							$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
+																			"cantidad", "monto", "tipo", "idUsuario", "idSucursal"), "iisidiii")->execute();
+							$query->table("detalle_pagos_contratos")->update(compact("idNominaVenta"), "i") ->where("id", "=", $rowCom_venta['id_dpc'], "i")->limit(1) ->execute();
+						}
+					}
 				}
 
 				/**
@@ -165,7 +192,7 @@
 				 * por la cobranza
 				 */
 				$rowComisionesCobranza=$query->table("detalle_pagos_contratos AS dpc")
-											->select("dpc.monto AS monto, con.folio AS folio,
+											->select("dpc.monto AS monto, dpc.idNominaCobranza, dpc.id AS id_dpc, con.folio AS folio,
 													  dpc.tasaComisionCobranza AS tasaComisionCobranza,
 													  CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente")
 											->leftJoin("contratos AS con", "dpc.idContrato", "=", "con.id")
@@ -177,30 +204,39 @@
 				$totalComisionCobranza = 0;
 				$idConcepto = 2;
 				$cantidad = 1;
+				// var_dump($rowComisionesCobranza);
 				foreach ($rowComisionesCobranza as $rowCom_cobranza)
 				{
-					$montoPago 				= $rowCom_cobranza['monto'];
-					$tasaCom_Cobranza 		= $rowCom_cobranza['tasaComisionCobranza'];
-					$tasa_100 				= $tasaCom_Cobranza / 100;
-			        $monto_pago_cobrador 	= $montoPago * $tasa_100;
-					$totalComisionCobranza	+= $monto = $monto_pago_cobrador;
+					// var_dump($rowCom_cobranza['idNominaCobranza']);
+					if ($rowCom_cobranza['idNominaCobranza'] == 0)
+					{
+						$montoPago 				= $rowCom_cobranza['monto'];
+						$tasaCom_Cobranza 		= $rowCom_cobranza['tasaComisionCobranza'];
+						$tasa_100 				= $tasaCom_Cobranza / 100;
+				        $monto_pago_cobrador 	= $montoPago * $tasa_100;
+						$totalComisionCobranza	+= $monto = $monto_pago_cobrador;
 
-					$nombreConcepto = "- Cobranza. ".$rowCom_cobranza['nombreCliente']." (".$rowCom_cobranza['folio'].")";
-
-					/**
-					 * Insert detalle_nomina de los pagos de
-					 * la cobranza diaria
-					 */
-					 if ($monto > 0)
-						$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
-																		"cantidad", "monto", "tipo", "idUsuario", "idSucursal"), "iisidiii")->execute();
+						$nombreConcepto = "- Cobranza. ".$rowCom_cobranza['nombreCliente']." (".$rowCom_cobranza['folio'].")";
+						// echo "detalle_pagos_contrato id: ".$rowCom_venta['id_dpc']." idNominaCobranza': ".$rowCom_cobranza['idNominaCobranza'];
+						/**
+						 * Insert detalle_nomina de los pagos de
+						 * la cobranza diaria
+						 */
+						 if ($monto > 0)
+						 {
+							$query->table("detalle_nomina")->insert(compact("idNomina", "idConcepto", "nombreConcepto",
+																			"cantidad", "monto", "tipo", "idUsuario", "idSucursal"), "iisidiii")->execute();
+							$query->table("detalle_pagos_contratos")->update(compact("idNominaCobranza"), "i") ->where("id", "=", $rowCom_cobranza['id_dpc'], "i")->limit(1) ->execute();
+						}
+					}
 				}
+
                 $InfoData[] = array(
 					'idNomina'				=> $idNomina,
 					'idUsuario'				=> $nomina['idUsuario'],
 					'idSucursal'			=> $idSucursal,
                     'nombres'				=> $nomina['nombres'],
-                    'aportaciones'			=> "$".number_format($totalAportaciones[0]['suma'],2,".",","),
+                    'aportaciones'			=> "$".number_format($totalAportaciones,2,".",","),
 					'comisionVentas'		=> "$".number_format($totalComisionVentas,2,".",","),
 					'comisionCobranza'		=> "$".number_format($totalComisionCobranza,2,".",",")
 				);
