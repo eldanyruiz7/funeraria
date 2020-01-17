@@ -70,13 +70,12 @@
 		 * Select contratos con clase query
 		 */
 		$resContratos 		= $query->table("contratos AS c")
-									->select("c.id, CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente,
+									->select("c.id, CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente, c.precio,
+											c.descuentoDuplicacionInversion, c.descuentoCambioFuneraria, c.descuentoAdicional, c.primerAnticipo,
 											c.idFallecido, CONCAT(dif.nombres, ' ', dif.apellidop, ' ', dif.apellidom) AS nombreDifunto,
 											c.idFactura, c.enCurso, c.folio, c.motivoCancelado, c.fechaCreacion, c.frecuenciaPago AS idFrecuenciaPago, cfp.clase AS frecuenciaPago,
-											(c.Precio - c.descuentoDuplicacionInversion - c.descuentoCambioFuneraria - c.descuentoAdicional) AS costoTotal,
+											(c.precio - c.descuentoDuplicacionInversion - c.descuentoCambioFuneraria - c.descuentoAdicional) AS costoTotal,
 											c.precioAportacion AS aportacion, (IFNULL(SUM(dpc.monto),0) + c.primerAnticipo) AS totalAbonado,
-											((c.Precio - c.descuentoDuplicacionInversion - c.descuentoCambioFuneraria - c.descuentoAdicional)
-											- (IFNULL(SUM(dpc.monto),0) + c.primerAnticipo)) AS saldo,
 											IFNULL(MAX(dpc.fechaCreacion),c.fechaPrimerAportacion) AS fechaUltimoAbono")
 									->leftJoin("clientes AS cli", "c.idTitular", "=", "cli.id")
 									->leftJoin("cat_difuntos AS dif", "c.idFallecido", "=", "dif.id")
@@ -87,7 +86,7 @@
 									->where("c.activo", "=", 1, "i")
 									->groupBy("c.id")
 									->execute(FALSE, RETURN_OBJECT);
-
+									// echo $query ->lastStatement()."<br>";
         if ($query->num_rows() == 0)
         {
             $json_data = [
@@ -144,6 +143,7 @@
                                                 <i class="ace-icon fa fa-pencil-square-o bigger-130"></i>
                                             </a>
                                         </div>';
+				$saldo = ($Contrato->precio - $Contrato->descuentoDuplicacionInversion - $Contrato->descuentoCambioFuneraria - $Contrato->descuentoAdicional) - $Contrato->totalAbonado;
                 $InfoData[] = array(
                     'id'                =>str_pad($Contrato->id, 9, "0", STR_PAD_LEFT),
                     'folio'             => $Contrato->folio,
@@ -151,7 +151,7 @@
                     'precio'            => "$".number_format($Contrato->costoTotal,2,".",","),
                     'precioAportacion'  => "$".number_format($Contrato->aportacion,2,".",","),
                     'abonado'           => "$".number_format($Contrato->totalAbonado,2,".",","),
-                    'resta'             => "$".number_format($Contrato->saldo,2,".",","),
+                    'resta'             => "$".number_format($saldo,2,".",","),
                     'nombreDifunto'     => strlen($Contrato->nombreDifunto) > 0 ? $Contrato->nombreDifunto : '<span class="label label-white middle">No asignado</span>',
                     'nombresTitular'    => $Contrato->nombreCliente,
                     'frecuenciaPago'    => $Contrato->frecuenciaPago,

@@ -17,16 +17,15 @@ else
 	$usuario 	= new usuario($idUsuario,$mysqli);
 	$query 		= new Query();
 	$permiso 	= $usuario->permiso("agregarDifunto",$mysqli);
+	$nombre                        	= $_POST['nombre'];
+	$response 	= array(
+		"status"                    => 0
+	);
 	if (!$permiso)
 	{
 		$response['mensaje'] = "No se pudo completar la información. Usuario con permisos insuficientes para realizar esta acción";
-		$response['status'] = 0;
 		responder($response, $mysqli);
 	}
-	$nombre                        	= $_POST['nombre'];
-	$response 	= array(
-		"status"                    => 1
-	);
 	$idUsuario      				= $sesion->get('id');
 	$resultSuc = $query ->table('cat_usuarios')->select("idSucursal")
 						->where("id", "=", $idUsuario, "i")->limit(1)
@@ -36,7 +35,6 @@ else
 	if (!$nombre = validarFormulario('s',$nombre,0))
 	{
 		$response['mensaje'] 		= "El campo Nombre no cumple con el formato esperado y no puede estar en blanco";
-		$response['status'] 		= 0;
 		$response['focus'] 			= 'inputNuevaCausaDeceso';
 		responder($response, $mysqli);
 	}
@@ -50,7 +48,6 @@ else
 		if ($query->num_rows())
 		{
 			$response['mensaje'] 	= "No se puede agregar esta causa de deceso. Ya existe registrada una con el mismo nombre. Elije otra distinta";
-			$response['status'] 	= 0;
 			responder($response, $mysqli);
 		}
 		else
@@ -75,7 +72,6 @@ else
 			{
 				$query ->rollback();
 				$response['mensaje']= $query ->mensaje();
-				$response['status']	= 0;
 				responder($response, $mysqli);
 			}
 		}
@@ -84,7 +80,6 @@ else
 	{
 		$query ->rollback();
 		$response['mensaje'] 		= $query ->mensaje();
-		$response['status'] 		= 0;
 		responder($response, $mysqli);
 	}
 }

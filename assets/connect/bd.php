@@ -3,7 +3,7 @@ date_default_timezone_set('America/Mexico_City');
     $servidor       = 'localhost';
     $usr            = 'root';
     $contrasena     = '12345';
-    $bd             = 'funerariadb';
+    $bd             = 'funerariadb_prod';
 
     $mysqli         = new mysqli($servidor , $usr , $contrasena , $bd);
     $mysqli->set_charset("utf8");
