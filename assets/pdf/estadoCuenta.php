@@ -1,4 +1,6 @@
 <?php
+	// error_reporting(E_ALL);
+	ini_set('display_errors', '0');
     require_once ('../connect/bd.php');
     require_once ("../connect/sesion.class.php");
     $sesion = new sesion();
@@ -88,7 +90,7 @@
             $pdf->Cell(47,$renglon,utf8_decode(date("d-m-Y h:i:s a")),1,0,'C',true);
             $pdf->SetFont('Courier','B',10.5);
             $pdf->Cell(22,$renglon,utf8_decode('DIRECCIÓN:'),$margen,0,'L');
-            $pdf->SetFont('Courier','',7.5);
+            $pdf->SetFont('Times','',7.5);
             $pdf->Cell(107,$renglon,utf8_decode($contrato->domicilio),1,1,'C',true);
             $pdf->SetFont('Courier','B',10.5);
             $pdf->Cell(13,$renglon,utf8_decode('PLAN:'),$margen,0,'L');
@@ -151,7 +153,7 @@
 
             $pdf->SetFont('Courier','B',10.5);
             $pdf->Cell(28,$renglon,utf8_decode('COMENTARIOS:'),$margen,0,'L');
-            $pdf->SetFont('Courier','',9.5);
+            $pdf->SetFont('Times','',7.5);
             $pdf->Cell(22,$renglon,utf8_decode($contrato->comentarios_estatus($mysqli,FALSE)),1,1,'L');
             if (strlen($contrato->observaciones) > 0) {
                 // code...
