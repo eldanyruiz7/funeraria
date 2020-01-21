@@ -7,7 +7,7 @@
     require_once ("../php/funcionesVarias.php");
     if( logueado($idSesion,$idUsuario,$mysqli) == false || $idSesion == false)
     {
-        header("Location: salir.php");
+		header("Location: ".dirname(__FILE__)."../../salir.php");
     }
     else
     {
@@ -30,7 +30,7 @@
 		$res_noSucursal = $mysqli->query($sql);
 		$row_noSucursal = $res_noSucursal->fetch_assoc();
 		$idSucursal     = $row_noSucursal['idSucursal'];
-		
+
         $response = array(
             "status"                    => 1
         );
