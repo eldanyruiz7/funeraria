@@ -7,7 +7,7 @@ require_once ("../connect/usuarioLogeado.php");
 require_once ("../php/funcionesVarias.php");
 if( logueado($idSesion,$idUsuario,$mysqli) == false || $idSesion == false)
 {
-	header("Location: salir.php");
+	header("Location: ".dirname(__FILE__)."../../salir.php");
 }
 else
 {
