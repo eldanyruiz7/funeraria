@@ -69,6 +69,9 @@
 		/**
 		 * Select contratos con clase query
 		 */
+		// $campos = array(
+		// 		array("field" => "c.id")
+		// )
 		$resContratos 		= $query->table("contratos AS c")
 									->select("c.id, CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente,
 											c.idFallecido, CONCAT(dif.nombres, ' ', dif.apellidop, ' ', dif.apellidom) AS nombreDifunto,
@@ -83,7 +86,7 @@
 									->leftJoin("detalle_pagos_contratos AS dpc", "c.id", "=", "dpc.idContrato")->and("dpc.activo", "=", 1)
 
 									->leftJoin("cat_frecuencias_pago AS cfp", "cfp.id", "=", "c.frecuenciaPago")
-									->where("c.enCurso", "=", 1 , "i")
+									//->where("c.enCurso", "=", 1 , "i")
 									//->and()
 									//->where("c.activo", "=", 1, "i")
 									->groupBy("c.id")
