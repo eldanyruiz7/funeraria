@@ -16,8 +16,7 @@ else
 	require ("../php/query.class.php");
 	$query 				= new Query();
 	$usuario 			= new usuario($idUsuario,$mysqli);
-	$response 			= array(
-		"status"        	=> 0 );
+	$response 			= array("status" => 0);
 		$permiso = $usuario->permiso("agregarCompra",$mysqli);
 		if (!$permiso)
 		{
@@ -25,8 +24,8 @@ else
 			responder($response, $mysqli);
 		}
 
-		$idUsuario      				= $sesion->get('id');
-		$resultSuc = $query ->table('cat_usuarios')->select("idSucursal")
+		$idUsuario      = $sesion->get('id');
+		$resultSuc 		= $query ->table('cat_usuarios')->select("idSucursal")
 							->where("id", "=", $idUsuario, "i")->limit(1)
 							->execute();
 		$idSucursal     				= $resultSuc[0]['idSucursal'];

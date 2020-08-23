@@ -13,8 +13,11 @@
     {
         require "../php/responderJSON.php";
         require ("../php/usuario.class.php");
-        $usuario = new usuario($idUsuario,$mysqli);
-        $permiso = $usuario->permiso("agregarContrato",$mysqli);
+		require ("../php/query.class.php");
+		$query 		= new Query();
+        $usuario 	= new usuario($idUsuario,$mysqli);
+        $permiso 	= $usuario->permiso("agregarContrato",$mysqli);
+		$response 	= array("status" => 0);
         if (!$permiso)
         {
             $response['mensaje'] = "No se pudo guardar este registro. Usuario con permisos insuficientes para realizar esta acción";
@@ -39,42 +42,35 @@
         $fechaAportacion                = $_POST['fechaAportacion'];
         $idVendedor                     = $_POST['vendedor'];
         $observaciones                  = $_POST['observaciones'];
-        $response = array(
-            "status"                    => 1
-        );
+
         $folio = validarFormulario('s',$folio);
         if (!$idCliente = validarFormulario('i',$idCliente))
         {
             $response['mensaje'] = "El formato del id del cliente no es el correcto. Elige un cliente de la lista para asignarlo a este contrato";
-            $response['status'] = 0;
             $response['focus'] = 'nombre';
             responder($response, $mysqli);
         }
         if (!$domicilio1 = validarFormulario('s',$domicilio1,0))
         {
             $response['mensaje'] = "El campo domicilio no puede estar en blanco";
-            $response['status'] = 0;
             $response['focus'] = 'domicilio1';
             responder($response, $mysqli);
         }
         if (!$domicilio2 = validarFormulario('s',$domicilio2,0))
         {
             $response['mensaje'] = "El campo domicilio no puede estar en blanco";
-            $response['status'] = 0;
             $response['focus'] = 'domicilio2';
             responder($response, $mysqli);
         }
         if (!$cp = validarFormulario('s',$cp,0))
         {
             $response['mensaje'] = "El campo código postal no puede estar en blanco";
-            $response['status'] = 0;
             $response['focus'] = 'cp';
             responder($response, $mysqli);
         }
         if (!$idEstado = validarFormulario('i',$idEstado))
         {
             $response['mensaje'] = "El formato del id del estado o es el correcto. Elige un estado";
-            $response['status'] = 0;
             $response['focus'] = 'estado';
             responder($response, $mysqli);
         }
@@ -82,7 +78,6 @@
         if (!$idPlan = validarFormulario('i',$idPlan))
         {
             $response['mensaje'] = "Debes elegir un plan funerario para este contrato";
-            $response['status'] = 0;
             $response['focus'] = 'plan';
             responder($response, $mysqli);
         }
@@ -90,7 +85,6 @@
         if (!$frecuencia = validarFormulario('i',$frecuencia))
         {
             $response['mensaje'] = "El formato para la frecuencia de pago no es el correcto";
-            $response['status'] = 0;
             $response['focus'] = 'frecuencia';
             responder($response, $mysqli);
         }
@@ -105,7 +99,6 @@
         if (!$anticipo = validarFormulario('i',$anticipo))
         {
             $response['mensaje'] = "El campo Anticipo no puede estar en blanco ni en cero (0)";
-            $response['status'] = 0;
             $response['focus'] = 'anticipo';
             responder($response, $mysqli);
         }
@@ -113,7 +106,6 @@
         if (!$aportacion = validarFormulario('i',$aportacion))
         {
             $response['mensaje'] = "El campo aportación no puede estar en blanco ni en cero (0)";
-            $response['status'] = 0;
             $response['focus'] = 'aportacion';
             responder($response, $mysqli);
         }
@@ -121,14 +113,12 @@
         if (!$fechaAportacion = validarFormulario('d',$fechaAportacion))
         {
             $response['mensaje'] = "Elige una fecha válida. El formato de la fecha no es el correcto.";
-            $response['status'] = 0;
             $response['focus'] = 'fechaAportacion';
             responder($response, $mysqli);
         }
         if (!$idVendedor = validarFormulario('i',$idVendedor))
         {
             $response['mensaje'] = "El formato del id del vendedor o es el correcto. Elige uno correcto";
-            $response['status'] = 0;
             $response['focus'] = 'vendedor';
             responder($response, $mysqli);
         }
@@ -139,11 +129,14 @@
         if (($anticipo + $aportacion + $descuentoDuplicacionInversion + $descuentoCambioFuneraria + $descuentoAdicional) > $precio)
         {
             $response['mensaje'] = "No se puede guardar porque la suma de la inversión más la primera aportación más los descuentos son mayores al costo total del contrato.";
-            $response['status'] = 0;
             $response['focus'] = 'precio';
             responder($response, $mysqli);
         }
         $idUsuario      = $sesion->get('id');
+		$idSucursal 	= $query ->table("cat_usuarios")	->select("idSucursal AS id")
+														->where("id", "=", $idUsuario, "i")
+														->limit(1)->execute(FALSE, OBJ);
+		echo "ID=".$idSucursal->id;die;
         $sql            = "SELECT idSucursal FROM cat_usuarios WHERE id = $idUsuario LIMIT 1";
         $res_noSucursal = $mysqli->query($sql);
         $row_noSucursal = $res_noSucursal->fetch_assoc();

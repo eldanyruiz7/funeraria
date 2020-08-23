@@ -84,7 +84,8 @@
 									->leftJoin("cat_frecuencias_pago AS cfp", "cfp.id", "=", "c.frecuenciaPago")
 									->where("c.enCurso", "=", 1 , "i")->and()
 									->where("c.activo", "=", 1, "i")
-									->groupBy("c.id")
+									->groupBy("c.id")//->limit(1,10)
+									->orderBy("c.id", "DESC")
 									->execute(FALSE, RETURN_OBJECT);
 									// echo $query ->lastStatement()."<br>";
         if ($query->num_rows() == 0)
