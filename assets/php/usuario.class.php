@@ -41,7 +41,7 @@ class usuario
             $this ->id                      = $idUsuario;
             $this ->nombre                  = $nombre;
             $this ->apellidop               = $apellidop;
-            $this ->apellidom                  = $apellidom;
+            $this ->apellidom               = $apellidom;
             $this ->nombres                 = $nombre." ".$apellidop." ".$apellidom;
             $this ->direccion1              = $direccion1;
 			$this ->direccion2              = $direccion2;
@@ -264,60 +264,107 @@ class usuario
     public function obtener_cobranza_cobrador($mysqli, $comision, $fechaInicio = FALSE, $fechaFinal = FALSE)
     {
         $idUsuario      = $this->id;
-        $comision       = $comision / 100;
         $fechaInicio    = $fechaInicio == FALSE ? date('Y-m-d') : $fechaInicio;
         $fechaFinal     = $fechaFinal == FALSE ? date('Y-m-d') : $fechaFinal;
         $fechaInicio    .= " 00:00:00";
         $fechaFinal     .= " 23:59:59";
-        $sql = "SELECT  IFNULL(SUM(detalle_pagos_contratos.monto),0) AS monto
+        $sql = "SELECT  IFNULL(SUM(detalle_pagos_contratos.monto),0) AS monto,
+				detalle_pagos_contratos.tasaComisionCobranza
                 FROM detalle_pagos_contratos
                 INNER JOIN folios_cobranza_asignados
                 ON detalle_pagos_contratos.idFolio_cobranza = folios_cobranza_asignados.id
                 WHERE folios_cobranza_asignados.asignado <> 0
                 AND folios_cobranza_asignados.idUsuario_asignado = $idUsuario
                 AND detalle_pagos_contratos.activo = 1
-                AND detalle_pagos_contratos.fechaCreacion BETWEEN '$fechaInicio' AND '$fechaFinal'";
+                AND detalle_pagos_contratos.fechaCobro BETWEEN '$fechaInicio' AND '$fechaFinal'";
         $res = $mysqli->query($sql);
         $row = $res->fetch_assoc();
+		$comision       = $row['tasaComisionCobranza'] / 100;
         $array['cobrado'] = $row['monto'];
         $array['comision'] = $row['monto'] * $comision;
         return $array;
     }
-    public function obtener_cobranza_vendedor($query, $fechaInicio = FALSE, $fechaFinal = FALSE)
+    public function obtener_cobranza_vendedor($mysqli, $query, $fechaInicio = FALSE, $fechaFinal = FALSE)
     {
         require_once "../php/contrato.class.php";
-        $totalCobranza  = 0;
-        $comision_ganada = 0;
+        // $totalCobranza  = 0;
+        // $comision_ganada = 0;
         $idUsuario      = $this->id;
         $fechaInicio    = $fechaInicio == FALSE ? date('Y-m-d') : $fechaInicio;
         $fechaFinal     = $fechaFinal == FALSE ? date('Y-m-d') : $fechaFinal;
         $fechaInicio    .= " 00:00:00";
         $fechaFinal     .= " 23:59:59";
-        $sql = "SELECT contratos.id AS id
-                FROM contratos
-                WHERE contratos.activo = 1
-                AND contratos.idVendedor = $idUsuario
-                AND contratos.fechaCreacion BETWEEN '$fechaInicio' AND '$fechaFinal'";
-        $res = $mysqli->query($sql);
-        while ($row = $res->fetch_assoc())
-        {
-            $idContrato             = $row['id'];
-            $contrato               = new Contrato($idContrato, $query);
-            $abonado_contrato       = $contrato->totalAbonado($mysqli);
-            $costo_total_contrato   = $contrato->costoTotal;
-            $comision_vendedor      = $contrato->comision_vendedor();
-            $inversion              = $contrato->anticipo;
-            if ($inversion > $comision_vendedor) {
-                $diferencia = $inversion - $comision_vendedor;
-                $totalCobranza += $diferencia;
-            }
-            $abonado_por_cobranza   = $abonado_contrato - $inversion;
-            $abonado_por_cobranza   = $abonado_por_cobranza * 0.86;
-            $total_ganado_comision_este_contrato =  $abonado_por_cobranza + $inversion;
-            $comision_ganada        += $comision_vendedor > $total_ganado_comision_este_contrato ? $total_ganado_comision_este_contrato : $comision_vendedor;
-        }
-        $array['totalCobranza'] = $totalCobranza;
-        $array['totalComisionGanada'] = $comision_ganada;
+
+		/**
+		 * Obtener el total
+		 * de las comisiones
+		 * por los pagos de las primeras aportaciones
+		 */
+		$rowAportaciones = $query 	->table("contratos AS con")->select("con.id, con.primerAnticipo AS anticipo, con.folio AS folio, con.idNomina,
+																		CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente")
+									->leftJoin("clientes AS cli", "con.idTitular", "=", "cli.id")
+									->where("fechaCreacion", "BETWEEN", "'$fechaInicio' AND '$fechaFinal'", "ss")->and()
+									->where("con.idNomina", "=", 0, "i")->and()
+									->where("idVendedor", "=", $idUsuario, "i")->execute();
+		$totalAportaciones = 0;
+		foreach ($rowAportaciones as $rowAportacion)
+		{
+			$contrato 				= new Contrato($rowAportacion['id'], $query);
+			$comision_vendedor 		= $contrato->comision_vendedor();
+			$total_pagado_vendedor 	= $contrato->total_pagado_vendedor($query);
+			$resta_comision 		= $comision_vendedor - $total_pagado_vendedor;
+			$nombreConcepto 		= "- 1° Aport. ".$rowAportacion['nombreCliente']." (".$rowAportacion['folio'].")";
+			$monto 					= $rowAportacion['anticipo'] > $resta_comision ? $resta_comision :  $rowAportacion['anticipo'];
+
+			if ($monto > 0)
+			{
+				$totalAportaciones += $monto;
+			}
+		}
+
+		/**
+		 * Obtener el total
+		 * de las comisiones
+		 * por los pagos de los contratos
+		 */
+		$rowComisionesVentas=$query	->table("detalle_pagos_contratos AS dpc")
+									->select( "dpc.monto AS monto, dpc.idNominaVenta, dpc.id AS id_dpc, con.folio AS folio,
+											   dpc.tasaComisionCobranza AS tasaComisionCobranza,
+											   con.id AS idContrato,
+											   CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente")
+									->innerJoin("contratos AS con", "dpc.idContrato", "=", "con.id")
+									->leftJoin("clientes AS cli", "con.idTitular", "=", "cli.id")
+									->where("dpc.fechaCobro", "BETWEEN", "'$fechaInicio' AND '$fechaFinal'", "ss")->and()
+									->where("con.idVendedor", "=", $idUsuario, "i")->and()
+									->where("dpc.activo", "=", 1, "i")->execute();
+
+		$totalComisionVentas = 0;
+
+		foreach ($rowComisionesVentas as $rowCom_venta)
+		{
+			$contrato 				= new Contrato($rowCom_venta['idContrato'], $query);
+			$montoPago 				= $rowCom_venta['monto'];
+			$tasaCom_Cobranza 		= $rowCom_venta['tasaComisionCobranza'];
+			$tasa_100 				= $tasaCom_Cobranza / 100;
+			$monto_pago_cobrador 	= $montoPago * $tasa_100;
+			$monto_pago_vendedor 	= $montoPago - $monto_pago_cobrador;
+			$totalAbonado 			= $contrato ->totalAbonado($mysqli);
+			$comision_vendedor 		= $contrato->comision_vendedor();
+			$total_pagado_vendedor 	= $contrato->total_pagado_vendedor($query);
+			$primerAportacion		= $contrato->anticipo;
+			$resta_comision 		= $comision_vendedor - $total_pagado_vendedor;
+			if ($resta_comision > 0)
+				$monto_pago_vendedor_real = $monto_pago_vendedor < $resta_comision ? $monto_pago_vendedor : $resta_comision;
+			else
+				$monto_pago_vendedor_real = 0;
+
+			$totalComisionVentas += $monto = $monto_pago_vendedor_real;
+
+			$nombreConcepto = "- Contrato. ".$rowCom_venta['nombreCliente']." (".$rowCom_venta['folio'].")";
+		}
+
+        $array['totalCobranza'] = 0;//$totalCobranza;
+        $array['totalComisionGanada'] = $totalComisionVentas + $totalAportaciones;
         return $array;
     }
 }

@@ -70,17 +70,28 @@
 		 * Select contratos con clase query
 		 */
 		$resContratos 		= $query->table("contratos AS c")
-									->select("c.id, CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente, c.precio,
-											c.descuentoDuplicacionInversion, c.descuentoCambioFuneraria, c.descuentoAdicional, c.primerAnticipo,
-											c.idFallecido, CONCAT(dif.nombres, ' ', dif.apellidop, ' ', dif.apellidom) AS nombreDifunto,
-											c.idFactura, c.enCurso, c.folio, c.motivoCancelado, c.fechaCreacion, c.frecuenciaPago AS idFrecuenciaPago, cfp.clase AS frecuenciaPago,
-											(c.precio - c.descuentoDuplicacionInversion - c.descuentoCambioFuneraria - c.descuentoAdicional) AS costoTotal,
-											c.precioAportacion AS aportacion, (IFNULL(SUM(dpc.monto),0) + c.primerAnticipo) AS totalAbonado,
-											IFNULL(MAX(dpc.fechaCreacion),c.fechaPrimerAportacion) AS fechaUltimoAbono")
+									->select("c.id, CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente,
+											  c.precio,
+											  c.descuentoDuplicacionInversion,
+											  c.descuentoCambioFuneraria,
+											  c.descuentoAdicional,
+											  c.primerAnticipo,
+											  c.idFallecido,
+											  CONCAT(dif.nombres, ' ', dif.apellidop, ' ', dif.apellidom) AS nombreDifunto,
+											  c.idFactura,
+											  c.enCurso,
+											  c.folio,
+											  c.motivoCancelado,
+											  c.fechaCreacion,
+											  c.frecuenciaPago AS idFrecuenciaPago,
+											  cfp.clase AS frecuenciaPago,
+											  (c.precio - c.descuentoDuplicacionInversion - c.descuentoCambioFuneraria - c.descuentoAdicional) AS costoTotal,
+											  c.precioAportacion AS aportacion,
+											  (IFNULL(SUM(dpc.monto),0) + c.primerAnticipo) AS totalAbonado,
+											  IFNULL(MAX(dpc.fechaCreacion),c.fechaPrimerAportacion) AS fechaUltimoAbono")
 									->leftJoin("clientes AS cli", "c.idTitular", "=", "cli.id")
 									->leftJoin("cat_difuntos AS dif", "c.idFallecido", "=", "dif.id")
 									->leftJoin("detalle_pagos_contratos AS dpc", "c.id", "=", "dpc.idContrato")->and("dpc.activo", "=", 1)
-
 									->leftJoin("cat_frecuencias_pago AS cfp", "cfp.id", "=", "c.frecuenciaPago")
 									->where("c.enCurso", "=", 1 , "i")->and()
 									->where("c.activo", "=", 1, "i")

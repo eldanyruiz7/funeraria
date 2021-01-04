@@ -58,13 +58,13 @@
         $response['descuentoDuplicacionInversion'] = "$".number_format($contrato->descuentoDuplicacionInversion,2,".",",");
         $response['descuentoCambioFuneraria'] = "$".number_format($contrato->descuentoCambioFuneraria,2,".",",");
         $response['descuentoAdicional']     = "$".number_format($contrato->descuentoAdicional,2,".",",");
-        // $response['html_hist']              = "";
+        $response['html_hist']              = "";
 
         $response['status']                 = 1;
 
         $sql = "SELECT
                     detalle_pagos_contratos.id              AS idPago,
-                    detalle_pagos_contratos.fechaCreacion   AS fechaCreacion,
+                    detalle_pagos_contratos.fechaCobro      AS fechaCreacion,
                     detalle_pagos_contratos.monto           AS monto,
                     cat_formas_pago.nombre                  AS formaPago,
                     folios_cobranza_asignados.folio         AS folio
@@ -74,11 +74,31 @@
                 INNER JOIN folios_cobranza_asignados
                 ON detalle_pagos_contratos.idFolio_cobranza = folios_cobranza_asignados.id
                 WHERE detalle_pagos_contratos.idContrato = $idContrato
-                AND detalle_pagos_contratos.activo = 1 ORDER BY detalle_pagos_contratos.id ASC";
+                AND detalle_pagos_contratos.activo = 1 ORDER BY detalle_pagos_contratos.id DESC";
         $res_pagos = $mysqli->query($sql);
         $abonado = $contrato->anticipo;
         $saldo = $contrato->costoTotal - $abonado;
-        $response['html_hist']              = " <tr>";
+        if ($res_pagos->num_rows > 0)
+        {
+            while ($row_pagos = $res_pagos->fetch_assoc())
+            {
+                $saldo -= $row_pagos['monto'];
+                $response['html_hist']             .= " <tr>";
+                $response['html_hist']             .= "     <td>".str_pad($row_pagos['idPago'], 9, "0", STR_PAD_LEFT)."</td>";
+                $response['html_hist']             .= "     <td>".$row_pagos['folio']."</td>";
+                $response['html_hist']             .= "     <td nowrap='nowrap'>".date_format(date_create($row_pagos['fechaCreacion']),"d-m-Y h:i:s a")."</td>";
+                $response['html_hist']             .= "     <td class='text-right'>$".number_format($row_pagos['monto'],2,".",",")."</td>";
+                $response['html_hist']             .= "     <td class='text-right'>$".number_format($saldo,2,".",",")."</td>";
+                $response['html_hist']             .= "     <td>".$row_pagos['formaPago']."</td>";
+                $response['html_hist']             .= '     <td class="text-center">
+                                                                <a href="assets/pdf/recibo.php?idRecibo='.$row_pagos['idPago'].'" target="_blank" class="orange pointer" data-rel="tooltip" title="Imprimir recibo de pago">
+                            									    <i class="ace-icon fa fa-print bigger-130"></i>
+                            									</a>
+                                                            </td>';
+                $response['html_hist']             .= " </tr>";
+            }
+        }
+		$response['html_hist']             .= " <tr>";
         $response['html_hist']             .= "     <td>Inversión</td>";
         $response['html_hist']             .= "     <td>--</td>";
         $response['html_hist']             .= "     <td>".$response['fechaCreacion']."</td>";
@@ -91,26 +111,6 @@
         </a>
         </td>';
         $response['html_hist']             .= " </tr>";
-        if ($res_pagos->num_rows > 0)
-        {
-            while ($row_pagos = $res_pagos->fetch_assoc())
-            {
-                $saldo -= $row_pagos['monto'];
-                $response['html_hist']             .= " <tr>";
-                $response['html_hist']             .= "     <td>".str_pad($row_pagos['idPago'], 9, "0", STR_PAD_LEFT)."</td>";
-                $response['html_hist']             .= "     <td>".$row_pagos['folio']."</td>";
-                $response['html_hist']             .= "     <td>".date_format(date_create($row_pagos['fechaCreacion']),"d-m-Y h:i:s a")."</td>";
-                $response['html_hist']             .= "     <td class='text-right'>$".number_format($row_pagos['monto'],2,".",",")."</td>";
-                $response['html_hist']             .= "     <td class='text-right'>$".number_format($saldo,2,".",",")."</td>";
-                $response['html_hist']             .= "     <td>".$row_pagos['formaPago']."</td>";
-                $response['html_hist']             .= '     <td class="text-center">
-                                                                <a href="assets/pdf/recibo.php?idRecibo='.$row_pagos['idPago'].'" target="_blank" class="orange pointer" data-rel="tooltip" title="Imprimir recibo de pago">
-                            									    <i class="ace-icon fa fa-print bigger-130"></i>
-                            									</a>
-                                                            </td>';
-                $response['html_hist']             .= " </tr>";
-            }
-        }
         responder($response, $mysqli);
     }
 ?>

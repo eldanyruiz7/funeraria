@@ -37,7 +37,8 @@
         $sql = "SELECT
                     detalle_pagos_contratos.id                  AS idRecibo,
                     detalle_pagos_contratos.idContrato          AS idContrato,
-                    detalle_pagos_contratos.fechaCreacion       AS fechaCreacion,
+					folios_cobranza_asignados.fechaCreacion     AS fechaCreacion,
+                    detalle_pagos_contratos.fechaCobro       	AS fechaCobro,
                     detalle_pagos_contratos.monto               AS monto,
                     detalle_pagos_contratos.usuario_cobro       AS idUsuarioCobro,
                     detalle_pagos_contratos.idFolio_cobranza    AS idFolioCobranza,
@@ -59,7 +60,7 @@
                 ON folios_cobranza_asignados.idSucursal         = cat_sucursales.id
                 INNER JOIN contratos
                 ON detalle_pagos_contratos.idContrato = contratos.id
-                WHERE detalle_pagos_contratos.fechaCreacion BETWEEN '$fInicio' AND '$fFin'";
+                WHERE detalle_pagos_contratos.fechaCobro BETWEEN '$fInicio' AND '$fFin'";
                 // echo $sql;
         $res_ = $mysqli->query($sql);
         $num = $res_->num_rows;
@@ -75,6 +76,8 @@
             {
                 $fechaReg = date_create($row['fechaCreacion']);
                 $fechaReg = date_format($fechaReg, 'd/m/Y H:i:s');
+				$fechaCobro = date_create($row['fechaCobro']);
+                $fechaCobro = date_format($fechaCobro, 'd/m/Y H:i:s');
                 $idVendedor = $row['idVendedor'];
                 $sql = "SELECT nombres, apellidop, apellidom FROM cat_usuarios WHERE id = $idVendedor LIMIT 1";
                 $res_vend = $mysqli->query($sql);
@@ -94,7 +97,8 @@
                     'idContrato'        => str_pad($row['idContrato'], 10, "0", STR_PAD_LEFT),
                     'folioContrato'     => $row['folioContrato'],
                     'recibo'            => $row['folioCobranza'],
-                    'fechaCreacion'     => $fechaReg,
+					'fechaCreacion'     => $fechaReg,
+                    'fechaCobro'        => $fechaCobro,
                     'usuarioCobro'      => $row['nombreUsuarioCobro']." ".$row['apellidopUsuarioCobro']." ".$row['apellidomUsuarioCobro'],
                     'vendedor'          => $nombreVendedor,
                     'sucursal'          => $row['nombreSucursal'].". ".$row['direccionSucursal'],

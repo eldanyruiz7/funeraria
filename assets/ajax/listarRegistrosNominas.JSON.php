@@ -136,7 +136,7 @@
 													   CONCAT(cli.nombres, ' ', cli.apellidop, ' ', cli.apellidom) AS nombreCliente")
 											->innerJoin("contratos AS con", "dpc.idContrato", "=", "con.id")
 											->leftJoin("clientes AS cli", "con.idTitular", "=", "cli.id")
-											->where("dpc.fechaCreacion", "BETWEEN", "'$fechaInicio' AND '$fechaFin'", "ss")->and()
+											->where("dpc.fechaCobro", "BETWEEN", "'$fechaInicio' AND '$fechaFin'", "ss")->and()
 											->where("con.idVendedor", "=", $nomina['idUsuario'], "i")->and()
 											->where("dpc.activo", "=", 1, "i")->execute();
 
@@ -199,7 +199,7 @@
 											->leftJoin("clientes AS cli", "con.idTitular", "=", "cli.id")
 											->where("dpc.usuario_cobro", "=", $nomina['idUsuario'], "i")->and()
 											->where("dpc.activo", "=", 1, "i")->and()
-											->where("dpc.fechaCreacion", "BETWEEN", "'$fechaInicio' AND '$fechaFin'", "ss")->execute();
+											->where("dpc.fechaCobro", "BETWEEN", "'$fechaInicio' AND '$fechaFin'", "ss")->execute();
 				// echo "<br>".$query->lastStatement();
 				$totalComisionCobranza = 0;
 				$idConcepto = 2;

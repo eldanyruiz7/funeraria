@@ -19,6 +19,7 @@
         $monto                          = $_POST['monto'];
         $formaPago                      = $_POST['formaPago'];
         $idFolio                        = $_POST['idFolio'];
+		$fechaCobro						= $_POST['fechaCobro'];
         $response = array(
             "status"                    => 1
         );
@@ -93,14 +94,14 @@
             }
             $idContrato = $contrato->id;
             $sql = "INSERT INTO detalle_pagos_contratos
-                        (idContrato, monto, tasaComisionCobranza, usuario_cobro, usuario_registro, formaPago, idFolio_cobranza)
-                    VALUES (?,?,?,?,?,?, ?)";
+                        (idContrato, monto, tasaComisionCobranza, usuario_cobro, usuario_registro, formaPago, idFolio_cobranza, fechaCobro)
+                    VALUES (?,?,?,?,?,?,?,?)";
             $prepare_pago = $mysqli->prepare($sql);
             $idRecibo = $row_folio[0]['id'];
 			$idUsuarioCobro = $row_folio[0]['idUsuario_asignado'];
             $tasaComisionCobranza = $row_folio[0]['tasaComisionCobranza'];
             if ($prepare_pago &&
-                $prepare_pago->bind_param("idiiiii",$idContrato, $monto, $tasaComisionCobranza, $idUsuarioCobro, $idUsuario, $formaPago, $idRecibo) &&
+                $prepare_pago->bind_param("idiiiiis",$idContrato, $monto, $tasaComisionCobranza, $idUsuarioCobro, $idUsuario, $formaPago, $idRecibo, $fechaCobro) &&
                 $prepare_pago->execute() &&
                 $prepare_pago->affected_rows > 0)
             {

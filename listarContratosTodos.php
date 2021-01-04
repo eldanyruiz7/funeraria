@@ -131,7 +131,7 @@
 												<th>Titular</th>
 												<th class="text-center">Difunto</th>
 												<th>Frecuencia pago</th>
-												<th class="text-center">Precio $</th>
+												<th class="text-center">Costo $</th>
 												<th class="text-center">Abonado $</th>
 												<th class="text-center">Resta $</th>
 												<th class="text-center">Estado</th>
@@ -191,7 +191,13 @@
 												</select>
 											</div>
 										</div>
+										<div class="form-group divError">
+											<label class="col-sm-4 control-label no-padding-right"> Fecha de cobro: </label>
 
+											<div class="col-sm-8">
+												<input value="<?=date("Y-m-d")?>" type="date" id="fechaCobro" autocomplete="off" name="fechaCobro" class="col-xs-12">
+											</div>
+										</div>
 
 										<div class="form-group divError">
 											<label class="col-sm-4 control-label no-padding-right" for="form-field-1"> Forma de pago: </label>
@@ -578,7 +584,11 @@
 				 $("#btnEliminarModal").attr("disabled",false);
 				 $("#btnEliminarModalCancelar").attr("disabled",false);
    				 console.log(p);
-   			 });
+   			 })
+			 .error(function()
+			 {
+				 mensaje("error", "No hay conexión con el servidor. Revisa tu conexión a internet y vuelve a intentarlo");
+			 });
 			}
 			function reactivarContrato()
 			{
@@ -1088,7 +1098,7 @@
 					}
 			    } );
 				$('[data-rel=tooltip]').tooltip();
-				function agregarPago(idContrato, monto, formaPago, idFolio)
+				function agregarPago(idContrato, monto, formaPago, idFolio, fechaCobro)
 				{
 					icon = $("#btnAgregarPago");
 					iconOriginal = icon.html();
@@ -1097,12 +1107,12 @@
 					$("#selectFormaPago").attr("disabled",true);
 					$("#inputPagaCon").attr("disabled",true);
 					$("#btnCancelarPago").attr("disabled",true);
-					// $("#selectFolio").attr("disabled",true);
+					$("#fechaCobro").attr("disabled",true);
 					$.ajax(
 			        {
 			            method: "POST",
 			            url:"assets/ajax/agregarPagoContrato.php",
-			            data: {idContrato:idContrato,monto:monto,formaPago:formaPago,idFolio:idFolio}
+			            data: {idContrato:idContrato,monto:monto,formaPago:formaPago,idFolio:idFolio, fechaCobro:fechaCobro}
 			        })
 			        .done(function(p)
 			        {
@@ -1132,6 +1142,8 @@
 						$("#selectFormaPago").attr("disabled",false);
 						$("#inputPagaCon").attr("disabled",false);
 						$("#btnCancelarPago").attr("disabled",false);
+						$("#fechaCobro").attr("disabled",false);
+
 						icon.attr("disabled",false);
 
 						console.log(p);
@@ -1261,7 +1273,8 @@
 									monto = $("#inputPagaCon").val();
 									formaPago = $("#selectFormaPago").val();
 									idFolio = $("#selectFolio").val();
-									agregarPago(idContrato,monto,formaPago,idFolio);
+									fechaCobro = $("#fechaCobro").val();
+									agregarPago(idContrato,monto,formaPago,idFolio,fechaCobro);
 								}
 							},
 							"No" :

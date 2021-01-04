@@ -91,7 +91,7 @@
 								<i class="ace-icon fa fa-home home-icon"></i>
 								<a href="index.php">Inicio</a>
 							</li>
-							<li class="active">Reporte de cobranza de vendedores</li>
+							<li class="active">Reporte de comisiones por vendedor</li>
 						</ul><!-- /.breadcrumb -->
 
 					</div>
@@ -99,10 +99,10 @@
 					<div class="page-content">
 						<div class="page-header">
 							<h1>
-								<i class="fa fa-shopping-cart" aria-hidden="true"></i> Reporte de cobranza
+								<i class="fa fa-shopping-cart" aria-hidden="true"></i> Reporte de comisiones
 								<small>
 									<i class="ace-icon fa fa-angle-double-right"></i>
-									Reporte de cobranza, desglozado por vendedor y comisiónes recibidas, por rango de fechas
+									Reporte de comisiónes por vendedor, por rango de fechas
 								</small>
 							</h1>
 						</div><!-- /.page-header -->
@@ -118,8 +118,7 @@
 								        <thead>
 								            <tr>
 												<th>Nombre</th>
-												<th>Cobrado</th>
-												<th>Comisión</th>
+												<th>Total Comisi&oacute;n</th>
 								            </tr>
 								        </thead>
 								    </table>
@@ -138,10 +137,9 @@
 									</div>
 									<div class="grid3">
 										<span class="grey">
-											<i class="ace-icon fa fa-dollar fa-2x blue"></i>
-											&nbsp; Total cobrado
+											&nbsp;
 										</span>
-										<h4 class="bigger pull-right blue">$<span id="spanCobrado">0</span></h4>
+										<h4 class="bigger pull-right">&nbsp;</h4>
 									</div>
 
 									<div class="grid3">
@@ -288,10 +286,6 @@
 			        "columns":		[
 
 						{ "data": "nombre"},
-						{
-							"data": "monto",
-							"className":"text-right"
-						},
 						{
 							"data": "comision",
 							"className":"text-right"

@@ -120,7 +120,8 @@
 												<th>Id Contrato</th>
 												<th>No. Recibo</th>
 												<th>Folio Contrato</th>
-												<th>Fecha</th>
+												<th>Fecha de Creaci&oacute;n</th>
+												<th>Fecha de Cobro</th>
 												<th>Usuario cobró</th>
 												<th>Vendedor</th>
 												<th>Sucursal</th>
@@ -444,6 +445,7 @@
 						{ "data": "recibo" },
 						{ "data": "folioContrato" },
 						{ "data": "fechaCreacion"},
+						{ "data": "fechaCobro"},
 						{ "data": "usuarioCobro"},
 						{ "data": "vendedor"},
 						{ "data": "sucursal"},
